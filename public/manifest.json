@@ -1,15 +1,44 @@
 {
-  "short_name": "SI ERP",
   "name": "S.I Trading & Co. ERP",
-  "icons": [
-    { "src": "favicon.ico", "sizes": "64x64", "type": "image/x-icon" },
-    { "src": "logo192.png", "type": "image/png", "sizes": "192x192" },
-    { "src": "logo512.png", "type": "image/png", "sizes": "512x512" }
-  ],
-  "start_url": ".",
+  "short_name": "SI ERP",
+  "description": "Enterprise Resource Planning for S.I Trading & Co.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "theme_color": "#f0a500",
   "background_color": "#0d0f14",
-  "orientation": "portrait-primary",
-  "description": "Enterprise Resource Planning for S.I Trading & Co."
+  "categories": ["business", "finance", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "favicon.ico", "sizes": "64x64", "type": "image/x-icon" },
+    { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Invoice",
+      "short_name": "Invoice",
+      "description": "Create a quick sales invoice",
+      "url": "/sales/quick",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "url": "/",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Inventory",
+      "url": "/inventory",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ],
+  "display_override": ["standalone", "minimal-ui", "browser"]
 }

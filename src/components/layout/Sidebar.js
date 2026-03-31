@@ -36,82 +36,152 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const { sidebarOpen, setSidebarOpen } = useApp();
+  const { sidebarOpen, setSidebarOpen, isMobile } = useApp();
   const { logout, profile } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
+  // On mobile: full slide-in overlay at 280px. On desktop: collapsible rail.
+  const mobileWidth = 280;
+  const desktopWidth = sidebarOpen ? 240 : 60;
+
   return (
     <aside style={{
-      width: sidebarOpen ? '240px' : '60px',
-      minWidth: sidebarOpen ? '240px' : '60px',
+      width: isMobile ? mobileWidth : desktopWidth,
+      minWidth: isMobile ? mobileWidth : desktopWidth,
       background: 'var(--bg2)',
       borderRight: '1px solid var(--border)',
       height: '100vh',
       display: 'flex',
       flexDirection: 'column',
       position: 'fixed',
-      left: 0, top: 0, zIndex: 100,
-      transition: 'width 0.25s ease, min-width 0.25s ease',
+      left: 0, top: 0,
+      zIndex: 100,
+      transition: isMobile
+        ? 'transform 0.3s cubic-bezier(0.4,0,0.2,1)'
+        : 'width 0.25s ease, min-width 0.25s ease',
+      // Mobile: translate off-screen when closed
+      transform: isMobile && !sidebarOpen ? `translateX(-${mobileWidth}px)` : 'translateX(0)',
       overflow: 'hidden',
+      // Safe area inset for notch devices
+      paddingTop: 'env(safe-area-inset-top)',
     }}>
-      {/* Logo */}
-      <div style={{ padding: '0 16px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        {sidebarOpen && (
+
+      {/* Logo row */}
+      <div style={{
+        padding: '0 16px',
+        height: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: (sidebarOpen || isMobile) ? 'space-between' : 'center',
+        borderBottom: '1px solid var(--border)',
+        flexShrink: 0,
+      }}>
+        {(sidebarOpen || isMobile) && (
           <div>
-            <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>S.I Trading</div>
+            <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+              S.I Trading
+            </div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text3)', whiteSpace: 'nowrap' }}>& Co. ERP</div>
           </div>
         )}
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text2)', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-        </button>
+        {!isMobile && (
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'var(--bg3)',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              color: 'var(--text2)',
+              width: 28, height: 28,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              WebkitTapHighlightColor: 'transparent',
+            }}
+          >
+            {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+          </button>
+        )}
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0' }}>
+      <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0', WebkitOverflowScrolling: 'touch' }}>
         {NAV.map((item, i) => {
           if (item.type === 'divider') {
-            return sidebarOpen
+            return (sidebarOpen || isMobile)
               ? <div key={i} style={{ padding: '12px 16px 4px', fontSize: '0.6rem', fontFamily: 'var(--font-head)', fontWeight: 700, color: 'var(--text3)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{item.label}</div>
               : <div key={i} style={{ height: 1, background: 'var(--border)', margin: '8px 10px' }} />;
           }
           const Icon = item.icon;
           const isQuick = item.to === '/sales/quick';
           return (
-            <NavLink key={item.to} to={item.to} end={item.to === '/'}
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
               style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: sidebarOpen ? '8px 16px' : '8px',
-                justifyContent: sidebarOpen ? 'flex-start' : 'center',
-                marginInline: 8, borderRadius: 'var(--radius)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: (sidebarOpen || isMobile) ? '10px 16px' : '10px',
+                justifyContent: (sidebarOpen || isMobile) ? 'flex-start' : 'center',
+                marginInline: 8,
+                borderRadius: 'var(--radius)',
                 color: isActive ? 'var(--accent)' : isQuick ? 'var(--accent)' : 'var(--text2)',
                 background: isActive ? 'var(--accent-glow)' : 'transparent',
-                fontSize: '0.85rem', fontWeight: isActive ? 600 : isQuick ? 600 : 400,
-                transition: 'all 0.15s', textDecoration: 'none', whiteSpace: 'nowrap',
+                fontSize: '0.85rem',
+                fontWeight: isActive ? 600 : isQuick ? 600 : 400,
+                transition: 'all 0.15s',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
                 opacity: isQuick && !isActive ? 0.85 : 1,
+                WebkitTapHighlightColor: 'transparent',
+                // Bigger tap targets on mobile
+                minHeight: isMobile ? 44 : 'auto',
               })}
             >
               <Icon size={16} style={{ flexShrink: 0 }} />
-              {sidebarOpen && item.label}
+              {(sidebarOpen || isMobile) && item.label}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* User */}
-      <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.8rem', color: '#000', flexShrink: 0 }}>
+      {/* User footer */}
+      <div style={{
+        borderTop: '1px solid var(--border)',
+        padding: '12px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        flexShrink: 0,
+        paddingBottom: isMobile ? 'max(12px, env(safe-area-inset-bottom))' : '12px',
+      }}>
+        <div style={{
+          width: 32, height: 32,
+          borderRadius: '50%',
+          background: 'var(--accent)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'var(--font-head)',
+          fontWeight: 700,
+          fontSize: '0.8rem',
+          color: '#000',
+          flexShrink: 0,
+        }}>
           {profile?.name?.[0]?.toUpperCase() || 'U'}
         </div>
-        {sidebarOpen && (
+        {(sidebarOpen || isMobile) && (
           <>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.name || 'User'}</div>
               <div style={{ fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'capitalize' }}>{profile?.role || 'viewer'}</div>
             </div>
-            <button onClick={handleLogout} style={{ background: 'none', color: 'var(--text3)', padding: 4 }}>
+            <button
+              onClick={handleLogout}
+              style={{ background: 'none', color: 'var(--text3)', padding: 8, borderRadius: 8, WebkitTapHighlightColor: 'transparent' }}
+              aria-label="Logout"
+            >
               <LogOut size={15} />
             </button>
           </>

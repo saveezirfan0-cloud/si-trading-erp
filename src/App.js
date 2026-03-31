@@ -1,10 +1,12 @@
 // src/App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AppProvider } from './contexts/AppContext';
+import { AppProvider, useApp } from './contexts/AppContext';
 import Layout from './components/layout/Layout';
+import InstallBanner from './components/ui/InstallBanner';
+import { useViewportHeight } from './hooks/useMobile';
 import './styles/globals.css';
 
 import Login from './pages/Login';
@@ -68,17 +70,76 @@ function AppRoutes() {
   );
 }
 
+// Listens for SW update event and fires a toast
+function SWUpdateListener() {
+  useEffect(() => {
+    const handler = () => {
+      toast(
+        (t) => (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span>🔄 New version available</span>
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                window.location.reload();
+              }}
+              style={{
+                background: 'var(--accent)',
+                color: '#000',
+                border: 'none',
+                borderRadius: 6,
+                padding: '4px 10px',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Update
+            </button>
+          </span>
+        ),
+        { duration: Infinity, id: 'sw-update' }
+      );
+    };
+    window.addEventListener('sw-update-available', handler);
+    return () => window.removeEventListener('sw-update-available', handler);
+  }, []);
+  return null;
+}
+
+function AppInner() {
+  const { showInstallBanner } = useApp();
+  useViewportHeight();
+  return (
+    <>
+      <AppRoutes />
+      <SWUpdateListener />
+      {showInstallBanner && <InstallBanner />}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: 'var(--bg2)',
+            color: 'var(--text)',
+            border: '1px solid var(--border2)',
+            borderRadius: '10px',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.85rem',
+          },
+          success: { iconTheme: { primary: '#22c55e', secondary: '#000' } },
+          error:   { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
+        }}
+      />
+    </>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <AppProvider>
-          <AppRoutes />
-          <Toaster position="top-right" toastOptions={{
-            style: { background: 'var(--bg2)', color: 'var(--text)', border: '1px solid var(--border2)', borderRadius: '10px', fontFamily: 'var(--font-body)', fontSize: '0.85rem' },
-            success: { iconTheme: { primary: '#22c55e', secondary: '#000' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-          }} />
+          <AppInner />
         </AppProvider>
       </AuthProvider>
     </BrowserRouter>

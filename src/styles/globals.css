@@ -1,7 +1,7 @@
-/* src/styles/globals.css */
+/* ── FONTS ───────────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
-/* ── DARK THEME ─────────────────────────────────────── */
+/* ── DARK THEME ─────────────────────────────────────────────────────────── */
 :root, [data-theme="dark"] {
   --bg: #0d0f14;
   --bg2: #13161d;
@@ -22,7 +22,7 @@
   --input-bg: #1a1e27;
 }
 
-/* ── LIGHT THEME ─────────────────────────────────────── */
+/* ── LIGHT THEME ─────────────────────────────────────────────────────────── */
 [data-theme="light"] {
   --bg: #f0f2f5;
   --bg2: #ffffff;
@@ -43,7 +43,7 @@
   --input-bg: #ffffff;
 }
 
-/* ── SHARED ──────────────────────────────────────────── */
+/* ── SHARED ──────────────────────────────────────────────────────────────── */
 :root {
   --radius: 10px;
   --radius-lg: 14px;
@@ -53,15 +53,23 @@
   --header-h: 60px;
 }
 
+/* ── RESET ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* ── BASE ────────────────────────────────────────────────────────────────── */
 html {
   font-size: 14px;
   -webkit-text-size-adjust: 100%;
+  /* Prevent elastic over-scroll on iOS showing white background */
+  background: var(--bg);
+  /* Respect safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 body {
@@ -75,6 +83,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   transition: background 0.2s, color 0.2s;
+  /* Prevent text inflate on orientation change (iOS) */
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  /* Smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Remove tap highlight on Android */
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent overscroll bounce on Chrome Android */
+  overscroll-behavior-y: contain;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -83,19 +100,27 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
 }
 
-a { color: var(--accent); text-decoration: none; }
+a {
+  color: var(--accent);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
 
+/* ── FORM ELEMENTS ───────────────────────────────────────────────────────── */
 input, select, textarea {
   background: var(--input-bg);
   border: 1px solid var(--border2);
   border-radius: var(--radius);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
   font-weight: 400;
   line-height: 1.5;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  /* Remove iOS inner shadow */
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -105,7 +130,14 @@ input:focus, select:focus, textarea:focus {
 
 input::placeholder { color: var(--text3); }
 
-select { cursor: pointer; }
+select {
+  cursor: pointer;
+  /* Keep arrow on select */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b91a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
 
 button {
   font-family: var(--font-body);
@@ -114,16 +146,112 @@ button {
   border: none;
   outline: none;
   transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* Remove 300ms tap delay */
 }
 
-/* Scrollbar */
+/* ── MOBILE TOUCH TARGETS ────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Minimum 44×44 touch targets (Apple HIG / Material) */
+  button:not([data-compact]) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  input, select, textarea {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  /* Larger row hit areas in tables */
+  table tr td {
+    padding: 12px 8px;
+  }
+
+  /* Page padding on mobile */
+  .page-content {
+    padding: 16px !important;
+  }
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 
-/* Truncate */
+/* ── UTILITIES ───────────────────────────────────────────────────────────── */
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-@media (max-width: 768px) {
+/* Smooth momentum scrolling on iOS for scroll containers */
+.scroll-smooth { -webkit-overflow-scrolling: touch; }
+
+/* ── RESPONSIVE SIDEBAR OFFSET ───────────────────────────────────────────── */
+@media (max-width: 767px) {
   :root { --sidebar-w: 0px; }
+}
+
+/* ── TABLE HORIZONTAL SCROLL ON MOBILE ───────────────────────────────────── */
+@media (max-width: 767px) {
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius);
+  }
+
+  .table-scroll table {
+    min-width: 600px;
+  }
+}
+
+/* ── CARD GRID ───────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Force single column stat cards on mobile */
+  [class*="stat-grid"],
+  [class*="stats-grid"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+/* ── MODAL FULL-SCREEN ON MOBILE ─────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Any modal overlay covers full screen on mobile */
+  [class*="modal-overlay"],
+  [class*="modalOverlay"] {
+    align-items: flex-end !important;
+  }
+
+  [class*="modal-content"],
+  [class*="modalContent"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── INSTALL BANNER ──────────────────────────────────────────────────────── */
+.pwa-install-banner {
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom) + 8px);
+  left: 16px;
+  right: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  z-index: 300;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
