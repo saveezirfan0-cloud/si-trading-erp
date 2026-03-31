@@ -1,0 +1,122 @@
+// src/components/layout/Sidebar.js
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useApp } from '../../contexts/AppContext';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  LayoutDashboard, Users, Truck, Package, Warehouse,
+  BookOpen, FileText, BarChart3, UserCog, Upload,
+  MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
+  DollarSign, ShoppingCart, Receipt, Zap
+} from 'lucide-react';
+
+const NAV = [
+  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+  { label: 'Customers', to: '/customers', icon: Users },
+  { label: 'Suppliers', to: '/suppliers', icon: Truck },
+  { label: 'Inventory', to: '/inventory', icon: Package },
+  { label: 'Warehouses', to: '/warehouses', icon: Warehouse },
+  { type: 'divider', label: 'SALES & PURCHASES' },
+  { label: 'Sales Invoices', to: '/sales', icon: Receipt },
+  { label: 'Quick Invoice', to: '/sales/quick', icon: Zap },
+  { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart },
+  { type: 'divider', label: 'ACCOUNTING' },
+  { label: 'Chart of Accounts', to: '/accounting/accounts', icon: BookOpen },
+  { label: 'Bank & Cash', to: '/accounting/bank', icon: DollarSign },
+  { label: 'Journal Entries', to: '/accounting/journals', icon: FileText },
+  { label: 'Payments', to: '/accounting/payments', icon: DollarSign },
+  { label: 'Expenses', to: '/accounting/expenses', icon: FileText },
+  { type: 'divider', label: 'ANALYTICS' },
+  { label: 'Reports', to: '/reports', icon: BarChart3 },
+  { type: 'divider', label: 'SYSTEM' },
+  { label: 'Users & Roles', to: '/users', icon: UserCog },
+  { label: 'Data Import', to: '/import', icon: Upload },
+  { label: 'WhatsApp', to: '/whatsapp', icon: MessageSquare },
+  { label: 'Settings', to: '/settings', icon: Settings },
+];
+
+export default function Sidebar() {
+  const { sidebarOpen, setSidebarOpen } = useApp();
+  const { logout, profile } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => { await logout(); navigate('/login'); };
+
+  return (
+    <aside style={{
+      width: sidebarOpen ? '240px' : '60px',
+      minWidth: sidebarOpen ? '240px' : '60px',
+      background: 'var(--bg2)',
+      borderRight: '1px solid var(--border)',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'fixed',
+      left: 0, top: 0, zIndex: 100,
+      transition: 'width 0.25s ease, min-width 0.25s ease',
+      overflow: 'hidden',
+    }}>
+      {/* Logo */}
+      <div style={{ padding: '0 16px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: sidebarOpen ? 'space-between' : 'center', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+        {sidebarOpen && (
+          <div>
+            <div style={{ fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1rem', color: 'var(--accent)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>S.I Trading</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text3)', whiteSpace: 'nowrap' }}>& Co. ERP</div>
+          </div>
+        )}
+        <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text2)', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        </button>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0' }}>
+        {NAV.map((item, i) => {
+          if (item.type === 'divider') {
+            return sidebarOpen
+              ? <div key={i} style={{ padding: '12px 16px 4px', fontSize: '0.6rem', fontFamily: 'var(--font-head)', fontWeight: 700, color: 'var(--text3)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{item.label}</div>
+              : <div key={i} style={{ height: 1, background: 'var(--border)', margin: '8px 10px' }} />;
+          }
+          const Icon = item.icon;
+          const isQuick = item.to === '/sales/quick';
+          return (
+            <NavLink key={item.to} to={item.to} end={item.to === '/'}
+              style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: sidebarOpen ? '8px 16px' : '8px',
+                justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                marginInline: 8, borderRadius: 'var(--radius)',
+                color: isActive ? 'var(--accent)' : isQuick ? 'var(--accent)' : 'var(--text2)',
+                background: isActive ? 'var(--accent-glow)' : 'transparent',
+                fontSize: '0.85rem', fontWeight: isActive ? 600 : isQuick ? 600 : 400,
+                transition: 'all 0.15s', textDecoration: 'none', whiteSpace: 'nowrap',
+                opacity: isQuick && !isActive ? 0.85 : 1,
+              })}
+            >
+              <Icon size={16} style={{ flexShrink: 0 }} />
+              {sidebarOpen && item.label}
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* User */}
+      <div style={{ borderTop: '1px solid var(--border)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.8rem', color: '#000', flexShrink: 0 }}>
+          {profile?.name?.[0]?.toUpperCase() || 'U'}
+        </div>
+        {sidebarOpen && (
+          <>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.name || 'User'}</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'capitalize' }}>{profile?.role || 'viewer'}</div>
+            </div>
+            <button onClick={handleLogout} style={{ background: 'none', color: 'var(--text3)', padding: 4 }}>
+              <LogOut size={15} />
+            </button>
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}

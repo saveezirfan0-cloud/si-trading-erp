@@ -1,0 +1,129 @@
+/* src/styles/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── DARK THEME ─────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --bg: #0d0f14;
+  --bg2: #13161d;
+  --bg3: #1a1e27;
+  --border: #252a36;
+  --border2: #2e3444;
+  --text: #e8eaf0;
+  --text2: #8b91a0;
+  --text3: #555d6e;
+  --accent: #f0a500;
+  --accent2: #d4900a;
+  --accent-glow: rgba(240,165,0,0.15);
+  --green: #22c55e;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --input-bg: #1a1e27;
+}
+
+/* ── LIGHT THEME ─────────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --bg2: #ffffff;
+  --bg3: #f5f6f8;
+  --border: #e2e4e9;
+  --border2: #d0d3da;
+  --text: #0f1117;
+  --text2: #4b5263;
+  --text3: #9399a6;
+  --accent: #d4900a;
+  --accent2: #b87a08;
+  --accent-glow: rgba(212,144,10,0.1);
+  --green: #16a34a;
+  --red: #dc2626;
+  --blue: #2563eb;
+  --purple: #7c3aed;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --input-bg: #ffffff;
+}
+
+/* ── SHARED ──────────────────────────────────────────── */
+:root {
+  --radius: 10px;
+  --radius-lg: 14px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --sidebar-w: 240px;
+  --header-h: 60px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+a { color: var(--accent); text-decoration: none; }
+
+input, select, textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+input::placeholder { color: var(--text3); }
+
+select { cursor: pointer; }
+
+button {
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.15s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* Truncate */
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+}
