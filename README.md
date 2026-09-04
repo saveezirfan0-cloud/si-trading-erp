@@ -3,26 +3,70 @@
 A full-featured Enterprise Resource Planning system built with React and **Supabase**
 (Postgres + Auth + Realtime + Edge Functions), deployed on Vercel.
 
-## What's new (Supabase migration)
+## Setup — connect a Supabase project
 
-- **Firebase → Supabase**: all data lives in Postgres tables (`erp_*`) in project
-  `vdrhjjkcnkbzaxuaoonb`, with row-level security (authenticated users only),
-  realtime subscriptions, and Supabase Auth for login.
-- **Manager.io data imported**: the historical books (2023–2026 `.manager` files)
-  were decoded and imported — inventory items, customers, suppliers, and the full
-  purchase/sales invoice history with dates, line items and prices.
-  See `tools/manager-import/` for the extractor and importer.
-- **AI OCR invoice scanning**: photograph a supplier invoice → AI vision reads the
-  items → review & confirm → the purchase invoice is created and stock quantities,
-  item cost prices and the supplier balance are updated automatically.
-- **Manager.io-style UI**: light theme by default, module sidebar with live record
-  counts, blue accent. The dark theme is still available from the header toggle.
+The app is not tied to any particular Supabase project; it reads its connection
+from environment variables. To bring up a working instance:
 
-## OCR setup (one-time)
+1. **Create a Supabase project** (supabase.com → New project).
+2. **Apply the schema** — Dashboard → SQL Editor → paste and run
+   [`supabase/migrations/0001_erp_schema.sql`](supabase/migrations/0001_erp_schema.sql).
+   This creates the `erp_*` tables with row-level security, realtime and the
+   private `erp-scans` storage bucket.
+3. **Set the environment variables** in Vercel (Project → Settings →
+   Environment Variables) and in `.env.local` for local development:
 
-The scanner uses AI vision through a Supabase Edge Function (`ocr-invoice`) with
-**automatic API-key rotation and provider failover**. Configure keys in
-Supabase Dashboard → Project Settings → Edge Functions → Secrets:
+   | Variable | Value |
+   |---|---|
+   | `REACT_APP_SUPABASE_URL` | `https://<your-project-ref>.supabase.co` |
+   | `REACT_APP_SUPABASE_ANON_KEY` | the project's publishable / anon key |
+
+   Both are browser-safe publishable values. Never put a service-role key here.
+4. **Redeploy.** Until the variables are set the app shows a setup screen
+   explaining exactly what is missing, rather than a login form that cannot work.
+5. **Create your first user** in Supabase → Authentication → Users. The first
+   account to sign in is given the `admin` role automatically; manage everyone
+   else from the Users page.
+
+## Importing the Manager.io books
+
+`tools/manager-import/` decodes the historical `.manager` desktop files
+(SQLite databases whose records are protobuf blobs) and produces SQL you can run
+against your project:
+
+```bash
+python3 tools/manager-import/extract.py "/path/to/Manager" ./out
+python3 tools/manager-import/make_seed_sql.py ./out ./seed.sql
+# then run seed.sql in the Supabase SQL editor
+```
+
+This recovers inventory items, customers (names are rebuilt from the audit trail
+where the live records had been blanked), suppliers, and the full purchase and
+sales invoice history with line items, quantities and rates. Entities are merged
+across the 2023–2026 books by name, since the older book uses different GUIDs.
+Loads are idempotent — re-running updates rather than duplicating.
+
+The date epoch was calibrated against a known paper invoice and verified:
+document 588 decodes to 2026-08-18 with all seven lines matching the printed
+amounts exactly (₨538,340).
+
+**Known limitation:** only invoices are extracted, not payment/receipt records,
+so imported invoices are marked paid and supplier/customer balances start at
+zero. Real outstanding balances need to be set as opening balances afterwards.
+
+## AI OCR invoice scanning
+
+Photograph a supplier invoice → AI vision reads the line items → you review and
+confirm → the purchase invoice is created and stock quantities, item cost prices
+and the supplier balance are updated.
+
+Deploy the Edge Function to your project:
+
+```bash
+supabase functions deploy ocr-invoice
+```
+
+Then set the keys in Supabase → Project Settings → Edge Functions → Secrets:
 
 | Secret | Value |
 |--------|-------|
@@ -31,12 +75,10 @@ Supabase Dashboard → Project Settings → Edge Functions → Secrets:
 | `ANTHROPIC_MODEL` | optional, default `claude-haiku-4-5` |
 | `OPENAI_MODEL` | optional, default `gpt-4o-mini` |
 
-Rotation: the starting key rotates every minute across the list; on any failure
-(rate limit, quota, auth) the function automatically tries the next key, then the
-other provider. You can paste any number of keys — they will be used in rotation.
-If no keys are configured the scanner shows a clear error explaining what to set.
-
----
+**Key rotation** is automatic: the starting key advances every minute across the
+list, and on any failure (rate limit, quota, auth) the function tries the next
+key and then the other provider. Paste as many keys as you like. With no keys
+configured the scanner reports that clearly instead of failing silently.
 
 ## Modules
 
@@ -75,71 +117,6 @@ If no keys are configured the scanner shows a clear error explaining what to set
 
 ---
 
-## Setup Instructions
-
-### 1. Create Firebase Project
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Click **Add project** → name it `si-trading-erp`
-3. Enable **Firestore Database** (start in production mode)
-4. Enable **Authentication** → Sign-in method → **Email/Password**
-5. Go to **Project Settings** → **Your apps** → **Web** → Register app
-6. Copy the config values
-
-### 2. Configure Environment Variables
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in your Firebase values in `.env.local`:
-
-```
-REACT_APP_FIREBASE_API_KEY=...
-REACT_APP_FIREBASE_AUTH_DOMAIN=...
-REACT_APP_FIREBASE_PROJECT_ID=...
-REACT_APP_FIREBASE_STORAGE_BUCKET=...
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=...
-REACT_APP_FIREBASE_APP_ID=...
-```
-
-### 3. Deploy Firestore Rules
-
-Install Firebase CLI if you haven't:
-```bash
-npm install -g firebase-tools
-firebase login
-firebase use --add   # select your project
-firebase deploy --only firestore:rules
-```
-
-### 4. Create First Admin User
-
-In Firebase Console → Authentication → Users → **Add user**:
-- Email: `admin@sitrading.com`
-- Password: (your choice)
-
-Then in Firestore → **users** collection → **Add document**:
-- Document ID: *(paste the UID from Authentication)*
-- Fields:
-  ```
-  name: "Admin"
-  email: "admin@sitrading.com"
-  role: "admin"
-  active: true
-  ```
-
-### 5. Install & Run Locally
-
-```bash
-npm install
-npm start
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
----
-
 ## Deploy to Vercel
 
 ### Option A — Vercel CLI
@@ -151,7 +128,7 @@ vercel
 ### Option B — Vercel Dashboard
 1. Push this project to a GitHub repo
 2. Go to [vercel.com](https://vercel.com) → **New Project** → Import your repo
-3. Add all `REACT_APP_*` environment variables in Vercel project settings
+3. Add `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` in Vercel project settings
 4. Click **Deploy**
 
 The `vercel.json` handles SPA routing automatically.
@@ -170,22 +147,21 @@ The `vercel.json` handles SPA routing automatically.
 
 ---
 
-## Firestore Collections
+## Database tables
+
+Each is a document table of `(id uuid, doc jsonb, "createdAt", "updatedAt")`.
 
 ```
-customers/       — Customer records
-suppliers/       — Supplier records
-inventory/       — Inventory items
-warehouses/      — Warehouse locations
-accounts/        — Chart of Accounts
-journals/        — Journal entries (double-entry)
-transactions/    — Bank & Cash transactions
-payments/        — Supplier/customer payments
-expenses/        — Business expenses
-users/           — User profiles & roles
-imports/         — Import history log
-settings/        — Company settings
+erp_customers          erp_accounts        erp_users
+erp_suppliers          erp_journals        erp_roles
+erp_inventory          erp_transactions    erp_imports
+erp_warehouses         erp_payments        erp_settings
+erp_sales_invoices     erp_expenses        erp_brands
+erp_purchase_invoices  erp_ocr_drafts
 ```
+
+All have row-level security enabled: signed-in staff can read and write,
+anonymous visitors get nothing.
 
 ---
 
@@ -232,11 +208,11 @@ si-trading-erp/
 │   ├── App.js                 ← Routes
 │   ├── index.js               ← Entry point + SW registration
 │   ├── contexts/
-│   │   ├── AuthContext.js     ← Firebase auth + user profile
+│   │   ├── AuthContext.js     ← Supabase auth + user profile
 │   │   └── AppContext.js      ← Global state (currency, sidebar)
 │   ├── lib/
-│   │   ├── firebase.js        ← Firebase init
-│   │   ├── db.js              ← Firestore CRUD helpers
+│   │   ├── supabase.js        ← Supabase client (env-driven)
+│   │   ├── db.js              ← Postgres document CRUD helpers
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/
 │   │   ├── layout/            ← Sidebar, Header, Layout
@@ -257,9 +233,10 @@ si-trading-erp/
 │   └── styles/
 │       └── globals.css        ← Design system + CSS variables
 ├── .env.example               ← Copy to .env.local
-├── firebase.json
-├── firestore.rules
-├── firestore.indexes.json
+├── supabase/
+│   ├── migrations/            ← database schema
+│   └── functions/ocr-invoice/ ← AI OCR edge function
+├── tools/manager-import/      ← Manager.io extraction + seed SQL
 ├── vercel.json                ← SPA routing
 └── package.json
 ```

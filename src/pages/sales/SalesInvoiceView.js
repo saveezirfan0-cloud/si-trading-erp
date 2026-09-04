@@ -235,7 +235,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
                   <td style={{ padding: '10px 12px', color: 'var(--text3)', fontSize: '12px' }}>{i + 1}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <div style={{ fontWeight: 600 }}>{line.itemName}</div>
-                    {line.itemCode && <div style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'monospace' }}>{line.itemCode}</div>}
+                    {line.itemCode && <div style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>{line.itemCode}</div>}
                   </td>
                   <td style={{ padding: '10px 12px', color: 'var(--text2)', fontSize: '12px' }}>{line.description}</td>
                   <td style={{ padding: '10px 12px', textAlign: 'right' }}>{line.qty}</td>

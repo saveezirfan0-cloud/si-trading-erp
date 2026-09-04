@@ -2,6 +2,7 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import { Bell, Menu, Sun, Moon, X } from 'lucide-react';
+import FiscalYearPicker from './FiscalYearPicker';
 
 export default function Header({ title }) {
   const { setSidebarOpen, sidebarOpen, theme, toggleTheme, isMobile } = useApp();
@@ -51,6 +52,9 @@ export default function Header({ title }) {
       }}>
         {title}
       </h1>
+
+      <FiscalYearPicker compact={isMobile} />
+
 
       {/* Theme toggle */}
       <button

@@ -3,174 +3,220 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Eye, EyeOff, ArrowLeft, MailCheck } from 'lucide-react';
+
+const shell = {
+  minHeight: '100dvh',
+  background: 'var(--bg)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '20px 16px',
+  paddingTop: 'max(20px, env(safe-area-inset-top))',
+  paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
+};
+
+const card = {
+  background: 'var(--bg2)',
+  border: '1px solid var(--border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 28,
+  boxShadow: 'var(--shadow)',
+};
+
+const label = {
+  display: 'block',
+  fontSize: '0.78rem',
+  fontWeight: 600,
+  color: 'var(--text2)',
+  marginBottom: 6,
+};
+
+const field = {
+  width: '100%',
+  padding: '11px 13px',
+  background: 'var(--input-bg)',
+  border: '1px solid var(--border2)',
+  borderRadius: 'var(--radius)',
+  color: 'var(--text)',
+  fontSize: '15px',
+  fontFamily: 'var(--font-body)',
+};
+
+const primaryBtn = (disabled) => ({
+  width: '100%',
+  padding: '12px',
+  background: 'var(--accent)',
+  color: 'var(--on-accent)',
+  border: 'none',
+  borderRadius: 'var(--radius)',
+  fontSize: '0.95rem',
+  fontWeight: 600,
+  fontFamily: 'var(--font-head)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  opacity: disabled ? 0.6 : 1,
+  cursor: disabled ? 'not-allowed' : 'pointer',
+});
+
+const linkBtn = {
+  background: 'none',
+  border: 'none',
+  color: 'var(--accent)',
+  fontSize: '0.82rem',
+  fontWeight: 600,
+  cursor: 'pointer',
+  padding: 0,
+};
 
 export default function Login() {
+  const [mode, setMode] = useState('signin');   // signin | forgot | sent
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, sendPasswordReset } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await login(email, password);
       navigate('/');
-    } catch {
-      toast.error('Invalid credentials. Please try again.');
+    } catch (err) {
+      const msg = /invalid login/i.test(err?.message || '')
+        ? 'Incorrect email or password.'
+        : err?.message || 'Sign in failed.';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgot = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return toast.error('Enter your email address first');
+    setLoading(true);
+    try {
+      await sendPasswordReset(email.trim());
+      setMode('sent');
+    } catch (err) {
+      toast.error(err?.message || 'Could not send the reset email.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      minHeight: '100dvh', // dynamic viewport height — accounts for iOS browser chrome
-      background: 'var(--bg)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px 16px',
-      // Safe area for notch
-      paddingTop: 'max(20px, env(safe-area-inset-top))',
-      paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
-    }}>
-      {/* Background glow */}
-      <div style={{
-        position: 'fixed', top: -200, right: -200,
-        width: 600, height: 600,
-        background: 'radial-gradient(circle, rgba(240,165,0,0.06) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-
+    <div style={shell}>
       <div style={{ width: '100%', maxWidth: 400 }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{
-            width: 60, height: 60,
-            borderRadius: 16,
-            background: 'var(--accent)',
+            width: 56, height: 56, borderRadius: 14,
+            background: 'var(--accent)', color: 'var(--on-accent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px',
-            fontFamily: 'var(--font-head)',
-            fontWeight: 800, fontSize: '1.5rem', color: 'var(--on-accent)',
-            boxShadow: '0 8px 24px rgba(240,165,0,0.3)',
-          }}>
-            SI
-          </div>
-          <h1 style={{
-            fontFamily: 'var(--font-head)',
-            fontSize: '1.5rem',
-            fontWeight: 800,
-            color: 'var(--text)',
+            margin: '0 auto 14px',
+            fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.3rem',
             letterSpacing: '-0.02em',
-          }}>
-            S.I Trading & Co.
-          </h1>
-          <p style={{ color: 'var(--text3)', fontSize: '0.82rem', marginTop: 6 }}>
+          }}>SI</div>
+          <h1 style={{ fontSize: '1.35rem', marginBottom: 4 }}>S.I Trading &amp; Co.</h1>
+          <div style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>
             Enterprise Resource Planning
-          </p>
+          </div>
         </div>
 
-        {/* Card */}
-        <div style={{
-          background: 'var(--bg2)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '28px 24px',
-        }}>
-          <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.05rem', fontWeight: 700, marginBottom: 22 }}>
-            Sign In
-          </h2>
+        {mode === 'sent' ? (
+          <div style={{ ...card, textAlign: 'center' }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: '50%', margin: '0 auto 14px',
+              background: 'var(--accent-glow)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <MailCheck size={22} style={{ color: 'var(--accent)' }} />
+            </div>
+            <h2 style={{ fontSize: '1.05rem', marginBottom: 8 }}>Check your email</h2>
+            <p style={{ color: 'var(--text2)', fontSize: '0.87rem', marginBottom: 20, lineHeight: 1.55 }}>
+              If an account exists for <strong style={{ color: 'var(--text)' }}>{email}</strong>,
+              a password reset link is on its way. The link opens this app and lets
+              you choose a new password.
+            </p>
+            <button onClick={() => { setMode('signin'); setPassword(''); }} style={linkBtn}>
+              Back to sign in
+            </button>
+          </div>
+        ) : mode === 'forgot' ? (
+          <form onSubmit={handleForgot} style={card}>
+            <button type="button" onClick={() => setMode('signin')}
+              style={{ ...linkBtn, display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14, color: 'var(--text2)' }}>
+              <ArrowLeft size={14} /> Back
+            </button>
+            <h2 style={{ fontSize: '1.05rem', marginBottom: 6 }}>Reset your password</h2>
+            <p style={{ color: 'var(--text2)', fontSize: '0.85rem', marginBottom: 18, lineHeight: 1.5 }}>
+              Enter the email you sign in with and we'll send you a reset link.
+            </p>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Email */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text2)', fontWeight: 500, marginBottom: 6 }}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="admin@sitrading.com"
-                required
-                autoComplete="email"
-                inputMode="email"
-                style={{ width: '100%', padding: '11px 14px' }}
-              />
+            <div style={{ marginBottom: 18 }}>
+              <label style={label} htmlFor="reset-email">Email address</label>
+              <input id="reset-email" type="email" required autoFocus autoComplete="email"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com" style={field} />
             </div>
 
-            {/* Password with show/hide */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text2)', fontWeight: 500, marginBottom: 6 }}>
-                Password
-              </label>
+            <button type="submit" disabled={loading} style={primaryBtn(loading)}>
+              {loading && <Loader2 size={16} className="spin" />}
+              {loading ? 'Sending…' : 'Send reset link'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSignIn} style={card}>
+            <h2 style={{ fontSize: '1.05rem', marginBottom: 20 }}>Sign in</h2>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={label} htmlFor="email">Email address</label>
+              <input id="email" type="email" required autoComplete="email"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com" style={field} />
+            </div>
+
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <label style={label} htmlFor="password">Password</label>
+                <button type="button" onClick={() => setMode('forgot')} style={linkBtn}>
+                  Forgot password?
+                </button>
+              </div>
               <div style={{ position: 'relative' }}>
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
+                <input id="password" type={showPw ? 'text' : 'password'} required
                   autoComplete="current-password"
-                  style={{ width: '100%', padding: '11px 44px 11px 14px' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(v => !v)}
-                  style={{
-                    position: 'absolute', right: 12, top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none', color: 'var(--text3)',
-                    padding: 4, display: 'flex', alignItems: 'center',
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••" style={{ ...field, paddingRight: 44 }} />
+                <button type="button" onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? 'Hide password' : 'Show password'}
-                >
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  style={{
+                    position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+                    background: 'none', border: 'none', color: 'var(--text3)',
+                    padding: 8, display: 'flex', cursor: 'pointer',
+                  }}>
+                  {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                background: 'var(--accent)',
-                color: 'var(--on-accent)',
-                border: 'none',
-                borderRadius: 'var(--radius)',
-                padding: '13px',
-                fontFamily: 'var(--font-head)',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: 8,
-                marginTop: 4,
-                minHeight: 48,
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation',
-              }}
-            >
-              {loading
-                ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</>
-                : 'Sign In'}
+            <button type="submit" disabled={loading} style={{ ...primaryBtn(loading), marginTop: 12 }}>
+              {loading && <Loader2 size={16} className="spin" />}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-        </div>
+        )}
 
-        <p style={{ textAlign: 'center', color: 'var(--text3)', fontSize: '0.72rem', marginTop: 20 }}>
-          © 2025 S.I Trading & Co. — All rights reserved
-        </p>
+        <div style={{ textAlign: 'center', marginTop: 22, fontSize: '0.75rem', color: 'var(--text3)' }}>
+          © {new Date().getFullYear()} S.I Trading &amp; Co.
+        </div>
       </div>
-      <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
     </div>
   );
 }

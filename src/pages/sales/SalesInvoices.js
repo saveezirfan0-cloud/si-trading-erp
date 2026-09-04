@@ -1,5 +1,5 @@
 // src/pages/sales/SalesInvoices.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { subscribe, remove, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
@@ -11,8 +11,8 @@ import SalesInvoiceForm from './SalesInvoiceForm';
 import SalesInvoiceView from './SalesInvoiceView';
 
 export default function SalesInvoices() {
-  const { formatCurrency } = useApp();
-  const [invoices, setInvoices] = useState([]);
+  const { formatCurrency, filterByFiscalYear, fiscalYear, fiscalYearLabel } = useApp();
+  const [allInvoices, setAllInvoices] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -22,10 +22,16 @@ export default function SalesInvoices() {
   useEffect(() => {
     const unsub = subscribe(COLLECTIONS.SALES_INVOICES, (data) => {
       const sorted = data.sort((a, b) => (b.invoiceNo || '').localeCompare(a.invoiceNo || ''));
-      setInvoices(sorted); setFiltered(sorted); setLoading(false);
+      setAllInvoices(sorted); setLoading(false);
     });
     return () => unsub();
   }, []);
+
+  // Everything below works on the fiscal-year-scoped list.
+  const invoices = useMemo(
+    () => filterByFiscalYear(allInvoices),
+    [allInvoices, filterByFiscalYear]
+  );
 
   useEffect(() => {
     const q = search.toLowerCase();
@@ -64,7 +70,7 @@ export default function SalesInvoices() {
   );
 
   const columns = [
-    { key: 'invoiceNo', label: 'Invoice #', render: v => <span style={{ fontFamily: 'monospace', color: 'var(--accent)', fontWeight: 700 }}>{v}</span> },
+    { key: 'invoiceNo', label: 'Invoice #', render: v => <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700 }}>{v}</span> },
     { key: 'customerName', label: 'Customer' },
     { key: 'date', label: 'Date' },
     { key: 'dueDate', label: 'Due Date' },
@@ -86,7 +92,7 @@ export default function SalesInvoices() {
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Sales Invoices"
-          subtitle={`${invoices.length} invoices`}
+          subtitle={`${invoices.length} ${invoices.length === 1 ? 'invoice' : 'invoices'}` + (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')}
           actions={[
             <Btn key="exp" variant="secondary" icon={Download} onClick={() => exportCSV(invoices, 'sales_invoices')}>Export</Btn>,
             <Btn key="add" icon={Plus} onClick={() => { setSelected(null); setView('form'); }}>New Invoice</Btn>,

@@ -26,7 +26,7 @@ const EMPTY = {
 };
 
 export default function Payments() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear } = useApp();
   const [payments, setPayments] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -44,12 +44,12 @@ export default function Payments() {
       getAll(COLLECTIONS.SUPPLIERS),
       getAll(COLLECTIONS.ACCOUNTS),
     ]);
-    setPayments(p.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    setPayments(filterByFiscalYear(p.sort((a, b) => new Date(b.date) - new Date(a.date))));
     setCustomers(c);
     setSuppliers(s);
     setAccounts(a.filter(x => x.active));
     setLoading(false);
-  }, []);
+  }, [filterByFiscalYear]);
 
   useEffect(() => { load(); }, [load]);
 

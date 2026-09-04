@@ -19,7 +19,7 @@ const EMPTY_JOURNAL = {
 };
 
 export default function Journals() {
-  const { formatCurrency, formatDate } = useApp();
+  const { formatCurrency, formatDate, filterByFiscalYear } = useApp();
   const [journals, setJournals] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [modal, setModal] = useState(false);
@@ -33,10 +33,10 @@ export default function Journals() {
       getAll(COLLECTIONS.JOURNALS),
       getAll(COLLECTIONS.ACCOUNTS),
     ]);
-    setJournals(j.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    setJournals(filterByFiscalYear(j.sort((a, b) => new Date(b.date) - new Date(a.date))));
     setAccounts(a.filter(x => x.active));
     setLoading(false);
-  }, []);
+  }, [filterByFiscalYear]);
 
   useEffect(() => { load(); }, [load]);
 

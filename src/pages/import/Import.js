@@ -151,7 +151,7 @@ export default function Import() {
                 {selected.fields.map(f => (
                   <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)' }} />
-                    <span style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text2)' }}>{f}</span>
+                    <span style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)', color: 'var(--text2)' }}>{f}</span>
                   </div>
                 ))}
               </div>

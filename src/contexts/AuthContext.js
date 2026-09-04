@@ -10,6 +10,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Set when the database is reachable but the ERP schema is missing.
+  const [schemaError, setSchemaError] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -35,6 +37,10 @@ export const AuthProvider = ({ children }) => {
         if (mounted) setProfile(p);
       } catch (e) {
         console.error('profile load failed', e);
+        // 42P01 = undefined_table: the schema migration has not been run yet.
+        const missingSchema =
+          e?.code === '42P01' || /relation .*erp_users.* does not exist/i.test(e?.message || '');
+        if (mounted) setSchemaError(missingSchema ? 'missing-schema' : (e?.message || 'unknown'));
       }
       if (mounted) setLoading(false);
     };
@@ -58,6 +64,20 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
+  };
+
+  // Emails a recovery link that lands on /reset-password, where the user picks
+  // a new password.
+  const sendPasswordReset = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  };
+
+  const updatePassword = async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
   };
 
   const register = async (email, password, name, role = 'viewer') => {
@@ -86,7 +106,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, logout, register, hasPermission }}>
+    <AuthContext.Provider value={{ user, profile, loading, schemaError, login, logout, register,
+                              sendPasswordReset, updatePassword, hasPermission }}>
       {!loading && children}
     </AuthContext.Provider>
   );

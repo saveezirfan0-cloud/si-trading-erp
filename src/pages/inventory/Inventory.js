@@ -96,7 +96,7 @@ export default function Inventory() {
   const lowStock = items.filter(i => i.quantity > 0 && i.quantity <= i.reorderLevel).length;
 
   const columns = [
-    { key: 'code', label: 'Code', render: v => <span style={{ fontFamily: 'monospace', fontSize: '0.82rem', color: 'var(--accent)' }}>{v}</span> },
+    { key: 'code', label: 'Code', render: v => <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--accent)' }}>{v}</span> },
     { key: 'name', label: 'Item', render: (v, r) => (
       <div>
         <div style={{ fontWeight: 600 }}>{v}</div>

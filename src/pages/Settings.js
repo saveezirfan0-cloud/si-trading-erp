@@ -1,12 +1,14 @@
 // src/pages/Settings.js
 import React, { useState, useEffect, useCallback } from 'react';
 import Header from '../components/layout/Header';
+import { useApp } from '../contexts/AppContext';
 import { Card, Btn, Input, Select, FormGrid, PageHeader, Tabs } from '../components/ui';
 import { getAll, create, remove, COLLECTIONS } from '../lib/db';
 import toast from 'react-hot-toast';
 import { Save, Plus, Trash2, Tag } from 'lucide-react';
 
 export default function Settings() {
+  const { fyStartMonth, setFyStartMonth } = useApp();
   const [tab, setTab] = useState('company');
   const [company, setCompany] = useState({
     name: 'S.I Trading & Co.',
@@ -87,8 +89,14 @@ export default function Settings() {
               <Input label="STRN" value={company.strn} onChange={e => setCompany(c => ({ ...c, strn: e.target.value }))} />
               <Select label="Currency" value={company.currency} onChange={e => setCompany(c => ({ ...c, currency: e.target.value }))}
                 options={[{ value: 'PKR', label: 'PKR — Pakistani Rupee' }, { value: 'USD', label: 'USD — US Dollar' }]} />
-              <Select label="Fiscal Year" value={company.fiscalYear} onChange={e => setCompany(c => ({ ...c, fiscalYear: e.target.value }))}
-                options={[{ value: 'jan-dec', label: 'January – December' }, { value: 'jul-jun', label: 'July – June' }]} />
+              {/* Drives the fiscal-year filter in the header across the whole app. */}
+              <Select label="Fiscal Year" value={String(fyStartMonth)}
+                onChange={e => {
+                  const m = Number(e.target.value);
+                  setFyStartMonth(m);
+                  setCompany(c => ({ ...c, fiscalYear: m === 1 ? 'jan-dec' : 'jul-jun' }));
+                }}
+                options={[{ value: '1', label: 'January – December' }, { value: '7', label: 'July – June' }]} />
             </FormGrid>
             <Input label="Address" value={company.address} onChange={e => setCompany(c => ({ ...c, address: e.target.value }))} style={{ marginTop: 16 }} />
             <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
