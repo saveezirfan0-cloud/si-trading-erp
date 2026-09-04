@@ -2,16 +2,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Package, Receipt, Zap, BarChart3 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const BOTTOM_NAV = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true },
-  { label: 'Inventory', to: '/inventory', icon: Package },
-  { label: 'Invoice', to: '/sales/quick', icon: Zap, accent: true },
-  { label: 'Sales', to: '/sales', icon: Receipt },
-  { label: 'Reports', to: '/reports', icon: BarChart3 },
+  { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true, module: 'dashboard' },
+  { label: 'Inventory', to: '/inventory', icon: Package, module: 'inventory' },
+  { label: 'Invoice', to: '/sales/quick', icon: Zap, accent: true, module: 'sales' },
+  { label: 'Sales', to: '/sales', icon: Receipt, module: 'sales' },
+  { label: 'Reports', to: '/reports', icon: BarChart3, module: 'reports' },
 ];
 
 export default function BottomNav() {
+  const { can } = useAuth();
+  const items = BOTTOM_NAV.filter(i => can(i.module, 'view'));
+  if (!items.length) return null;
   return (
     <nav style={{
       position: 'fixed',
@@ -26,7 +30,7 @@ export default function BottomNav() {
       height: 'calc(56px + env(safe-area-inset-bottom))',
       paddingBottom: 'env(safe-area-inset-bottom)',
     }}>
-      {BOTTOM_NAV.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         return (
           <NavLink

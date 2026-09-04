@@ -41,8 +41,10 @@ export default function Warehouses() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete?')) return;
-    await remove(COLLECTIONS.WAREHOUSES, id);
-    toast.success('Deleted'); load();
+    try {
+      await remove(COLLECTIONS.WAREHOUSES, id);
+      toast.success('Deleted'); load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const columns = [

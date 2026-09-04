@@ -64,7 +64,9 @@ export default function Expenses() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete?')) return;
-    await remove(COLLECTIONS.EXPENSES, id); toast.success('Deleted'); load();
+    try {
+      await remove(COLLECTIONS.EXPENSES, id); toast.success('Deleted'); load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const totalThisMonth = expenses
