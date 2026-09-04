@@ -42,8 +42,21 @@ const compressImage = (file, maxDim = 1800, quality = 0.87) =>
   });
 
 // ── Fuzzy matching ───────────────────────────────────────────────────────────
+// Normalizes common local/OCR spellings so "PIPE RAINCH" matches "Pipe Wrench",
+// "PLIERS" matches "plier", etc.
+const SYNONYMS = {
+  rainch: 'wrench', rench: 'wrench', wrinch: 'wrench', wranch: 'wrench',
+  pliers: 'plier', screwdriver: 'driver', sd: 'driver',
+  pc: 'pcs', piece: 'pcs', pieces: 'pcs', no: 'nos',
+};
+
 const tokens = (s) => (s || '').toLowerCase().replace(/[^a-z0-9\s"']/g, ' ')
-  .split(/\s+/).filter(t => t.length > 1);
+  .split(/\s+/).filter(t => t.length > 1)
+  .map(t => {
+    let n = SYNONYMS[t] || t;
+    if (n.length > 3 && n.endsWith('s') && !SYNONYMS[n]) n = n.slice(0, -1); // crude plural strip
+    return SYNONYMS[n] || n;
+  });
 
 const similarity = (a, b) => {
   const ta = new Set(tokens(a)), tb = new Set(tokens(b));
@@ -53,7 +66,7 @@ const similarity = (a, b) => {
   return inter / Math.max(ta.size, tb.size);
 };
 
-const bestMatch = (name, candidates, min = 0.4) => {
+const bestMatch = (name, candidates, min = 0.3) => {
   let best = null, score = 0;
   for (const c of candidates) {
     const s = similarity(name, c.name);

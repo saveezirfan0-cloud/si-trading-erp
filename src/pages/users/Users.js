@@ -35,8 +35,8 @@ export default function Users() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const firestoreUsers = await getAll(COLLECTIONS.USERS);
-      setUsers(firestoreUsers);
+      const rows = await getAll(COLLECTIONS.USERS);
+      setUsers(rows);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load users');
@@ -46,7 +46,7 @@ export default function Users() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Create user via Firebase Auth + write Firestore doc
+  // Create user via Supabase Auth + write profile row
   const handleCreate = async () => {
     if (!createForm.name || !createForm.email || !createForm.password) return toast.error('All fields required');
     if (createForm.password.length < 6) return toast.error('Password must be at least 6 characters');
@@ -201,7 +201,7 @@ export default function Users() {
 
         {/* Note about syncing */}
         <div style={{ background: 'var(--accent-glow)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>
-          <strong style={{ color: 'var(--accent)' }}>Note:</strong> Users must be created here or via Firebase Authentication Console. If a user was added in Firebase but doesn't appear here, they need a Firestore profile — use <strong>Create User</strong> to add them properly.
+          <strong style={{ color: 'var(--accent)' }}>Note:</strong> Users must be created here (or in the Supabase Auth dashboard). If a user exists in Supabase Auth but doesn't appear here, use <strong>Create User</strong> so they get an ERP profile and role.
         </div>
 
         {/* Role cards */}
@@ -223,7 +223,7 @@ export default function Users() {
             <div style={{ padding: 40, textAlign: 'center' }}>
               <div style={{ color: 'var(--text3)', marginBottom: 16, fontSize: '14px' }}>No users found in Firestore.</div>
               <p style={{ color: 'var(--text3)', fontSize: '12px', maxWidth: 400, margin: '0 auto' }}>
-                Users created via Firebase Console need to be added here using "Create User" so they get an ERP profile and role.
+                Users created in the Supabase dashboard need to be added here using "Create User" so they get an ERP profile and role.
               </p>
             </div>
           ) : (
