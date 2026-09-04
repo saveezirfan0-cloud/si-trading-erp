@@ -13,7 +13,7 @@ const VARS = [
 export default function SetupRequired() {
   const box = {
     background: 'var(--bg3)', border: '1px solid var(--border)',
-    borderRadius: 8, padding: '10px 12px', fontFamily: 'monospace',
+    borderRadius: 8, padding: '10px 12px', fontFamily: 'var(--font-mono)',
     fontSize: '0.78rem', wordBreak: 'break-all',
   };
 

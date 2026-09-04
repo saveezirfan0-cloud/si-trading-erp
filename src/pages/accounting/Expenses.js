@@ -25,7 +25,7 @@ const EMPTY = {
 };
 
 export default function Expenses() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear } = useApp();
   const [expenses, setExpenses] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [modal, setModal] = useState(false);
@@ -40,10 +40,10 @@ export default function Expenses() {
       getAll(COLLECTIONS.EXPENSES),
       getAll(COLLECTIONS.ACCOUNTS),
     ]);
-    setExpenses(e.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    setExpenses(filterByFiscalYear(e.sort((a, b) => new Date(b.date) - new Date(a.date))));
     setAccounts(a.filter(x => x.active));
     setLoading(false);
-  }, []);
+  }, [filterByFiscalYear]);
 
   useEffect(() => { load(); }, [load]);
 

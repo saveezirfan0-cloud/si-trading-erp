@@ -10,6 +10,7 @@ import { useViewportHeight } from './hooks/useMobile';
 import './styles/globals.css';
 
 import Login from './pages/Login';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/customers/Customers';
 import Suppliers from './pages/suppliers/Suppliers';
@@ -37,11 +38,36 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+// Signed in, database reachable, but the tables are absent — tell the operator
+// exactly what to do instead of showing empty lists and a "viewer" role.
+function SchemaBanner() {
+  const { schemaError } = useAuth();
+  if (schemaError !== 'missing-schema') return null;
+  return (
+    <div style={{
+      position: 'fixed', left: 12, right: 12, bottom: 12, zIndex: 400,
+      background: 'var(--bg2)', border: '1px solid var(--red)',
+      borderLeft: '4px solid var(--red)', borderRadius: 'var(--radius)',
+      padding: '12px 16px', boxShadow: 'var(--shadow)', maxWidth: 620,
+      margin: '0 auto', fontSize: '0.85rem', lineHeight: 1.55,
+    }}>
+      <strong style={{ color: 'var(--red)' }}>Database schema not applied.</strong>{' '}
+      Your Supabase project is connected but has no ERP tables yet, so nothing can
+      load or save. In the Supabase dashboard open <em>SQL Editor</em>, paste the
+      contents of <code style={{ fontFamily: 'var(--font-mono)' }}>
+      supabase/migrations/0001_erp_schema.sql</code> from this repository, and run it.
+      Then reload this page.
+    </div>
+  );
+}
+
 function AppRoutes() {
   const { user } = useAuth();
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+      {/* Public: the emailed recovery link lands here, signed in or not. */}
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/*" element={
         <PrivateRoute>
           <Layout>
@@ -117,6 +143,7 @@ function AppInner() {
   return (
     <>
       <AppRoutes />
+      <SchemaBanner />
       <SWUpdateListener />
       {showInstallBanner && <InstallBanner />}
       <Toaster

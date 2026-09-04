@@ -1,5 +1,5 @@
 // src/pages/purchases/PurchaseInvoices.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscribe, remove, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
@@ -12,9 +12,9 @@ import PurchaseInvoiceForm from './PurchaseInvoiceForm';
 import PurchaseInvoiceView from './PurchaseInvoiceView';
 
 export default function PurchaseInvoices() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear, fiscalYear, fiscalYearLabel } = useApp();
   const navigate = useNavigate();
-  const [invoices, setInvoices] = useState([]);
+  const [allInvoices, setAllInvoices] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -24,10 +24,16 @@ export default function PurchaseInvoices() {
   useEffect(() => {
     const unsub = subscribe(COLLECTIONS.PURCHASE_INVOICES, (data) => {
       const sorted = data.sort((a, b) => (b.invoiceNo || '').localeCompare(a.invoiceNo || ''));
-      setInvoices(sorted); setFiltered(sorted); setLoading(false);
+      setAllInvoices(sorted); setLoading(false);
     });
     return () => unsub();
   }, []);
+
+  // Everything below works on the fiscal-year-scoped list.
+  const invoices = useMemo(
+    () => filterByFiscalYear(allInvoices),
+    [allInvoices, filterByFiscalYear]
+  );
 
   useEffect(() => {
     const q = search.toLowerCase();
@@ -65,7 +71,7 @@ export default function PurchaseInvoices() {
   );
 
   const columns = [
-    { key: 'invoiceNo', label: 'Invoice #', render: v => <span style={{ fontFamily: 'monospace', color: 'var(--purple)', fontWeight: 700 }}>{v}</span> },
+    { key: 'invoiceNo', label: 'Invoice #', render: v => <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--purple)', fontWeight: 700 }}>{v}</span> },
     { key: 'supplierName', label: 'Supplier' },
     { key: 'supplierInvoiceNo', label: 'Supplier Ref' },
     { key: 'date', label: 'Date' },
@@ -87,7 +93,7 @@ export default function PurchaseInvoices() {
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Purchase Invoices"
-          subtitle={`${invoices.length} invoices`}
+          subtitle={`${invoices.length} ${invoices.length === 1 ? 'invoice' : 'invoices'}` + (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')}
           actions={[
             <Btn key="exp" variant="secondary" icon={Download} onClick={() => exportCSV(invoices, 'purchase_invoices')}>Export</Btn>,
             <Btn key="scan" variant="secondary" icon={Camera} onClick={() => navigate('/purchases/scan')}>Scan Invoice</Btn>,

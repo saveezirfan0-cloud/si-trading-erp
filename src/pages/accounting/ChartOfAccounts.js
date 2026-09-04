@@ -61,7 +61,7 @@ export default function ChartOfAccounts() {
   }));
 
   const columns = [
-    { key: 'code', label: 'Code', render: v => <span style={{ fontFamily: 'monospace', color: 'var(--accent)', fontSize: '0.82rem' }}>{v}</span> },
+    { key: 'code', label: 'Code', render: v => <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontSize: '0.82rem' }}>{v}</span> },
     { key: 'name', label: 'Account Name', render: (v, r) => (
       <div>
         <div style={{ fontWeight: 600 }}>{v}</div>
@@ -73,7 +73,7 @@ export default function ChartOfAccounts() {
       return <Badge color={t?.color || 'default'}>{v}</Badge>;
     }},
     { key: 'balance', label: 'Balance', align: 'right', render: v => (
-      <span style={{ fontFamily: 'monospace' }}>
+      <span style={{ fontFamily: 'var(--font-mono)' }}>
         {new Intl.NumberFormat('en-PK').format(v || 0)}
       </span>
     )},

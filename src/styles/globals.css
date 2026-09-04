@@ -1,5 +1,5 @@
 /* ── FONTS ───────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ── DARK THEME ─────────────────────────────────────────────────────────── */
 :root, [data-theme="dark"] {
@@ -53,8 +53,9 @@
 :root {
   --radius: 10px;
   --radius-lg: 14px;
-  --font-head: 'Syne', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-head: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --sidebar-w: 240px;
   --header-h: 60px;
 }
@@ -83,6 +84,7 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   font-size: 14px;
+  letter-spacing: -0.005em;
   font-weight: 400;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -104,6 +106,13 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-head);
   font-weight: 700;
   line-height: 1.25;
+  letter-spacing: -0.018em;
+}
+
+/* Money and quantities line up column-wise instead of jittering */
+table td, table th, input[type="number"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
 }
 
 a {
@@ -261,3 +270,7 @@ button {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
+
+/* ── SPINNER ─────────────────────────────────────────────────────────────── */
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

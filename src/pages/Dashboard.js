@@ -54,7 +54,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }) => {
 };
 
 export default function Dashboard() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear, fiscalYear } = useApp();
   const { profile } = useAuth();
   const [stats, setStats] = useState({ customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0 });
   const [salesData, setSalesData] = useState([]);
@@ -62,17 +62,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setSalesData([]);
     let d = { customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0 };
     let loaded = 0;
     const done = (n = 1) => { loaded += n; if (loaded >= 7) setLoading(false); };
 
-    subscribe(COLLECTIONS.CUSTOMERS, r => { d = { ...d, customers: r.length }; setStats({ ...d }); done(); });
-    subscribe(COLLECTIONS.SUPPLIERS, r => { d = { ...d, suppliers: r.length }; setStats({ ...d }); done(); });
-    subscribe(COLLECTIONS.INVENTORY, r => { d = { ...d, inventory: r.length, inventoryValue: r.reduce((s, i) => s + ((i.costPrice || 0) * (i.quantity || 0)), 0) }; setStats({ ...d }); done(); });
-    subscribe(COLLECTIONS.PAYMENTS, r => { d = { ...d, totalPayments: r.reduce((s, p) => s + (Number(p.amount) || 0), 0) }; setStats({ ...d }); done(); });
-    subscribe(COLLECTIONS.EXPENSES, r => { d = { ...d, totalExpenses: r.reduce((s, e) => s + (Number(e.amount) || 0), 0) }; setStats({ ...d }); done(); });
+    // Every subscription is collected so it can be torn down when the fiscal
+    // year changes or the page unmounts.
+    const unsubs = [];
+    const track = (...args) => unsubs.push(subscribe(...args));
 
-    subscribe(COLLECTIONS.SALES_INVOICES, r => {
+    track(COLLECTIONS.CUSTOMERS, r => { d = { ...d, customers: r.length }; setStats({ ...d }); done(); });
+    track(COLLECTIONS.SUPPLIERS, r => { d = { ...d, suppliers: r.length }; setStats({ ...d }); done(); });
+    track(COLLECTIONS.INVENTORY, r => { d = { ...d, inventory: r.length, inventoryValue: r.reduce((s, i) => s + ((i.costPrice || 0) * (i.quantity || 0)), 0) }; setStats({ ...d }); done(); });
+    track(COLLECTIONS.PAYMENTS, rows => { const r = filterByFiscalYear(rows); d = { ...d, totalPayments: r.reduce((s, p) => s + (Number(p.amount) || 0), 0) }; setStats({ ...d }); done(); });
+    track(COLLECTIONS.EXPENSES, rows => { const r = filterByFiscalYear(rows); d = { ...d, totalExpenses: r.reduce((s, e) => s + (Number(e.amount) || 0), 0) }; setStats({ ...d }); done(); });
+
+    track(COLLECTIONS.SALES_INVOICES, rows => {
+      const r = filterByFiscalYear(rows);
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
       setStats({ ...d });
 
@@ -98,7 +105,8 @@ export default function Dashboard() {
       done();
     });
 
-    subscribe(COLLECTIONS.PURCHASE_INVOICES, r => {
+    track(COLLECTIONS.PURCHASE_INVOICES, rows => {
+      const r = filterByFiscalYear(rows);
       d = { ...d, purchasesTotal: r.reduce((s, i) => s + (i.total || 0), 0), purchasesCount: r.length };
       setStats({ ...d });
       const monthMap = {};
@@ -111,7 +119,9 @@ export default function Dashboard() {
       setSalesData(prev => mergeMonthly(prev, monthMap, 'purchases'));
       done();
     });
-  }, []);
+    return () => unsubs.forEach((u) => u && u());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fiscalYear]);
 
   const mergeMonthly = (prev, newMap, key) => {
     const merged = {};
