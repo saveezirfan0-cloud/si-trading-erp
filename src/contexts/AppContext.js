@@ -29,7 +29,7 @@ export const AppProvider = ({ children }) => {
   const [currency] = useState('PKR');
   const [companyName] = useState('S.I Trading & Co.');
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('si-theme') || 'dark'; } catch { return 'dark'; }
+    try { return localStorage.getItem('si-theme') || 'light'; } catch { return 'light'; }
   });
 
   useEffect(() => {

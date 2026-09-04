@@ -1,17 +1,19 @@
 // src/pages/purchases/PurchaseInvoices.js
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { subscribe, remove, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Table, Btn, Badge, PageHeader, Card, Loader, SearchBar, StatCard } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingDown } from 'lucide-react';
+import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingDown, Camera } from 'lucide-react';
 import { exportCSV } from '../../lib/export';
 import PurchaseInvoiceForm from './PurchaseInvoiceForm';
 import PurchaseInvoiceView from './PurchaseInvoiceView';
 
 export default function PurchaseInvoices() {
   const { formatCurrency } = useApp();
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
@@ -88,6 +90,7 @@ export default function PurchaseInvoices() {
           subtitle={`${invoices.length} invoices`}
           actions={[
             <Btn key="exp" variant="secondary" icon={Download} onClick={() => exportCSV(invoices, 'purchase_invoices')}>Export</Btn>,
+            <Btn key="scan" variant="secondary" icon={Camera} onClick={() => navigate('/purchases/scan')}>Scan Invoice</Btn>,
             <Btn key="add" icon={Plus} onClick={() => { setSelected(null); setView('form'); }}>New Purchase</Btn>,
           ]}
         />

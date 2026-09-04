@@ -57,7 +57,7 @@ export default function Login() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 16px',
             fontFamily: 'var(--font-head)',
-            fontWeight: 800, fontSize: '1.5rem', color: '#000',
+            fontWeight: 800, fontSize: '1.5rem', color: 'var(--on-accent)',
             boxShadow: '0 8px 24px rgba(240,165,0,0.3)',
           }}>
             SI
@@ -142,7 +142,7 @@ export default function Login() {
               disabled={loading}
               style={{
                 background: 'var(--accent)',
-                color: '#000',
+                color: 'var(--on-accent)',
                 border: 'none',
                 borderRadius: 'var(--radius)',
                 padding: '13px',

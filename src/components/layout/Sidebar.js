@@ -3,23 +3,26 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
+import useCounts from '../../hooks/useCounts';
+import { COLLECTIONS } from '../../lib/db';
 import {
   LayoutDashboard, Users, Truck, Package, Warehouse,
   BookOpen, FileText, BarChart3, UserCog, Upload,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
-  DollarSign, ShoppingCart, Receipt, Zap
+  DollarSign, ShoppingCart, Receipt, Zap, Camera
 } from 'lucide-react';
 
 const NAV = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
-  { label: 'Customers', to: '/customers', icon: Users },
-  { label: 'Suppliers', to: '/suppliers', icon: Truck },
-  { label: 'Inventory', to: '/inventory', icon: Package },
+  { label: 'Summary', to: '/', icon: LayoutDashboard },
+  { label: 'Customers', to: '/customers', icon: Users, countKey: COLLECTIONS.CUSTOMERS },
+  { label: 'Suppliers', to: '/suppliers', icon: Truck, countKey: COLLECTIONS.SUPPLIERS },
+  { label: 'Inventory Items', to: '/inventory', icon: Package, countKey: COLLECTIONS.INVENTORY },
   { label: 'Warehouses', to: '/warehouses', icon: Warehouse },
   { type: 'divider', label: 'SALES & PURCHASES' },
-  { label: 'Sales Invoices', to: '/sales', icon: Receipt },
+  { label: 'Sales Invoices', to: '/sales', icon: Receipt, countKey: COLLECTIONS.SALES_INVOICES },
   { label: 'Quick Invoice', to: '/sales/quick', icon: Zap },
-  { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart },
+  { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart, countKey: COLLECTIONS.PURCHASE_INVOICES },
+  { label: 'Scan Invoice (OCR)', to: '/purchases/scan', icon: Camera, highlight: true },
   { type: 'divider', label: 'ACCOUNTING' },
   { label: 'Chart of Accounts', to: '/accounting/accounts', icon: BookOpen },
   { label: 'Bank & Cash', to: '/accounting/bank', icon: DollarSign },
@@ -39,6 +42,7 @@ export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen, isMobile } = useApp();
   const { logout, profile } = useAuth();
   const navigate = useNavigate();
+  const counts = useCounts();
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
@@ -114,7 +118,8 @@ export default function Sidebar() {
               : <div key={i} style={{ height: 1, background: 'var(--border)', margin: '8px 10px' }} />;
           }
           const Icon = item.icon;
-          const isQuick = item.to === '/sales/quick';
+          const isQuick = item.to === '/sales/quick' || item.highlight;
+          const count = item.countKey ? counts[item.countKey] : undefined;
           return (
             <NavLink
               key={item.to}
@@ -142,7 +147,14 @@ export default function Sidebar() {
               })}
             >
               <Icon size={16} style={{ flexShrink: 0 }} />
-              {(sidebarOpen || isMobile) && item.label}
+              {(sidebarOpen || isMobile) && <span style={{ flex: 1 }}>{item.label}</span>}
+              {(sidebarOpen || isMobile) && count !== undefined && count > 0 && (
+                <span style={{
+                  fontSize: '0.68rem', fontWeight: 600, color: 'var(--text3)',
+                  background: 'var(--bg3)', border: '1px solid var(--border)',
+                  borderRadius: 99, padding: '1px 7px', lineHeight: 1.5,
+                }}>{count}</span>
+              )}
             </NavLink>
           );
         })}
@@ -166,7 +178,7 @@ export default function Sidebar() {
           fontFamily: 'var(--font-head)',
           fontWeight: 700,
           fontSize: '0.8rem',
-          color: '#000',
+          color: 'var(--on-accent)',
           flexShrink: 0,
         }}>
           {profile?.name?.[0]?.toUpperCase() || 'U'}

@@ -1,14 +1,8 @@
 // src/pages/users/Users.js
 import React, { useEffect, useState, useCallback } from 'react';
-import { getAll, create, update, COLLECTIONS } from '../../lib/db';
+import { getAll, create, update, createWithId, COLLECTIONS } from '../../lib/db';
 import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import {
-  sendPasswordResetEmail, updatePassword,
-  EmailAuthProvider, reauthenticateWithCredential
-} from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { supabase } from '../../lib/supabase';
 import Header from '../../components/layout/Header';
 import { Table, Btn, Modal, Input, Select, Badge, PageHeader, FormGrid, Card, Loader } from '../../components/ui';
 import toast from 'react-hot-toast';
@@ -41,8 +35,8 @@ export default function Users() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const firestoreUsers = await getAll(COLLECTIONS.USERS);
-      setUsers(firestoreUsers);
+      const rows = await getAll(COLLECTIONS.USERS);
+      setUsers(rows);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load users');
@@ -52,7 +46,7 @@ export default function Users() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Create user via Firebase Auth + write Firestore doc
+  // Create user via Supabase Auth + write profile row
   const handleCreate = async () => {
     if (!createForm.name || !createForm.email || !createForm.password) return toast.error('All fields required');
     if (createForm.password.length < 6) return toast.error('Password must be at least 6 characters');
@@ -71,13 +65,10 @@ export default function Users() {
     setSaving(false);
   };
 
-  // If a Firebase user exists but has no Firestore doc, create one
+  // If an auth user exists but has no profile row, create one
   const handleSyncUser = async (uid, email) => {
     const name = email.split('@')[0];
-    await setDoc(doc(db, 'users', uid), {
-      name, email, role: 'viewer', active: true,
-      createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
-    });
+    await createWithId(COLLECTIONS.USERS, uid, { name, email, role: 'viewer', active: true });
     toast.success('User synced to ERP');
     load();
   };
@@ -105,7 +96,8 @@ export default function Users() {
     if (!editing?.email) return;
     setSaving(true);
     try {
-      await sendPasswordResetEmail(auth, editing.email);
+      const { error } = await supabase.auth.resetPasswordForEmail(editing.email);
+      if (error) throw error;
       toast.success(`Password reset email sent to ${editing.email}`);
       setPwModal(false);
     } catch (e) { toast.error('Failed: ' + e.message); }
@@ -118,7 +110,8 @@ export default function Users() {
     if (pwForm.newPassword !== pwForm.confirmPassword) return toast.error('Passwords do not match');
     setSaving(true);
     try {
-      await updatePassword(currentUser, pwForm.newPassword);
+      const { error } = await supabase.auth.updateUser({ password: pwForm.newPassword });
+      if (error) throw error;
       toast.success('Password updated successfully');
       setPwModal(false);
       setPwForm({ newPassword: '', confirmPassword: '' });
@@ -208,7 +201,7 @@ export default function Users() {
 
         {/* Note about syncing */}
         <div style={{ background: 'var(--accent-glow)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '12px 16px', fontSize: '13px', color: 'var(--text2)' }}>
-          <strong style={{ color: 'var(--accent)' }}>Note:</strong> Users must be created here or via Firebase Authentication Console. If a user was added in Firebase but doesn't appear here, they need a Firestore profile — use <strong>Create User</strong> to add them properly.
+          <strong style={{ color: 'var(--accent)' }}>Note:</strong> Users must be created here (or in the Supabase Auth dashboard). If a user exists in Supabase Auth but doesn't appear here, use <strong>Create User</strong> so they get an ERP profile and role.
         </div>
 
         {/* Role cards */}
@@ -230,7 +223,7 @@ export default function Users() {
             <div style={{ padding: 40, textAlign: 'center' }}>
               <div style={{ color: 'var(--text3)', marginBottom: 16, fontSize: '14px' }}>No users found in Firestore.</div>
               <p style={{ color: 'var(--text3)', fontSize: '12px', maxWidth: 400, margin: '0 auto' }}>
-                Users created via Firebase Console need to be added here using "Create User" so they get an ERP profile and role.
+                Users created in the Supabase dashboard need to be added here using "Create User" so they get an ERP profile and role.
               </p>
             </div>
           ) : (
