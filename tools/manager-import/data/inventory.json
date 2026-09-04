@@ -1,0 +1,7602 @@
+[
+ {
+  "managerKey": "00030855-aafd-49b0-98b3-5a9f03d49a87",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 16x17 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e3800f37-8784-4dba-88d3-f5ca35c44b43"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 289.0,
+  "quantity": -48.0
+ },
+ {
+  "managerKey": "000ae162-2897-44e3-9279-a34971c97cac",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "005411a8-ac25-4dc9-9c14-d6876f6defea",
+  "code": "MMA-200 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "00f33c62-e7b3-4d06-9b8a-dc48920d76f3",
+  "code": "",
+  "name": "Fortum T Pana 15 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 480.0
+ },
+ {
+  "managerKey": "0190befd-1d4e-4c0a-826b-4aa76399b321",
+  "code": "Hyun TCT Blade",
+  "name": "5'x30 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 810.0,
+  "quantity": -6.0
+ },
+ {
+  "managerKey": "01b5f563-a0f8-4a12-9b1c-27f70e45cb4a",
+  "code": "HP 500-ET",
+  "name": "Trimmer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "0bd86012-dff7-4a9d-ba93-579085e7b107",
+   "77012440-e605-4c05-b6b9-4000a7bc0b1b",
+   "a29e79ec-4ca5-49ad-8bd3-a1c4b96ebb74"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "01c8e443-c8a9-404f-b69b-54f0030c0c95",
+  "code": "",
+  "name": "Ratchet Sleeve Ass'y HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 153.75,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "01fc4bc1-3203-4018-ba4e-88046ee9a685",
+  "code": "",
+  "name": "4\" 2 way Solid Screw Driver Black",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 120.0,
+  "salePrice": 0.0,
+  "quantity": 6240.0
+ },
+ {
+  "managerKey": "0222f209-7a75-41eb-9470-896624378ada",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 08x09 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "7b532289-1387-463f-b0e4-744a0b8916c1"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 117.0,
+  "quantity": -60.0
+ },
+ {
+  "managerKey": "02252b07-2e66-4a89-9766-5732f43882bd",
+  "code": "SDPR-P60",
+  "name": "Solid Paper Roll P 60",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "060cd50c-36f1-4918-9bfc-ce21b0703fb1"
+  ],
+  "costPrice": 3800.0,
+  "salePrice": 5500.0,
+  "quantity": 87.0
+ },
+ {
+  "managerKey": "022b9be0-d37c-45de-a01f-2bf1dab77f62",
+  "code": "",
+  "name": "4 Ton Bottle Jack",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1750.0,
+  "salePrice": 0.0,
+  "quantity": 305.0
+ },
+ {
+  "managerKey": "03069994-0049-4245-b81c-24a05e55277f",
+  "code": "",
+  "name": "SD 400 AMP Blue",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 12500.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "031437e8-e732-4e4d-b65d-8182a71467f0",
+  "code": "",
+  "name": "Armature HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1800.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "037c6f76-dce2-4264-9336-db256caee8c2",
+  "code": "HP 1300-DH",
+  "name": "Demolition Hammer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "7a08a59f-44e9-4533-9d7d-a65dfc4c5789",
+   "8758f17b-905b-40d9-af2f-85fcadedae76",
+   "a8dc986f-e92d-4a1e-beaf-ee59737715ca"
+  ],
+  "costPrice": 32410.0,
+  "salePrice": 20400.0,
+  "quantity": 92.0
+ },
+ {
+  "managerKey": "037fd5e7-974a-457a-98b9-9261029d0367",
+  "code": "",
+  "name": "Carbon Brush SD 714",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "a6b5666c-3883-42b7-9a84-037996e03a77"
+  ],
+  "costPrice": 270.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "04c53e32-b66f-4eab-9478-4c432b94a7bb",
+  "code": "",
+  "name": "Solid Short Socket 24 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 125.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "04d598ca-b1f3-4d02-8cb0-4a3b7dc41000",
+  "code": "",
+  "name": "Solid Deep Socket 27 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 120.0
+ },
+ {
+  "managerKey": "04e97fd3-6112-4861-85ec-23b0d6c150bb",
+  "code": "",
+  "name": "SD 500 AMP Blue",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 14500.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "05905c08-3676-4c53-88a3-93431e7c29af",
+  "code": "SDPR-P320",
+  "name": "Solid Paper Roll P320",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "4f9e1f1e-9adf-4503-9fe1-4939be189e0b"
+  ],
+  "costPrice": 3800.0,
+  "salePrice": 5500.0,
+  "quantity": 67.0
+ },
+ {
+  "managerKey": "05b40943-b0ac-471d-b64d-6dd334294836",
+  "code": "",
+  "name": "12\" F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 325.0,
+  "salePrice": 0.0,
+  "quantity": 2160.0
+ },
+ {
+  "managerKey": "05d4af18-725c-44bc-9349-76192e314e42",
+  "code": "",
+  "name": "Gun of HPW 110 /140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 176.25,
+  "salePrice": 0.0,
+  "quantity": 36.0
+ },
+ {
+  "managerKey": "05e7d2e7-879a-4ca0-b52e-dacdb65919b8",
+  "code": "",
+  "name": "14\" Solid Cutting Disc Black",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "06155889-003b-4a59-90a0-263b673e7f77",
+  "code": "",
+  "name": "10\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 615.0,
+  "salePrice": 0.0,
+  "quantity": 528.0
+ },
+ {
+  "managerKey": "065033cd-e306-452c-9837-1cda52cf8cf0",
+  "code": "HCS-5800",
+  "name": "Chain Saw",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "6a471a7a-e397-4bf5-86e9-78d5c8b63777"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "06a84832-7f9b-4dfe-b3d6-aa8f300d91cf",
+  "code": "",
+  "name": "3'Solid Cup Brush twisted",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 200.0,
+  "salePrice": 235.0,
+  "quantity": 257.0
+ },
+ {
+  "managerKey": "06a9cfc2-c2e2-484e-9abe-f76e788d49c2",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 13 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "98f6410f-fd30-47a3-beca-f77527c129e1"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 145.0,
+  "quantity": -144.0
+ },
+ {
+  "managerKey": "07a838dc-fd55-4028-906a-37cd359761cb",
+  "code": "",
+  "name": "14\" Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1150.0,
+  "salePrice": 0.0,
+  "quantity": 877.0
+ },
+ {
+  "managerKey": "07efa2df-431c-4d72-80f3-3abab2e2c1fd",
+  "code": "SD 516",
+  "name": "Impact Drill Machine",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "6d74f715-2b78-4bfe-bcf9-8b5c8224fe6b"
+  ],
+  "costPrice": 5700.0,
+  "salePrice": 6480.0,
+  "quantity": 17.0
+ },
+ {
+  "managerKey": "083794cd-445a-44cf-b5c4-ec45d0e7f9d4",
+  "code": "",
+  "name": "Washer Gun HPW 105 S",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "5912cf4b-5ca5-4a02-b1ae-57273b71cc27"
+  ],
+  "costPrice": 1500.0,
+  "salePrice": 2300.0,
+  "quantity": 14.0
+ },
+ {
+  "managerKey": "0942a142-8e74-446f-a547-7e45932c2275",
+  "code": "",
+  "name": "Plastic Valve Inlet HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 75.0
+ },
+ {
+  "managerKey": "09aab6c5-7672-43f1-a9cd-739d6718b887",
+  "code": "",
+  "name": "MMA 400 Solid Welding Plant Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 10500.0,
+  "salePrice": 0.0,
+  "quantity": 76.0
+ },
+ {
+  "managerKey": "09aab796-e8ec-4799-a113-9022a4755f94",
+  "code": "Hyun Disc",
+  "name": "4'x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 119.0,
+  "salePrice": 155.0,
+  "quantity": -7.0
+ },
+ {
+  "managerKey": "09f8b465-a65c-4532-8e55-95119246179b",
+  "code": "",
+  "name": "24 pcs Solid Socket Set Black",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4500.0,
+  "salePrice": 0.0,
+  "quantity": 130.0
+ },
+ {
+  "managerKey": "0a0bd3c3-2bca-480c-aaeb-e796eeb44e78",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 12 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "15ce7090-c580-4b4b-96b5-75a173974734"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 118.0,
+  "quantity": -96.0
+ },
+ {
+  "managerKey": "0a343794-623e-43f9-9078-cbcc4a69c8c7",
+  "code": "HP 2000-CS",
+  "name": "Circular Saw",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "77f430e0-33d5-4963-bae1-abfade4b926e",
+   "8f03b985-11ae-465b-9e7a-3cbe65bf8838",
+   "d6e8ee5c-0f63-43bb-ac80-74d182a3ee8d",
+   "e7569e48-1791-47ad-8295-2d171bfa8822"
+  ],
+  "costPrice": 18750.0,
+  "salePrice": 12600.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "0abf346b-7f07-41c3-b261-ada1ff9478eb",
+  "code": "",
+  "name": "10 pcs Socket Set L Rod",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1225.0,
+  "salePrice": 0.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "0ad32435-9df8-44f0-a2b3-a021814c1b17",
+  "code": "",
+  "name": "4\" Solid Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 275.0,
+  "salePrice": 0.0,
+  "quantity": 960.0
+ },
+ {
+  "managerKey": "0b6dea50-016c-4304-9146-188beaca839a",
+  "code": "",
+  "name": "4\" F/R Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 168.0,
+  "salePrice": 0.0,
+  "quantity": 6240.0
+ },
+ {
+  "managerKey": "0c895696-21b3-4bd4-a1ef-55e73fbbcdb3",
+  "code": "",
+  "name": "Armature HP 2400 CM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5100.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "0cd94b5e-dc99-4d6b-9072-c52c0130dd06",
+  "code": "SDH-TP9",
+  "name": "Solid T Pana 09mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "e0964127-2c31-42d2-bb50-5b2a7eaf899b"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 250.0,
+  "quantity": 1536.0
+ },
+ {
+  "managerKey": "0d26abca-2a18-4fac-8097-f9573cb4365e",
+  "code": "",
+  "name": "6~22 Solid Pro Ring Spanner Set G",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2000.0,
+  "salePrice": 0.0,
+  "quantity": 60.0
+ },
+ {
+  "managerKey": "0da9077d-2df3-4e81-9eb4-adcdbe80848e",
+  "code": "",
+  "name": "10\"  F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 288.0,
+  "salePrice": 0.0,
+  "quantity": 1800.0
+ },
+ {
+  "managerKey": "0dbb816d-54b1-43fd-ae94-942d2b4af5b4",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "0dbd6350-2a80-47ba-8371-53a1bb21a086",
+  "code": "XL DB",
+  "name": "XL 230 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "606ee9a6-1d1e-405b-8d2a-942c4de10d70"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 3400.0,
+  "quantity": -5.0
+ },
+ {
+  "managerKey": "0dbdbf8a-d80c-48e6-b453-bb7862445b7c",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "0dcb371d-9ccb-445d-a5f5-87c2d4ec71c7",
+  "code": "SD 450",
+  "name": "9\" Grinder",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "0dcc7042-1e39-4602-8f60-76d10ac373a2",
+  "code": "",
+  "name": "Armature HP 710 RH new",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1485.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "0e064da3-6741-4b91-a21b-a7fe7d05e562",
+  "code": "",
+  "name": "Solid Short Socket 11 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "0e4caf6f-1b19-4c38-ba05-f2f18b339dd0",
+  "code": "",
+  "name": "3 T Blade",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 400.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "0f0497a8-755b-4483-b07b-dece51644b7a",
+  "code": "HBC-52",
+  "name": "Brush Cutter 2 Stroke",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "97f27584-fb76-463c-b03e-5b1b40d6b4b5"
+  ],
+  "costPrice": 31950.0,
+  "salePrice": 37500.0,
+  "quantity": 51.0
+ },
+ {
+  "managerKey": "0f78f474-9dc0-4227-a13c-25287515176d",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "0fd1b2a8-06f6-417f-bb96-76d5bcc09767",
+  "code": "SD 410",
+  "name": "4' grinder",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "0fdfb656-3ad0-49c2-9ae0-2de6de0ec80e",
+  "code": "",
+  "name": "complete gun 105 E/135",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "61a868d2-db5e-49e5-b7a9-1dd03802f882"
+  ],
+  "costPrice": 3000.0,
+  "salePrice": 3200.0,
+  "quantity": 78.0
+ },
+ {
+  "managerKey": "10110585-ac4a-466a-8323-94ac3af8ab91",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 08 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b37d87ed-07d6-4897-b795-b47c0d74a0a2"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 118.0,
+  "quantity": -300.0
+ },
+ {
+  "managerKey": "102cc4e5-6a8c-42b6-adea-fb3e8765c873",
+  "code": "",
+  "name": "9\" Solid Plier Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 475.0,
+  "salePrice": 0.0,
+  "quantity": 180.0
+ },
+ {
+  "managerKey": "103a36ea-a8ef-4c93-8af9-39fc02f9cab8",
+  "code": "Hyun TCT Blade",
+  "name": "12\"x80 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "103d2f11-b865-4e6b-b908-c5019ee0b1d6",
+  "code": "",
+  "name": "7 mm Solid T Pana",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 210.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "104c0885-3d7b-4750-929f-82ac529983a5",
+  "code": "Hikoki",
+  "name": "9\" Grinder G 23 SC 4",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c899e981-084c-486b-b466-d2c6a74f62dc"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "10e0f1ab-1153-47cc-8e48-78094293fc04",
+  "code": "Hikoki",
+  "name": "7\" Grinder G 18 SE 4",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "6edb0460-722d-4785-ad6c-e1abd5b177cf"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "110b58e2-7d88-44e1-bd5b-e3b2ac3a1c68",
+  "code": "",
+  "name": "14\"x120 th TCT wood Cutting",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5040.0,
+  "salePrice": 0.0,
+  "quantity": 62.0
+ },
+ {
+  "managerKey": "1143d285-ea2c-41dd-b8dc-c96e8f951aff",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 30 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "9e28f21c-193e-4559-974e-d4858421982d"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 811.0,
+  "quantity": -12.0
+ },
+ {
+  "managerKey": "11bbe284-4bbe-476d-a00e-a9a4f914f3f6",
+  "code": "HPW 110 IM",
+  "name": "Washer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "14039036-196c-49ee-add9-239b5c75c515",
+   "26b41145-9259-4f7d-b1e8-dde921ee0c08",
+   "3ada5bb7-bdad-4c70-94e6-f648447aefd5",
+   "41fc915b-0ddb-46d8-ad9a-a69e6c13f76d",
+   "571a7d25-c45f-4411-82d9-602371ee1dca",
+   "613ad983-c4ad-4227-8ed5-54e6e8ac45ed",
+   "85cf1672-ea22-4027-8a11-982228720813",
+   "8ca1f216-1ef6-40af-88bc-df58baa77914",
+   "9bd143a8-c1ad-4a53-a4a3-5a15d1555686",
+   "9f7623f5-7bc4-4708-aadf-aec24819aad0",
+   "bb489ea8-d6de-4611-b74b-c2d3e2927fe3"
+  ],
+  "costPrice": 1.83173076,
+  "salePrice": 47855.0,
+  "quantity": 2141.0
+ },
+ {
+  "managerKey": "11da70a3-1a10-44a0-8f55-904dfadbe8f9",
+  "code": "",
+  "name": "10\" Miter Saw SD 730",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 21000.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "125a2930-18bc-4693-9bb1-83473081a070",
+  "code": "",
+  "name": "Paint Spray Gun S 990 G 1.5mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2050.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "129048ab-90a2-4dd2-b133-084be27745d7",
+  "code": "",
+  "name": "Solid Screw Wrench 10\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "40c118e2-6776-459f-b4b1-2c825d8d457e"
+  ],
+  "costPrice": 425.0,
+  "salePrice": 0.0,
+  "quantity": 1320.0
+ },
+ {
+  "managerKey": "1359fd64-678c-4613-a8a9-2f5cfb7e3922",
+  "code": "",
+  "name": "HP 2018H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 14100.0,
+  "salePrice": 0.0,
+  "quantity": 28.0
+ },
+ {
+  "managerKey": "13b610f7-4f06-4423-978c-47c22a7f2bad",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 10x11 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cb8247eb-c0f2-491f-bd29-a70d28e98b7f"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 178.0,
+  "quantity": -36.0
+ },
+ {
+  "managerKey": "13ec33cf-7e4a-4e76-a8a7-d02f1648d572",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 15 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "8ce76cef-e763-48c4-bd3e-92679d1abf82"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 178.0,
+  "quantity": -48.0
+ },
+ {
+  "managerKey": "13fed317-d207-4114-8706-0cd2a695b42f",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 12x13 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "9a48c32f-3d90-4da7-8a84-73135af9e221"
+  ],
+  "costPrice": 152.0,
+  "salePrice": 195.0,
+  "quantity": 204.0
+ },
+ {
+  "managerKey": "145204d5-448b-43e1-920b-afc0c08c90ec",
+  "code": "",
+  "name": "Solid Short Socket 30 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 230.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "14526608-feff-4dff-ae5a-d9365095cddd",
+  "code": "HP 1000-AG",
+  "name": "Disc Grinder",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "4139be5b-7281-4fc8-baf0-55a898af48ea",
+   "54ec2cee-2cbb-4ad6-b9fb-3247d78fd90e",
+   "570ec9bb-b8e4-4d18-9d9f-6ff4424a788b",
+   "682d2ecf-205f-4ff7-8ccc-08bdefc1c183",
+   "6fa73650-7734-45d9-af5b-1a9d3f84f244",
+   "739eab53-d101-4bbc-8c17-3cd2eb9c8f0e",
+   "85905e68-97c6-4120-b347-9242b6d8c814",
+   "86d05c6a-5c0a-4813-af27-f5cdf7e54c5d",
+   "91bc7c2e-b4e3-4b8e-8770-9a14393b7d47",
+   "b6f9eefb-9d1e-4a5a-8b61-4583797bd593",
+   "d9c979cf-9e37-40e2-af91-7454a13a30b0",
+   "dbe27c28-6504-433b-891c-81b79d3619dd",
+   "f29a5917-82a9-4953-8c4f-4d4cfbbadf52",
+   "f468a45d-d8af-4f30-95f7-fd98a9da5247",
+   "f59454f4-7754-4f70-b76d-57dd6c11ce7d",
+   "fe7e53cf-c1e0-405a-8f6e-62b215da9184"
+  ],
+  "costPrice": 15680.0,
+  "salePrice": 9810.0,
+  "quantity": 169.0
+ },
+ {
+  "managerKey": "146fb0cb-5a9c-4b61-b821-d5988af49ef5",
+  "code": "",
+  "name": "Protection Sleeve Ass'y HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 13.0
+ },
+ {
+  "managerKey": "14fbda57-4d41-477b-ab16-c7b9b34bffb5",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 21 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "8a69c2ba-3a77-4d6d-88ef-cf12b7889065"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 322.0,
+  "quantity": -24.0
+ },
+ {
+  "managerKey": "1537e6f7-d5c4-4d48-86c8-05cf546dabe7",
+  "code": "",
+  "name": "900 CC Solid Grease Gun",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "4ef2685f-bf8d-406e-b00b-154c0f631d98",
+   "d7fd67d3-fbfd-466e-9fa5-a11994e3a51d"
+  ],
+  "costPrice": 2400.0,
+  "salePrice": 2790.0,
+  "quantity": 67.0
+ },
+ {
+  "managerKey": "1552032c-a7ad-4aee-96d2-e7d9597e104f",
+  "code": "",
+  "name": "9\" Circular Saw DW 822 T",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 12000.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "159f04d7-a48c-4d32-8f90-0e16ceae4831",
+  "code": "HP 600-EB",
+  "name": "Dust Blower",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "186eb539-06de-4b53-a124-f07200e0d045",
+   "5623d7cd-c83a-4eab-ad3a-91fc7d9166ea",
+   "6e09c754-0178-4f2e-a2b9-8e05e7be9fb7"
+  ],
+  "costPrice": 5436.0,
+  "salePrice": 6525.0,
+  "quantity": 393.0
+ },
+ {
+  "managerKey": "15e7b558-a384-4c31-8449-4d214c9885aa",
+  "code": "Hyun TCT Blade",
+  "name": "7'x60 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1305.0,
+  "quantity": -212.0
+ },
+ {
+  "managerKey": "1690b6d6-145d-4c40-995b-d90c98e5e520",
+  "code": "",
+  "name": "4\" Hyun Flap Disc # 36 Red",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "17909b37-5a9f-4d2e-b18a-8459dd70210a",
+  "code": "SD 445",
+  "name": "7' Grinder 2400 W",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "17e0cbab-46d9-412a-8b4b-30e5e23af065",
+  "code": "HP 800-JS",
+  "name": "Jig Saw",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "2081dd1a-3988-4d5d-9014-833749693b78",
+   "2eb6a8f1-9546-4f12-8ae9-923966ba0a26",
+   "b898ff3a-0691-4034-9974-30e39e800f9b",
+   "c2d7fcae-6093-41f0-aa9f-c2f29e44193b",
+   "f8aeb8c7-dbd2-41dc-aa1a-aa0706540f7b"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 11160.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "182cbfb8-de17-411a-accc-089fd1f4309e",
+  "code": "MMA-140 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "186d68b5-30b3-4802-904c-928721010c36",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 18x19 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f166e820-0252-41f8-a8b1-2af5b190d76a"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 339.0,
+  "quantity": -30.0
+ },
+ {
+  "managerKey": "18958374-0116-4c4b-9c02-8bd78fe05753",
+  "code": "",
+  "name": "HP 851 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 6225.0,
+  "salePrice": 0.0,
+  "quantity": 16.0
+ },
+ {
+  "managerKey": "18987c3b-5f11-4711-9736-9c40354653e0",
+  "code": "",
+  "name": "2.5' Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "1899b06f-111b-47bd-b88b-c54d78e535de",
+  "code": "",
+  "name": "Solid Short Socket 25 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 165.0,
+  "salePrice": 0.0,
+  "quantity": 130.0
+ },
+ {
+  "managerKey": "19752b2f-ea2a-407a-92d3-f7b30953e764",
+  "code": "",
+  "name": "52 Pcs Solid Socket Set",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5000.0,
+  "salePrice": 0.0,
+  "quantity": 345.0
+ },
+ {
+  "managerKey": "19aef5c5-3f9d-4d07-8d8c-49f9c876ca21",
+  "code": "SDH-TP12",
+  "name": "Solid T Pana 12 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "79661fc5-f42c-4a80-89d0-ec962ebc78e1"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 255.0,
+  "quantity": 7608.0
+ },
+ {
+  "managerKey": "19c08aeb-c0da-4101-a59e-0e39b8b98daa",
+  "code": "",
+  "name": "6\" F/R Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 176.0,
+  "salePrice": 0.0,
+  "quantity": 9360.0
+ },
+ {
+  "managerKey": "1a4495d8-e905-4c9b-83ba-8ca0fc888b12",
+  "code": "",
+  "name": "105 / 135 Pump Plate",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 600.0,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "1a6a9d69-b23d-45f6-bc33-6a6d680c433e",
+  "code": "",
+  "name": "Plastic Valve HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 57.0
+ },
+ {
+  "managerKey": "1a701ae6-f2ff-49f1-a2fb-1c081db3e166",
+  "code": "",
+  "name": "7\" Solid Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "1a907197-f081-4f72-88e9-e671021b00f7",
+  "code": "Hitachi",
+  "name": "16\" CC 16 SA",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "28db6b2c-9411-409c-a56f-be0f23998c58"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "1a98ea21-5aca-4ece-bc5c-32513f63ba23",
+  "code": "",
+  "name": "MMA 200 K",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 26100.0,
+  "salePrice": 0.0,
+  "quantity": 22.0
+ },
+ {
+  "managerKey": "1adb92fd-5c4e-40e2-9adf-e22f62ffd7f5",
+  "code": "",
+  "name": "4'x1mm Solid Disc",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 43.0,
+  "salePrice": 55.0,
+  "quantity": 650.0
+ },
+ {
+  "managerKey": "1add5b81-0c32-41aa-bdb5-8e43db2cd2a6",
+  "code": "HP 550-ID",
+  "name": "Drill Machine",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "28005e14-fe1c-4736-b0ac-e63a600c3a41",
+   "3c03adaf-efc3-4ecf-bd33-9e005189ce8f",
+   "3c84acd2-e4bc-4753-bac4-05d201f3a66b",
+   "4aac20bb-feb4-414a-b0a0-0adab3b10587",
+   "694eb9c5-17b4-495b-8a80-0bf957f8c683",
+   "7f77b184-b1f1-4b87-9c0b-971f776a42fa",
+   "c9b144ce-3014-49f3-b817-1041534410ba"
+  ],
+  "costPrice": 4165.0,
+  "salePrice": 6885.0,
+  "quantity": 190.0
+ },
+ {
+  "managerKey": "1b38f632-ba39-49be-a68e-02e3a0f7c382",
+  "code": "",
+  "name": "Shift Ass'y HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 26.25,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "1b5e8450-a8ee-486b-a1b0-4a12cc6ff4c0",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "1b6c4b0c-e301-4008-80c9-e2710c411847",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 32 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "6a355fe7-3e7f-4b19-9729-071020047522"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 916.0,
+  "quantity": -6.0
+ },
+ {
+  "managerKey": "1bc58943-4b1e-4925-948e-7c06e1bf1155",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 11 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "eab024b2-ba21-4a0d-be8f-5bb52b9e27f9"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 129.0,
+  "quantity": -24.0
+ },
+ {
+  "managerKey": "1c0e2482-362a-4d82-8b2c-6e1cf28d8bca",
+  "code": "",
+  "name": "12\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 795.0,
+  "salePrice": 0.0,
+  "quantity": 1044.0
+ },
+ {
+  "managerKey": "1c22db8c-207d-44d0-adc0-183523359c4a",
+  "code": "",
+  "name": "6\" F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 176.0,
+  "salePrice": 0.0,
+  "quantity": 9120.0
+ },
+ {
+  "managerKey": "1c2a5530-b5e8-4d50-87b0-f4da199d7c81",
+  "code": "",
+  "name": "Flap Disc Hyun 7\" # 80",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 270.0,
+  "salePrice": 0.0,
+  "quantity": 900.0
+ },
+ {
+  "managerKey": "1c655b07-8b0e-4d23-ac4c-93b9cc19d80b",
+  "code": "",
+  "name": "600 CC Solid Grease Gun Double",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c8d74510-1011-4b75-b5d6-e8a31a91d0b7",
+   "e3de189e-e754-4fd3-aa0c-85eb360f672b"
+  ],
+  "costPrice": 1800.0,
+  "salePrice": 2070.0,
+  "quantity": 220.0
+ },
+ {
+  "managerKey": "1cc5f440-af71-4a28-a3a3-0ddde7a8d915",
+  "code": "",
+  "name": "6\" Solid Cutter Plier",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 2267.0
+ },
+ {
+  "managerKey": "1d8b40b4-7d08-4360-a799-128dd446c439",
+  "code": "",
+  "name": "10\" Simple Solid S/Diver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 149.0,
+  "salePrice": 0.0,
+  "quantity": 1320.0
+ },
+ {
+  "managerKey": "1df332db-456c-499b-b4f6-31eb9a025dbe",
+  "code": "SD 450",
+  "name": "9' Grinder",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "1e0985b6-d065-4f8d-beba-d2813826945d",
+  "code": "Hyun TCT Blade",
+  "name": "10\"x80 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2345.0,
+  "salePrice": 0.0,
+  "quantity": 75.0
+ },
+ {
+  "managerKey": "1efe7ab5-e296-4513-8d54-b9e4ee6a01f7",
+  "code": "",
+  "name": "19' Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 1500.0,
+  "salePrice": 1710.0,
+  "quantity": 74.0
+ },
+ {
+  "managerKey": "1f777284-d180-4309-9939-fb8e0a547ad8",
+  "code": "HP 2300-CM",
+  "name": "Cut-off Machine",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "81f36352-d42f-4f05-a9b1-afd71ee882ad"
+  ],
+  "costPrice": 19320.0,
+  "salePrice": 23460.0,
+  "quantity": 8.0
+ },
+ {
+  "managerKey": "1fa02894-7017-41dd-971d-06cc7db30b38",
+  "code": "BJ-32T-G",
+  "name": "32 ton B (G)",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "cbcae4b4-edf6-4352-88e5-4d874d8c7db8"
+  ],
+  "costPrice": 6000.0,
+  "salePrice": 8100.0,
+  "quantity": 196.0
+ },
+ {
+  "managerKey": "1fcd0442-6b2d-40ed-8289-8b1e9592a9ef",
+  "code": "",
+  "name": "600 CC Solid Grease Gun Single",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "5778b8d4-781a-46db-861b-32487e2cf3f3"
+  ],
+  "costPrice": 1525.0,
+  "salePrice": 168.75,
+  "quantity": 280.0
+ },
+ {
+  "managerKey": "1fd0f9e2-3a9f-414a-b1b9-5dfa1b4d4342",
+  "code": "",
+  "name": "10 Ton Denting Kit",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 28000.0,
+  "salePrice": 0.0,
+  "quantity": 18.0
+ },
+ {
+  "managerKey": "1fde273a-8cfc-4d39-95d3-34376e5134fe",
+  "code": "",
+  "name": "18\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1320.0,
+  "salePrice": 0.0,
+  "quantity": 656.0
+ },
+ {
+  "managerKey": "20172f20-58d2-4bb7-bddb-606afc7b49df",
+  "code": "",
+  "name": "21\" Solid Metal Tool Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3150.0,
+  "salePrice": 0.0,
+  "quantity": 348.0
+ },
+ {
+  "managerKey": "2018f350-a81d-4b06-b491-6fdc1233758a",
+  "code": "",
+  "name": "Motor Pack HPW 105",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "271c5ca6-f66c-4255-941d-267d49b2a20f"
+  ],
+  "costPrice": 5000.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "21043a99-2391-4523-8efb-c30fb4f06583",
+  "code": "",
+  "name": "8~24 Solid Pro Combination Spanner Set G Mat",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2000.0,
+  "salePrice": 0.0,
+  "quantity": 525.0
+ },
+ {
+  "managerKey": "22215f57-3247-4a46-a012-9313b3eeb8b2",
+  "code": "SD 117",
+  "name": "Dust Blower 12 V",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "2dbcc23a-a575-4255-a53a-cb84250cff13"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "22538ccd-4ae0-4d3a-8bda-c7802e082fbc",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 20x22 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "b4846e59-1e17-4ecd-be2a-17f24ccab4da"
+  ],
+  "costPrice": 308.0,
+  "salePrice": 345.0,
+  "quantity": 108.0
+ },
+ {
+  "managerKey": "22c792ae-baf5-4fec-9cf5-ffe110fa585e",
+  "code": "HP-1300-EP",
+  "name": "Polisher",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "8611d075-f400-481c-90fd-9f725ccd01c0"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "22f22f9e-2b01-4ae4-9c20-5518a9d5dafc",
+  "code": "",
+  "name": "Solid Short Socket 27 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 180.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "2308cffe-65ba-4bd7-b9ec-dcb20ead36b7",
+  "code": "SD 625",
+  "name": "Circular Saw 235 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "8e1afcf0-b49b-442e-8c1d-df11cd18837b"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "24fe4c30-3906-4b6b-a4ac-4ab896cb0f75",
+  "code": "",
+  "name": "Solid Short Socket 19 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 83.0,
+  "salePrice": 0.0,
+  "quantity": 500.0
+ },
+ {
+  "managerKey": "250a0842-4e46-4417-aaf5-85c0a138994b",
+  "code": "",
+  "name": "HP 1400 AG Armature",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "3ae5a839-1901-4bb7-ade1-e49defb22b7d"
+  ],
+  "costPrice": 1875.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "2569cd4b-f21f-4a1f-89a9-5f96c68ef75c",
+  "code": "",
+  "name": "24\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1945.0,
+  "salePrice": 0.0,
+  "quantity": 450.0
+ },
+ {
+  "managerKey": "2587c4b0-9b79-4fad-b119-26fb4b6b2c88",
+  "code": "",
+  "name": "Gear HP 600 ID",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "93f09005-6549-4ea5-9598-69398bff36ce",
+   "cfb0a445-0eb6-4b83-8710-f083f97f6fe5"
+  ],
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "25adaf33-64a7-4dd9-85d5-117ae3f897a6",
+  "code": "HYUN DB",
+  "name": "125 S",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "68b57c7c-7108-4d1a-8411-aa90d40ff785"
+  ],
+  "costPrice": 2.8125,
+  "salePrice": 500.0,
+  "quantity": 280.0
+ },
+ {
+  "managerKey": "2668e8fd-8b44-453e-a4f3-8fef872a863e",
+  "code": "SDH-SP8",
+  "name": "Solid Screw Pana 08\"",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 425.0,
+  "quantity": -6.0
+ },
+ {
+  "managerKey": "267e6171-fc24-4635-bc0f-854be4ae7592",
+  "code": "",
+  "name": "14\" Max Power Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 810.0,
+  "salePrice": 0.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "268a5387-bf29-4e55-8825-146e278c0cf3",
+  "code": "Hyun S Gun",
+  "name": "Hyun 22mm Short Gun",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "9fbaa45e-f30d-4847-a74c-3035a2c58835"
+  ],
+  "costPrice": 176.25,
+  "salePrice": 2350.0,
+  "quantity": 104.0
+ },
+ {
+  "managerKey": "26e0fe2e-c0da-4c9b-8c56-b67200c29d00",
+  "code": "",
+  "name": "Solid Short Socket 32 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 240.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "26fb865e-2ade-46e2-87f3-76ac36c52e47",
+  "code": "HP 1800-MS",
+  "name": "Miter Saw",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "72024c4a-64af-4adf-8cba-bf1864fab1f3"
+  ],
+  "costPrice": 19500.0,
+  "salePrice": 22880.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "2711d30f-eb94-4640-b9da-435977d4e78b",
+  "code": "",
+  "name": "4\" Solid Grinding Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "271ab3a8-f0cf-4521-aae2-62edc06b5635",
+  "code": "Hyun Disc",
+  "name": "7'x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 350.0,
+  "quantity": -100.0
+ },
+ {
+  "managerKey": "27bd07ff-df9f-4145-b2c2-1f9f3e4cabfe",
+  "code": "",
+  "name": "Lock / Pin Silver Nozle Large",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3.75,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "28c1effe-eb6b-4c88-ae0b-24b9639620b4",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 14 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "602b1217-9541-49e0-9ba0-e96b6eb85502"
+  ],
+  "costPrice": 126.0,
+  "salePrice": 156.0,
+  "quantity": 132.0
+ },
+ {
+  "managerKey": "2917ea61-3e80-4473-9081-8b6ef55edbf3",
+  "code": "",
+  "name": "Silver Metal Lance",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "2952df0f-e224-49c6-82c5-0be690b64ac1",
+  "code": "",
+  "name": "HP 2023H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 13824.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "29f90587-b5b9-40f7-9d2e-c2e02978b148",
+  "code": "",
+  "name": "HP 1600 AG",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "93aa1039-ea28-44d4-9ccd-9032cea8fa55"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 13345.0,
+  "quantity": -10.0
+ },
+ {
+  "managerKey": "2a553af0-37eb-42cf-ab15-72a1f118b380",
+  "code": "HYUN DB",
+  "name": "9' 230 ST",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 2000.0,
+  "quantity": -15.0
+ },
+ {
+  "managerKey": "2ab1b5c2-6856-4085-87d2-b28cad6ebb1a",
+  "code": "",
+  "name": "3.5 mtr x 16mm Solid Measuring Tape",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 100.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "2abc7990-0208-40f1-b7d3-18b62b2e2a8f",
+  "code": "",
+  "name": "Iron Head HP 1300 DH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3075.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "2b301dd9-e7b2-41b0-ab7c-5ef44151bdf4",
+  "code": "",
+  "name": "22\" Chain Saw DW 5202",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 15000.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "2b319796-cd76-4eaf-bba2-045f09a306ae",
+  "code": "",
+  "name": "SDH-Solid Fix Spanners 24 x 27",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 473.0,
+  "salePrice": 0.0,
+  "quantity": 120.0
+ },
+ {
+  "managerKey": "2bcdf785-5fad-452e-8084-37cb69b06939",
+  "code": "",
+  "name": "4\" Solid Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "2bf89d2d-4229-4212-9062-c08268ffc526",
+  "code": "",
+  "name": "Smash Plate HPW 140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "2c24a1ea-0c1a-4e82-8fef-7d1e2ae66ad2",
+  "code": "N T Spool",
+  "name": "Nylon Thread Spool",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "dbc95662-3d2f-4f9c-bfa8-23fd690c6806"
+  ],
+  "costPrice": 370.0,
+  "salePrice": 0.0,
+  "quantity": 45.0
+ },
+ {
+  "managerKey": "2c844e77-5501-471d-a174-854ee70f12e0",
+  "code": "",
+  "name": "HPW 135 4A",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 17856.0,
+  "salePrice": 0.0,
+  "quantity": 70.0
+ },
+ {
+  "managerKey": "2ca497ef-e551-4757-9c5e-11fa618ddcd8",
+  "code": "HP 800-RH",
+  "name": "Rotary Hammer",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "3e93ffc8-fd01-41fe-9c84-15ddd5b86804",
+   "4b388db5-f7be-41da-9965-5bdef9a17af5",
+   "59cf81cb-f92a-4808-bcab-e38daf381200",
+   "81fe9009-eacc-416b-9b84-48804fd68304",
+   "92948b70-5e15-424f-96a7-5d5f549072c5",
+   "a625d9f0-c106-423a-b64f-95a07e3dfacd",
+   "ada0afa4-6a02-47df-bb38-accfa0098961",
+   "ae64896c-9d7c-4d8e-b508-89421cddabbb",
+   "b345f369-78f0-47c9-a360-7fccdad36a75",
+   "bc20bb1b-2609-404b-b8a3-0b20b186ae38",
+   "c8ca3157-44b1-4bc0-97ef-fff20a27a723",
+   "d93c9a71-f278-4e1a-a786-c0da4500351f",
+   "dbc66d65-f310-4242-be30-25a570f94371",
+   "dc36aed6-5288-4083-888a-b0a2f79e2c86",
+   "f5b7f02a-9f8e-4939-887a-8c40b4594f5a"
+  ],
+  "costPrice": 13860.0,
+  "salePrice": 18530.0,
+  "quantity": 286.0
+ },
+ {
+  "managerKey": "2cee6071-56fa-43a3-be9a-edf3e33a8e7d",
+  "code": "SDH-19",
+  "name": "Solid T Pana 19 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "825a8d5c-582d-4952-86b6-0ddedb8f258b"
+  ],
+  "costPrice": 240.0,
+  "salePrice": 325.0,
+  "quantity": 258.0
+ },
+ {
+  "managerKey": "2d06e9f5-0bc1-429c-b829-2d8fb11771dd",
+  "code": "SDH-TP 18",
+  "name": "Solid T Pana 18 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f8cfe569-f1ce-4f1d-a455-9e7cd6aafcb9"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "2d6d5b38-17fd-4b34-b4ba-58e62fbf6faf",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 30x32 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "50059452-b5bc-4d60-b9ac-f76b3ebff3d5"
+  ],
+  "costPrice": 440.0,
+  "salePrice": 888.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "2f0973ef-b9d2-4dd4-8003-eb2034e1bab6",
+  "code": "",
+  "name": "Fortum T Pana 9 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 841.0
+ },
+ {
+  "managerKey": "2f81c5a3-5e6b-45fc-a8c9-524440bccb86",
+  "code": "",
+  "name": "HP 600 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4752.0,
+  "salePrice": 0.0,
+  "quantity": 444.0
+ },
+ {
+  "managerKey": "2fa312d3-e102-4373-9236-42a322cc0642",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanner Sets 8~32",
+  "unit": "sets",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cd98e123-b611-4531-8adf-5e7e5d85225b"
+  ],
+  "costPrice": 5150.0,
+  "salePrice": 5800.0,
+  "quantity": 45.0
+ },
+ {
+  "managerKey": "2fbac318-41ce-4259-8d5c-2d321b960bd6",
+  "code": "SD 635",
+  "name": "Marble Cutter",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "7e186dec-9458-4bc7-a47e-2f6a6fd25dad"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 6300.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "2fd2d5c3-a6bd-4526-9d67-5e617c83ee41",
+  "code": "Hikoki",
+  "name": "5\" Grinder G 13 SS 2",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f36e48e9-aa6b-46ee-9514-f99da59bbb14"
+  ],
+  "costPrice": 12500.0,
+  "salePrice": 14800.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "30697105-f9f7-4469-9b98-cbfb733a2cff",
+  "code": "",
+  "name": "Water Seal HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "307807a0-64c6-4553-8a9d-dbdc970e2629",
+  "code": "",
+  "name": "Solid MMA 800 LCD Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 17000.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "3096a5ff-5fbc-494c-8cf5-db791549c3b6",
+  "code": "XL-DCW",
+  "name": "XL 4\" Cup Wheel Turbo",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "ef2b618d-af5a-4eb0-aef4-cc92a1394bcf"
+  ],
+  "costPrice": 535.0,
+  "salePrice": 700.0,
+  "quantity": -48.0
+ },
+ {
+  "managerKey": "314acaf6-1887-461b-ac73-d94c735c0c5e",
+  "code": "BJ-20T-G",
+  "name": "20 ton B (G)",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "4525e422-5463-46c8-a53c-c9fbc56c281b"
+  ],
+  "costPrice": 4800.0,
+  "salePrice": 5600.0,
+  "quantity": 1004.0
+ },
+ {
+  "managerKey": "3190025e-6041-4060-8c6c-71c43b88ddd4",
+  "code": "MMA-140 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 14250.0,
+  "salePrice": 18990.0,
+  "quantity": 8.0
+ },
+ {
+  "managerKey": "32405432-9103-498c-8e85-2be45851d4de",
+  "code": "",
+  "name": "Solid Paper Roll # 400",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3800.0,
+  "salePrice": 0.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "3249a202-eec5-48e2-a591-b4dc92b5efc4",
+  "code": "HP 560-PL",
+  "name": "Planer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "57345285-544c-4e75-9652-3d1b36f55ad6",
+   "8910a6bb-2490-48cc-bd2c-c7359f7f5ecf",
+   "d268010d-e061-45ce-bc89-d49ba4277e95"
+  ],
+  "costPrice": 10500.0,
+  "salePrice": 13090.0,
+  "quantity": 32.0
+ },
+ {
+  "managerKey": "3348d94a-096a-40c9-a095-3d057d6a44ea",
+  "code": "",
+  "name": "Armature HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1485.0,
+  "salePrice": 0.0,
+  "quantity": 16.0
+ },
+ {
+  "managerKey": "33775f0b-7595-45ff-b11f-8ad6b9db985e",
+  "code": "Hyun TCT Blade",
+  "name": "10\"x60 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2205.0,
+  "salePrice": 0.0,
+  "quantity": 150.0
+ },
+ {
+  "managerKey": "33ef7427-b5bd-4d28-b4b2-4f0c156ecb61",
+  "code": "SD 720",
+  "name": "Cut-Off Machine 2800 W",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "abef0c06-d663-4f15-a772-3cb66d712daf"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "3468107b-5e34-4845-9d81-d4551b89e7f9",
+  "code": "",
+  "name": "Armature SD 714",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3750.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "34756037-c1e7-4cde-b2b8-424618a1ff23",
+  "code": "",
+  "name": "Strip Light 8 mm W/W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 9690.0,
+  "salePrice": 0.0,
+  "quantity": 11.0
+ },
+ {
+  "managerKey": "35058b43-6082-47ec-beb1-5bdaa2bac707",
+  "code": "Hyun Flap Disc",
+  "name": "4\" #80 Blue",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "35225c87-7485-45c5-825f-601ec921f886",
+  "code": "",
+  "name": "9\" Solid Pro Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 400.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "3523a846-5264-4276-9835-844770d4e20b",
+  "code": "GSS-24",
+  "name": "Gate Socket Sets 24 pcs",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "407d59df-ae44-4a17-987b-37765eb268ee"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 8500.0,
+  "quantity": -3.0
+ },
+ {
+  "managerKey": "35f5776d-633b-4c03-a310-c613ecadc777",
+  "code": "Hyun TCT Blade",
+  "name": "5\"x30 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "360778b2-9a8f-482a-8de4-95843a90bcdf",
+  "code": "",
+  "name": "4\" 2 way Screw Driver Kinki",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0.0005833333,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "360bcbaf-702a-48ce-8d86-2814310decfe",
+  "code": "",
+  "name": "24 pcs Black Socket Set",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5000.0,
+  "salePrice": 0.0,
+  "quantity": 160.0
+ },
+ {
+  "managerKey": "3612ee4c-9555-407e-88a6-517bc98be7b2",
+  "code": "",
+  "name": "HP 450 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2025)",
+  "altKeys": [
+   "97997b2c-f224-4571-889f-923e0a9e4b0b"
+  ],
+  "costPrice": 3708.0,
+  "salePrice": 0.0,
+  "quantity": 88.0
+ },
+ {
+  "managerKey": "361a00ab-40e1-4de2-941c-3b4fa67a2e51",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 14x15 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "81b7538b-6ca7-41ab-97b1-cf057e597d2f"
+  ],
+  "costPrice": 190.0,
+  "salePrice": 255.0,
+  "quantity": 120.0
+ },
+ {
+  "managerKey": "362dc28d-e726-424c-907d-70c69dde7f55",
+  "code": "",
+  "name": "Fan HPW 105 S/E",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 7.0
+ },
+ {
+  "managerKey": "368358fe-d4e6-4b98-aceb-ddfa5d25d3cb",
+  "code": "BJ-32T-LH",
+  "name": "32 ton B (LH)",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "bf0ff20d-9369-4351-8587-211a148cdb51"
+  ],
+  "costPrice": 7100.0,
+  "salePrice": 8700.0,
+  "quantity": 1115.0
+ },
+ {
+  "managerKey": "3703e534-b128-44df-8bb9-bf6d4df38513",
+  "code": "",
+  "name": "2.5\" Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 160.0,
+  "salePrice": 0.0,
+  "quantity": 1000.0
+ },
+ {
+  "managerKey": "371d1eda-0b6f-4cc8-9f1b-f3cfe3e64706",
+  "code": "Hikoki",
+  "name": "VTP-18",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "fa555df0-49c2-401a-8422-46233a02a297"
+  ],
+  "costPrice": 27540.0,
+  "salePrice": 30000.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "37a0ac16-d04d-41b3-a8a8-222df8192097",
+  "code": "Hyun Disc",
+  "name": "16\"x3 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "37c440f8-3dd9-4f9c-9091-85244d9efc63",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 16 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "58fbf26f-2fde-4920-8472-6aadd6a46bfc"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 195.0,
+  "quantity": -36.0
+ },
+ {
+  "managerKey": "37d2eacd-359b-43a8-bd92-9859cfb53410",
+  "code": "",
+  "name": "Flap Disc Hyun 4\" Red # 36",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 85.0,
+  "salePrice": 0.0,
+  "quantity": 200.0
+ },
+ {
+  "managerKey": "380f91e0-4376-4f54-b0ed-6b71519d0f50",
+  "code": "Hyun Disc",
+  "name": "7\"x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 291.0,
+  "salePrice": 0.0,
+  "quantity": 1450.0
+ },
+ {
+  "managerKey": "3842aab4-10b0-4d1f-a791-59ff3763729e",
+  "code": "HBP",
+  "name": "Bubble Pot",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "4d08858f-03f2-4d06-a73c-269349818eaf",
+   "793cfafd-ec9c-417b-85b0-76595d7e990e",
+   "fe3665f2-1e91-4eac-b3c4-a9b1a772979b"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 3600.0,
+  "quantity": -11.0
+ },
+ {
+  "managerKey": "385a1947-e60c-4702-9bba-680b570fbd4e",
+  "code": "Hyun Disc",
+  "name": "7''x3 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 2.2727,
+  "quantity": -180.0
+ },
+ {
+  "managerKey": "388e5eb6-df67-4f62-9d87-9c138fc3672e",
+  "code": "",
+  "name": "Hose Pipe HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e97691b9-6b66-447d-9c01-c36b6105ae29"
+  ],
+  "costPrice": 3000.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "38e50ee5-6502-4d3b-bc18-f1d119d7049f",
+  "code": "",
+  "name": "Solid Deep Socket 14 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 800.0
+ },
+ {
+  "managerKey": "39e59c7e-d764-4dd1-a2bf-c2afaecd485a",
+  "code": "HYUN DB",
+  "name": "7\" 180 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "3a321426-e596-46de-9768-a1ee47a2384c",
+  "code": "",
+  "name": "Water Seal HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 165.0
+ },
+ {
+  "managerKey": "3ab79bfd-a8af-433e-9b35-7fe58b7b3858",
+  "code": "",
+  "name": "Fan HPW 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "3b15ec46-7921-4070-bc1e-155f7a6a1a68",
+  "code": "Hyun TCT Blade",
+  "name": "8'x60 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 1253.0,
+  "salePrice": 1611.0,
+  "quantity": -17.0
+ },
+ {
+  "managerKey": "3b887375-c5c1-45d4-a1e7-b5327c5b87d8",
+  "code": "Hyun TCT Blade",
+  "name": "10'x60 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 2835.0,
+  "quantity": -68.0
+ },
+ {
+  "managerKey": "3b8c1e7f-f899-41d5-9b81-5fe41b4e91a9",
+  "code": "",
+  "name": "HPW-105/135 Only Gun",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2100.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "3bdc915f-0a90-40ad-8990-ce0809c96fcd",
+  "code": "SDH-TP8",
+  "name": "Solid T Pana 08mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "cb9a8211-f51c-449d-80d6-049146f3d4e9"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 255.0,
+  "quantity": 12960.0
+ },
+ {
+  "managerKey": "3e54ad8f-2b54-4ba9-bf86-2b92d8172cf2",
+  "code": "",
+  "name": "Solid Short Socket 14 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 750.0
+ },
+ {
+  "managerKey": "3e5ce356-89de-47eb-8315-2876da45e37d",
+  "code": "",
+  "name": "Fortum T Pana 13 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 1980.0
+ },
+ {
+  "managerKey": "3e72b4e9-9ffb-434b-9b89-2e8f989881c9",
+  "code": "SDH-TP15",
+  "name": "Solid T Pana 15 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "7bd22535-5174-4244-8a41-87d04e2505e5"
+  ],
+  "costPrice": 240.0,
+  "salePrice": 300.0,
+  "quantity": 252.0
+ },
+ {
+  "managerKey": "3e8520a8-250e-4f76-8d86-cadf9f2542e8",
+  "code": "",
+  "name": "Solid Short Socket 13 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "3e9fb090-40d3-421c-b92e-2f49f22b857f",
+  "code": "",
+  "name": "5\" Solid Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "3efb2528-a773-4a02-8e1e-9db372bdb621",
+  "code": "HP 1400 AG",
+  "name": "Disc Grinder 180mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "7a90d98a-82a5-4949-bded-672dff564917",
+   "cbc77037-c005-48f4-91fe-9c43628366f9"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 13230.0,
+  "quantity": -7.0
+ },
+ {
+  "managerKey": "3f3679ec-0c59-4881-adbb-6873ffc646c1",
+  "code": "FSpS",
+  "name": "Fortum Sp Sets",
+  "unit": "sets",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "ff3ed5ba-387b-461f-b854-ea39c0dda8a5"
+  ],
+  "costPrice": 2050.0,
+  "salePrice": 2300.0,
+  "quantity": 217.0
+ },
+ {
+  "managerKey": "3fe38a9c-23ba-44c3-aebb-daf6303e37a5",
+  "code": "",
+  "name": "6\" Solid Long Nose",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 1560.0
+ },
+ {
+  "managerKey": "3fe683f0-757e-4528-acb4-8022871e1897",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 19 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "c844e962-bf74-4d99-be7c-0c2b6c3c475a"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 278.0,
+  "quantity": -24.0
+ },
+ {
+  "managerKey": "402dc6e8-247b-4c41-b0e9-9916c1b6430b",
+  "code": "",
+  "name": "6\" Solid 2 way Full Rod",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 190.0,
+  "salePrice": 0.0,
+  "quantity": 3360.0
+ },
+ {
+  "managerKey": "4030adf8-48fd-4e93-8458-b7d325daa1a6",
+  "code": "",
+  "name": "HPW 110-IM oneway valve",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 64.0
+ },
+ {
+  "managerKey": "408cfa27-070e-479b-b7b0-951764b0e058",
+  "code": "",
+  "name": "10\" F/R Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 288.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "40c35676-311b-4c7a-a76a-5ababe2e837c",
+  "code": "TIG-160",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 31950.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "40dd8dab-5d04-4d26-8c19-6878250d5e62",
+  "code": "XL-DB",
+  "name": "XL 125 HPT std",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "baa8dc2b-ce00-4dd6-9c53-23f45815325c"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 380.0,
+  "quantity": -174.0
+ },
+ {
+  "managerKey": "4134ca32-2a75-43a4-bfd7-b45f4ea2ae35",
+  "code": "Hyun TCT Blade",
+  "name": "10\"x40 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "41d18659-0e53-46fe-af1f-2e072066f1ca",
+  "code": "",
+  "name": "HP 1500 RH Connecting Rod",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 29.25,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "41d2abc3-354b-40bb-8db0-00f6d94c4262",
+  "code": "",
+  "name": "Pump Assy HPW 105",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "e2e0ca17-a23d-4eac-a154-0798dcd1fa36"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "41fc959c-e68e-4914-aef7-5a586be7404d",
+  "code": "",
+  "name": "24 pcs Solid Socket Set",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4500.0,
+  "salePrice": 0.0,
+  "quantity": 615.0
+ },
+ {
+  "managerKey": "41fe411b-dba8-4f75-b31e-dcb6f0854e82",
+  "code": "",
+  "name": "Element HP-2001 / 2002 LHG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 33.0
+ },
+ {
+  "managerKey": "424221c8-a35b-4723-aa2e-fb0a2e7df5ec",
+  "code": "",
+  "name": "105 S gun L",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "9059337c-1081-4f62-91d9-35d55bef993b"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 3000.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "4273c247-fc73-4f52-83e2-1efeec67d927",
+  "code": "",
+  "name": "12 mm Anchor Bolt",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2.15,
+  "salePrice": 0.0,
+  "quantity": 20000.0
+ },
+ {
+  "managerKey": "42f87eee-53e5-4cb7-bec2-a080eef6e058",
+  "code": "Hyun Flap Disc",
+  "name": "4' #60 Red",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 105.0,
+  "quantity": -600.0
+ },
+ {
+  "managerKey": "42fac95f-1739-448a-a41f-1761194d479a",
+  "code": "SDPR-P100",
+  "name": "Solid Paper Roll P100",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f60b02fa-b0a3-4715-9a9c-77d5868ab221"
+  ],
+  "costPrice": 3800.0,
+  "salePrice": 5500.0,
+  "quantity": 98.0
+ },
+ {
+  "managerKey": "4334c22b-b8de-4c6e-b270-38ab43d5b1ea",
+  "code": "",
+  "name": "HP 801 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 10080.0,
+  "salePrice": 0.0,
+  "quantity": 21.0
+ },
+ {
+  "managerKey": "4340e7d3-a46a-4f12-9fc0-01b9d60de443",
+  "code": "",
+  "name": "Gear HPW 105 S / E",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "434ef949-ddd1-406f-b908-ab756cb58444",
+  "code": "Hyun Disc",
+  "name": "9\"x3 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 270.0,
+  "salePrice": 0.0,
+  "quantity": 850.0
+ },
+ {
+  "managerKey": "4394dc79-d7c4-4676-9d6c-6985c41cb2db",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanner Sets 6~22 mm",
+  "unit": "sets",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "fb9f2d48-4cad-41a5-a055-8285c95703cf"
+  ],
+  "costPrice": 2350.0,
+  "salePrice": 2700.0,
+  "quantity": 7.0
+ },
+ {
+  "managerKey": "44184390-4304-4b62-82ef-f4c4c64ac3e7",
+  "code": "",
+  "name": "9\" Solid Pro Cutting Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 250.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "44882760-d235-4155-bcb0-62fee87de91e",
+  "code": "",
+  "name": "Protection Sleeve Ass'y HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 18.75,
+  "salePrice": 0.0,
+  "quantity": 13.0
+ },
+ {
+  "managerKey": "45136402-13d2-48c4-8a0a-bd1271a27d32",
+  "code": "",
+  "name": "8\"x8mm F/R S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 252.0,
+  "salePrice": 0.0,
+  "quantity": 120.0
+ },
+ {
+  "managerKey": "45d78ee1-ddad-4e7e-91a0-15e4d7b6827d",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 22 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "76134957-9c0e-43f7-a9d7-880029ce33d4"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 339.0,
+  "quantity": -6.0
+ },
+ {
+  "managerKey": "45ff2e9e-cf60-49a0-983d-2f6fb2b4c5b7",
+  "code": "",
+  "name": "Silver Nozzle long",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 18.75,
+  "salePrice": 0.0,
+  "quantity": 65.0
+ },
+ {
+  "managerKey": "46564206-f698-45b7-93b9-05bbdc3bad35",
+  "code": "",
+  "name": "Plastic Valve Outlet HPW 105 /135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "46655f90-680b-4f38-936a-11183fb6809a",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 08x09 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "6d06d8a3-93f7-4ca3-a4a6-11e20360b8b6"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 167.0,
+  "quantity": -24.0
+ },
+ {
+  "managerKey": "46783f7d-6ac2-4930-854b-70c28aa28cb6",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 14x15 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "687e8224-62b3-4d11-9b57-3c3a66cce54a"
+  ],
+  "costPrice": 178.0,
+  "salePrice": 200.0,
+  "quantity": 204.0
+ },
+ {
+  "managerKey": "4683f104-bdd8-4443-b9a9-d979fefe0145",
+  "code": "SD 730",
+  "name": "Miter Saw 10\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "46a18a4a-02b6-4e97-b1a8-34f1a574acd3",
+  "code": "SDH-TP16",
+  "name": "Solid T Pana 16 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "ca821259-80a4-43e4-96f6-614b2ae9fe91"
+  ],
+  "costPrice": 240.0,
+  "salePrice": 325.0,
+  "quantity": 60.0
+ },
+ {
+  "managerKey": "46e780e3-4fde-415f-ba8a-318aa15dff62",
+  "code": "MMA-160 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "4704f4e5-45e8-4c93-aef6-106e63f8f13b",
+  "code": "",
+  "name": "DACP-1400",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "8a2b9cbe-b802-487c-9519-20c39feab4cd"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 12600.0,
+  "quantity": -4.0
+ },
+ {
+  "managerKey": "476217fa-1362-4edd-a9e8-23ed151c6907",
+  "code": "",
+  "name": "Reaper",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5500.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "47e650ba-9f4b-4b9f-a45c-0cb8d772743f",
+  "code": "",
+  "name": "Ring / piston /cylinder complete HCS 5800",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 170.25,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "482ba132-fd0e-422c-9489-4f111478a44a",
+  "code": "",
+  "name": "Plunger Spring 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 142.0
+ },
+ {
+  "managerKey": "48955ed8-903f-4a46-890d-3dc6d936afe2",
+  "code": "",
+  "name": "Armature HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1485.0,
+  "salePrice": 0.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "4930f560-f11e-4b36-b6d8-34e8abc077c3",
+  "code": "",
+  "name": "Filter of Brush Cutter",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "4940829b-2816-4657-bea1-ed6f45d0719f",
+  "code": "BJ-50T",
+  "name": "50 ton B",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "daba91b3-169e-4af5-87b2-f02afeb8a63c"
+  ],
+  "costPrice": 10400.0,
+  "salePrice": 13500.0,
+  "quantity": 1373.0
+ },
+ {
+  "managerKey": "49742d68-844a-4c0e-9fd5-8297f778d210",
+  "code": "",
+  "name": "8\" F/R Solid S/Driver 8 mm _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 252.0,
+  "salePrice": 0.0,
+  "quantity": 1680.0
+ },
+ {
+  "managerKey": "49886902-0142-4348-a666-4dc2c1899f29",
+  "code": "",
+  "name": "Gear HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 390.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "4a2bc4d3-17a1-4ddf-b43d-a7154cf54677",
+  "code": "",
+  "name": "HP 1051 ID",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 738.75,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "4a61cd81-6adb-4c1c-9dc5-341e93b638c2",
+  "code": "",
+  "name": "Switch SD 450",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 500.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "4a71cba3-c2e0-4e7d-b477-b04615deefce",
+  "code": "",
+  "name": "Solid Blower SP 400",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2200.0,
+  "salePrice": 0.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "4b2c227d-5dbb-42ff-9c10-20ac5e792477",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 16x17 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "88a3b050-8593-48c4-b0c8-72802e528b32"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 233.0,
+  "quantity": -60.0
+ },
+ {
+  "managerKey": "4b707030-718e-4323-b9b5-1f440b3484a3",
+  "code": "Hyun Disc",
+  "name": "5'x1 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 8.75,
+  "salePrice": 114.0,
+  "quantity": 730.0
+ },
+ {
+  "managerKey": "4ba3f120-f20b-4fd3-80fe-7bbed83d4526",
+  "code": "SDH-TP14",
+  "name": "Solid T Pana 14 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f296b785-1918-485d-9adb-ae30f83d2e2f"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 250.0,
+  "quantity": 5232.0
+ },
+ {
+  "managerKey": "4c4591f7-fa59-4b23-978f-d3a27eeed01d",
+  "code": "TJ-3T-22",
+  "name": "03 ton T (22)",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "c63e1ab2-049e-40a6-be9c-2982657a3ca0"
+  ],
+  "costPrice": 14000.0,
+  "salePrice": 19500.0,
+  "quantity": 243.0
+ },
+ {
+  "managerKey": "4c7117d6-81bd-452b-a785-d57e310f892b",
+  "code": "",
+  "name": "46 pcs Socket Set 1/4 Drive",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2850.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "4c96ca0b-489f-41aa-a3a7-90278962bd54",
+  "code": "",
+  "name": "Auto Switch Component HPW 105 S",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "56e76716-1cbc-4138-a108-8a878525e553"
+  ],
+  "costPrice": 375.0,
+  "salePrice": 600.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "4d10e84a-51e1-4aec-9fc8-653ebb5abd76",
+  "code": "",
+  "name": "Fortum T Pana 11 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "4d27baf3-2ec5-4a4a-8fbc-f3f0012d5f95",
+  "code": "Hyun Disc",
+  "name": "14'x1/8 mm double net",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 660.0,
+  "quantity": -45.0
+ },
+ {
+  "managerKey": "4d33a971-e16d-42e8-a57a-77c4c47a517e",
+  "code": "SDPR-P120",
+  "name": "Solid Paper Roll P120",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "a561c712-afc8-4937-8ed1-545da23d971a"
+  ],
+  "costPrice": 3800.0,
+  "salePrice": 5500.0,
+  "quantity": 133.0
+ },
+ {
+  "managerKey": "4d5f2a0b-19d3-4f0a-8629-b4dc6e44ebde",
+  "code": "",
+  "name": "Solid Short Socket 15 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "4d917375-e39d-407e-baec-1ae7468eaba2",
+  "code": "",
+  "name": "Solid Pro Combination Spanner Set 8~24 G Chrome",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2000.0,
+  "salePrice": 0.0,
+  "quantity": 615.0
+ },
+ {
+  "managerKey": "4dc7beb5-f481-40f0-b1db-88c4f55282de",
+  "code": "",
+  "name": "Gear Case HP 2000 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1275.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "4de672a1-55fa-45b8-8428-e912332390b4",
+  "code": "",
+  "name": "Field Coil HP 2100 CS",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1275.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "4e592700-08be-46b9-a793-73498ff8b8c3",
+  "code": "SD 435",
+  "name": "7\" Grinder 1800 W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "4ec22bcf-9e00-4d87-8db1-af16e70c7e52",
+  "code": "",
+  "name": "No Return Valve HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "4ecaaee3-9250-4fa4-af52-2bf2cf6ae369",
+  "code": "",
+  "name": "18\" Max Power Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1095.0,
+  "salePrice": 0.0,
+  "quantity": 16.0
+ },
+ {
+  "managerKey": "4ecf5b98-af79-4c27-9e09-a09717999795",
+  "code": "",
+  "name": "Selector Knob HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "4f6a7a02-fbb8-481e-849d-9b812e51bc52",
+  "code": "MMA-120 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "4f92b033-d705-44fe-a0bc-28bdafc2d395",
+  "code": "",
+  "name": "Fan HPW 710 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "4fccb8ca-8467-40fc-bd24-7f3ad5643fc8",
+  "code": "",
+  "name": "Gear HP 550 ID",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "501dcd54-1292-41d1-84cd-81ba00f88f6b",
+  "code": "",
+  "name": "Armature HP-600-I D",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e543b65a-63d0-422a-bfce-db32341feed3",
+   "f45adbfd-dad8-4f25-81f9-3c09811f2e07"
+  ],
+  "costPrice": 900.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "503e18ca-944e-49af-a758-218cd25647f1",
+  "code": "SD 655",
+  "name": "Router",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "a38ad414-1bf4-4395-a407-4a2dd0d0807b",
+   "b33b076a-5497-4f5a-ab52-b4e26b603541",
+   "ccd297e5-b92b-402c-92ad-a97e53e2d36b"
+  ],
+  "costPrice": 12375.0,
+  "salePrice": 14850.0,
+  "quantity": -3.0
+ },
+ {
+  "managerKey": "50a8a8c5-2a56-495f-a9bf-5ecb6f3ceba8",
+  "code": "",
+  "name": "Solid Short Socket 20 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 100.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "50aff09a-17c7-41f2-9086-577fdf58e901",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "519c005f-1687-452a-ace2-b34b87cb0b2b",
+  "code": "MMA-120 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "51bf0de8-7bfb-4db2-9fca-5a69a49d73bd",
+  "code": "GSS-52",
+  "name": "Gate Socket Sets 52 pcs",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "640ea9ac-d7e8-414c-b1b8-798bd0a0a709"
+  ],
+  "costPrice": 7700.0,
+  "salePrice": 7500.0,
+  "quantity": -5.0
+ },
+ {
+  "managerKey": "5331296d-cf08-4e13-9631-7bf6bf079cb2",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "5383cbe7-980b-4e06-9187-37bc658de78d",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 09 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "d47f07f7-c404-40cf-a3a4-a832487929e4"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 120.0,
+  "quantity": 72.0
+ },
+ {
+  "managerKey": "53a87cfb-7120-4b81-8d2f-ddd9a6ca3d8e",
+  "code": "",
+  "name": "8\" plier Xianyu",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 275.0,
+  "salePrice": 0.0,
+  "quantity": 4248.0
+ },
+ {
+  "managerKey": "5433d41c-c82e-483b-bf91-ad846536b3b8",
+  "code": "",
+  "name": "Release Valve HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 41.0
+ },
+ {
+  "managerKey": "545aab73-bada-4cfc-99cc-bbe2afcc47b7",
+  "code": "",
+  "name": "32 pcs Gate  Socket Set",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 7500.0,
+  "salePrice": 0.0,
+  "quantity": 45.0
+ },
+ {
+  "managerKey": "54697a11-18c8-4c69-b76b-b069bddc5418",
+  "code": "HP 2002-LHG",
+  "name": "Heat Gun",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "634f1d0d-e5aa-4d47-b123-ed0af6abc5b3",
+   "d5c4ea9e-c368-4841-b1ec-67a9cb8f80eb",
+   "f9858c33-da59-434f-b85c-5dc9ed7df657"
+  ],
+  "costPrice": 4060.0,
+  "salePrice": 5220.0,
+  "quantity": 104.0
+ },
+ {
+  "managerKey": "54e23c43-f3ed-4fb7-b2f5-e619559e00ea",
+  "code": "",
+  "name": "4\" Solid 2 way Full Rod",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 175.0,
+  "salePrice": 0.0,
+  "quantity": 1440.0
+ },
+ {
+  "managerKey": "55391cde-849d-4866-86a7-25978976e348",
+  "code": "",
+  "name": "Flap Disc Hyun 5\" # 80",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 120.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "55716b8a-e0bc-4cdd-9a9b-fddb3cdcce9e",
+  "code": "",
+  "name": "6\" Long Nose Xianyu",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 230.0,
+  "salePrice": 0.0,
+  "quantity": 1680.0
+ },
+ {
+  "managerKey": "55f47fbb-25cf-470a-8141-deb8e2159659",
+  "code": "SD 115",
+  "name": "Dust Blower 650 W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "9780a2b9-905b-4090-80a2-0f55bfbc38e0"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 4680.0,
+  "quantity": -5.0
+ },
+ {
+  "managerKey": "56b6017b-c7bd-4d71-85ab-c298ab052fe8",
+  "code": "HP 450-DGS",
+  "name": "Die Grinder",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "6bbac5fb-e7dd-491b-a620-0a3177616d2b"
+  ],
+  "costPrice": 393.75,
+  "salePrice": 4950.0,
+  "quantity": 35.0
+ },
+ {
+  "managerKey": "56bbd848-d404-4237-a82d-b97df07e5a85",
+  "code": "Hikoki",
+  "name": "4\" Grinder G10 SS 2",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "9772f15d-c428-45be-861c-13bfd0decba0"
+  ],
+  "costPrice": 9800.0,
+  "salePrice": 11500.0,
+  "quantity": 25.0
+ },
+ {
+  "managerKey": "5720324a-4d08-4e9d-998f-fd5bd0baeac1",
+  "code": "MMA-160 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 21000.0,
+  "quantity": -4.0
+ },
+ {
+  "managerKey": "572092a6-bc8f-4e94-abee-63d19f16466d",
+  "code": "",
+  "name": "Armature HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2250.0,
+  "salePrice": 0.0,
+  "quantity": 23.0
+ },
+ {
+  "managerKey": "5806d21d-a125-4c7b-a7d2-a8425fcb8a1f",
+  "code": "",
+  "name": "6 watt COB Spot Light",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 67.15,
+  "salePrice": 0.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "58ee281d-55eb-43e5-8e31-8a40b9f627d8",
+  "code": "HP 1000-IW",
+  "name": "Impact Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "672c2724-e210-457d-871d-5c19af0067d5"
+  ],
+  "costPrice": 12000.0,
+  "salePrice": 14400.0,
+  "quantity": 14.0
+ },
+ {
+  "managerKey": "5916a776-1866-4717-b814-4c327c2c39f1",
+  "code": "Hyun Flap Disc",
+  "name": "4' #80 Blue",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 114.0,
+  "quantity": -70.0
+ },
+ {
+  "managerKey": "59249bc2-5d9a-479e-8aa0-9b8bbe3c42f2",
+  "code": "",
+  "name": "1700 DH Cylinder",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3750.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "5979d3e0-7bb9-4e4c-a56b-07f4728793be",
+  "code": "",
+  "name": "Selocter Knob 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "5a0afcb2-17cc-4c0e-bae7-01c77310962d",
+  "code": "",
+  "name": "Release Valve HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 11.0
+ },
+ {
+  "managerKey": "5a2d33f1-bc65-4570-b03b-8a5ec5d7f995",
+  "code": "HC-3H24",
+  "name": "Air Compressor",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "6e0ea1b4-6642-4678-bb04-492ad73427d8",
+   "77868011-9ff2-4a10-b4b3-98d855e588fd",
+   "e84675a8-59c2-4a4a-8e3b-16201bab0fe2"
+  ],
+  "costPrice": 32777.0,
+  "salePrice": 45000.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "5a4f0f4a-e1b5-4682-bb86-ba20b0cfc30a",
+  "code": "XL-DB",
+  "name": "XL 230 ST",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f5693cd5-11fc-416d-aa24-9561495d29a5"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "5a79114e-928f-435d-9251-1331f8babdef",
+  "code": "Hyun TCT Blade",
+  "name": "14\"x120 th  Alum",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5740.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "5ab4cb8a-560b-4bfa-baf4-f7aef5827aa7",
+  "code": "",
+  "name": "DAVC-150",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "eeab8ea9-796e-428b-9cb3-cee6bf0f4c52"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 2600.0,
+  "quantity": -31.0
+ },
+ {
+  "managerKey": "5b2b24b9-f863-4115-8e7f-2281733d5cf3",
+  "code": "",
+  "name": "Piston HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 18.75,
+  "salePrice": 0.0,
+  "quantity": 105.0
+ },
+ {
+  "managerKey": "5bab28a6-62b3-4eda-a735-2fc8cfb56f38",
+  "code": "",
+  "name": "Solid Paper Roll # 150",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3800.0,
+  "salePrice": 0.0,
+  "quantity": 60.0
+ },
+ {
+  "managerKey": "5bb60e35-0c25-4b8c-b6e5-50e42312fe73",
+  "code": "",
+  "name": "Armature HPW 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2700.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "5c543f5b-6b2d-4f22-8ceb-55177e855204",
+  "code": "",
+  "name": "XL 105 HPT Super Premium",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 530.0,
+  "salePrice": 0.0,
+  "quantity": 300.0
+ },
+ {
+  "managerKey": "5cae1c99-294a-47d5-8ece-29f3dada0e2c",
+  "code": "SDH-SP12",
+  "name": "Solid Screw Pana 12\"",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 600.0,
+  "quantity": -30.0
+ },
+ {
+  "managerKey": "5cceafeb-b67e-4ce6-8466-cfb79de173bb",
+  "code": "Hyun Disc",
+  "name": "5\"x3 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.55,
+  "salePrice": 0.0,
+  "quantity": 6200.0
+ },
+ {
+  "managerKey": "5d31f387-8223-4131-9130-24b271558fe5",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 24x27mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "b7456063-f95e-41be-9fe6-460486bdca26"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "5d6ef43d-1a58-45bb-9cb9-d3dd8cf40e20",
+  "code": "",
+  "name": "Washer Gun HPW 110 IM / 140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 176.25,
+  "salePrice": 0.0,
+  "quantity": 11.0
+ },
+ {
+  "managerKey": "5dc579e3-f712-41d9-8339-7b2c929f4ffa",
+  "code": "Hyun Disc",
+  "name": "4\"x3mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 8.25,
+  "salePrice": 0.0,
+  "quantity": 800.0
+ },
+ {
+  "managerKey": "5e2a44f2-1efd-48a3-b466-f2c6f69346c1",
+  "code": "XL-DB",
+  "name": "XL 180 S",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "703b62f6-b3c5-42e1-aebe-211ce296e12a"
+  ],
+  "costPrice": 1500.0,
+  "salePrice": 1700.0,
+  "quantity": 420.0
+ },
+ {
+  "managerKey": "5e6900e9-ef68-41d5-b279-1716845aac72",
+  "code": "",
+  "name": "HP 650-EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e6fa8bbe-b6af-413c-a295-f1ff4757b56b"
+  ],
+  "costPrice": 618.75,
+  "salePrice": 6750.0,
+  "quantity": 185.0
+ },
+ {
+  "managerKey": "5eed02aa-eb98-4283-9d41-bae9a1f01dc2",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 10x11 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "830f8d51-7390-4c74-9add-52c415337466"
+  ],
+  "costPrice": 87.0,
+  "salePrice": 122.0,
+  "quantity": 420.0
+ },
+ {
+  "managerKey": "5f395084-b707-4f14-8742-8f5162366970",
+  "code": "",
+  "name": "Swivel Adapter with Filter",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "bb3f63fd-666f-43fa-84e0-5057a883fa04"
+  ],
+  "costPrice": 150.0,
+  "salePrice": 350.0,
+  "quantity": 29.0
+ },
+ {
+  "managerKey": "5f64d384-88d7-40a2-af39-5a8583644daf",
+  "code": "",
+  "name": "6' Solid Screw Pana",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 255.0,
+  "salePrice": 285.0,
+  "quantity": 83.0
+ },
+ {
+  "managerKey": "5f92d424-d278-4492-900c-ca81d225ffec",
+  "code": "",
+  "name": "12\" Simple Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 168.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "60013ce4-85e5-4dd7-8147-677fb1840828",
+  "code": "SDH-SP",
+  "name": "Solid Screw Pana 12'",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 545.0,
+  "salePrice": 580.0,
+  "quantity": -73.0
+ },
+ {
+  "managerKey": "605031d4-4eef-4027-a1ac-885413d9cd6b",
+  "code": "",
+  "name": "2.5' Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 160.0,
+  "salePrice": 180.0,
+  "quantity": 378.0
+ },
+ {
+  "managerKey": "60514ccb-70f3-428a-b773-f2fc1ad05563",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 24 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "7c243f10-6023-4ff1-bca8-7300c13d6c6d"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 34470.0,
+  "quantity": -25.0
+ },
+ {
+  "managerKey": "60c268fb-c540-4feb-b945-b243477f24ff",
+  "code": "Hyun Flap Disc",
+  "name": "4\" #60 Blue",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "60c8fe71-8c36-41ac-a801-53c3889eadc9",
+  "code": "",
+  "name": "Solid Screw 2 way small / Gutka",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 110.0,
+  "salePrice": 0.0,
+  "quantity": 1920.0
+ },
+ {
+  "managerKey": "61427db1-d03a-42a0-a268-44b963b716fc",
+  "code": "",
+  "name": "Piston Assy HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "6744be41-d3a9-4ecb-adf6-eb1d1d29a214"
+  ],
+  "costPrice": 56.25,
+  "salePrice": 0.0,
+  "quantity": 21.0
+ },
+ {
+  "managerKey": "61517dd4-0eb8-430a-9cc0-8ad5701e3824",
+  "code": "",
+  "name": "Adapter Strip Light 4 Amp 8 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 21.25,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "61b3ecb5-92ad-4e11-9e7c-e38e438ea5f7",
+  "code": "",
+  "name": "2.5\" Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "635a13dd-c327-428a-a703-441252afd4e1",
+  "code": "",
+  "name": "Housing of HP 600 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "640dfd3f-9613-4ecb-8735-7fa00be1e489",
+  "code": "",
+  "name": "Solid Hex Key Set long",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 380.0,
+  "salePrice": 0.0,
+  "quantity": 300.0
+ },
+ {
+  "managerKey": "648b8be4-953b-4c02-8d63-e3ae6d5de99c",
+  "code": "SDH-SP",
+  "name": "Solid Screw Wrench 12\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "970eb0b0-8617-406a-80e5-dd3a08a80027"
+  ],
+  "costPrice": 490.0,
+  "salePrice": 0.0,
+  "quantity": 960.0
+ },
+ {
+  "managerKey": "650a6a95-59b0-4521-9441-c9597484292e",
+  "code": "",
+  "name": "4\" Solid D/B Thick",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 285.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "6524df05-da17-46bb-bb8a-723a1da409e9",
+  "code": "",
+  "name": "Armature VTP 18",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 13500.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "65b149a3-7815-4be6-91da-9c53fb930b63",
+  "code": "TJ-2T",
+  "name": "02 ton T",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cfff7ba3-7340-4d2a-a811-c56de245cb83"
+  ],
+  "costPrice": 4300.0,
+  "salePrice": 6000.0,
+  "quantity": 459.0
+ },
+ {
+  "managerKey": "663e71d8-511d-4e15-bb4a-2caaa0c138f9",
+  "code": "",
+  "name": "19\" Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1500.0,
+  "salePrice": 0.0,
+  "quantity": 1536.0
+ },
+ {
+  "managerKey": "6696b6cb-1761-44c5-a7ea-e0661db894a3",
+  "code": "BJ-16T",
+  "name": "16 ton B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "8c53b5b8-2df5-4916-b39f-5107dbc8ea91",
+   "a60137b4-d007-464a-8607-252dd91f8dd7"
+  ],
+  "costPrice": 3850.0,
+  "salePrice": 4800.0,
+  "quantity": 2116.0
+ },
+ {
+  "managerKey": "6699890b-d52d-4e6e-827b-7fd10dacf879",
+  "code": "",
+  "name": "6~32 Solid Pro Ring Spanner Set G",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4900.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "66a03cc1-a2e5-487d-8acc-66ee231ae08f",
+  "code": "",
+  "name": "Water Seal HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 249.0
+ },
+ {
+  "managerKey": "67cadc4a-93d3-457d-9a14-78226d0134c7",
+  "code": "",
+  "name": "Solid MMA 200 Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 6500.0,
+  "salePrice": 0.0,
+  "quantity": 144.0
+ },
+ {
+  "managerKey": "67ea722d-2fe1-44ab-8434-f1e0a5dbc60d",
+  "code": "",
+  "name": "Solid Short Socket 16 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "6842ccc6-24e5-43d7-9283-21385ee7f6b6",
+  "code": "",
+  "name": "Armature HP 1050 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "689d9435-f3ce-431f-9cc1-40b7355a8b4b",
+  "code": "Hikoki",
+  "name": "9\" Grinder G 23 ST",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "88b25c0d-aa3b-4bb7-8972-65f2bcf31b38"
+  ],
+  "costPrice": 28000.0,
+  "salePrice": 35000.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "68db8b1a-5d6c-4f35-a270-448d63271f24",
+  "code": "",
+  "name": "17\" Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b292d2d1-e2d7-483d-b12c-53be5fed07b9"
+  ],
+  "costPrice": 1300.0,
+  "salePrice": 0.0,
+  "quantity": 869.0
+ },
+ {
+  "managerKey": "695fec70-b611-4f5f-ac07-88e5db9fdc35",
+  "code": "",
+  "name": "15' Solid Screw Pana",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1550.0,
+  "quantity": -19.0
+ },
+ {
+  "managerKey": "69cc4819-81fa-4c15-8ef5-d12f5699659d",
+  "code": "",
+  "name": "Pump Head HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 6000.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "6aafa688-707e-4d56-8184-37d425404e7f",
+  "code": "",
+  "name": "5 mtr pvc hose pipe",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "80753e13-f4ed-44c1-ac37-71276cd89296"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 1200.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "6b51af32-ff1c-4004-95d4-13cbe286dc69",
+  "code": "",
+  "name": "Strip Light 8 mm C/W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 9690.0,
+  "salePrice": 0.0,
+  "quantity": 11.0
+ },
+ {
+  "managerKey": "6b80286a-181b-4b69-8a52-315b57503dd7",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "6b84653c-3dd8-4945-9054-8cca962adeb3",
+  "code": "",
+  "name": "4\" Solid Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e64c82c9-5efe-4b2f-8c7e-215ad92368ca"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "6c463a54-0040-4c96-9646-d09f42297564",
+  "code": "",
+  "name": "Gear HP 1300 EP",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1123.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "6cfaf8f9-3b41-462c-8700-8e4e4250260a",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanner Sets 6~32 mm",
+  "unit": "sets",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "9cde588c-d3c0-415b-91f8-e44fc656cf86"
+  ],
+  "costPrice": 5450.0,
+  "salePrice": 6200.0,
+  "quantity": 115.0
+ },
+ {
+  "managerKey": "6d1fe84e-1ab2-4d32-9d7f-6d9a52ba3bf2",
+  "code": "",
+  "name": "3\" water pump X3",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 29750.0,
+  "salePrice": 0.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "6d61fbd8-8028-4ce7-b0ec-9993e7391a8f",
+  "code": "",
+  "name": "Micro Auto Switch HPW 140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "6e297408-6692-4996-8d3e-2a6747bea11d",
+  "code": "Hyun TCT Blade",
+  "name": "7\"x60 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1015.0,
+  "salePrice": 0.0,
+  "quantity": 1000.0
+ },
+ {
+  "managerKey": "6e5b16dc-d77c-4442-ba58-84a08fb09e9c",
+  "code": "",
+  "name": "Solid Deep Socket 19 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 170.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "6e7fc5a7-8c81-4e14-abb0-a7f764d1554d",
+  "code": "HYUN DB",
+  "name": "7' 180 HPT",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1500.0,
+  "quantity": -13.0
+ },
+ {
+  "managerKey": "6ea556d5-8175-41d6-91fa-9e1ee20b5ad7",
+  "code": "",
+  "name": "Thurst Bearing HPW 110 / 140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "6f1183bf-5e42-4bdb-99fe-952d7cc361bd",
+  "code": "",
+  "name": "Protection Sleeve Ass'y HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "6f3b6da3-506a-4109-9a43-46b3af06e5aa",
+  "code": "TIG-200",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "6feb9297-15cc-4483-8462-f5b51c30d90e",
+  "code": "",
+  "name": "Toothed Shaft Ass'y HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 900.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "70a3f0cc-eae6-4466-a966-ff2b46f850f5",
+  "code": "BJ-20T-LH",
+  "name": "20 ton B (LH)",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "a07dac37-b351-4f98-9421-bdd660d95608"
+  ],
+  "costPrice": 6000.0,
+  "salePrice": 7000.0,
+  "quantity": 43.0
+ },
+ {
+  "managerKey": "70d06d42-1b63-4766-b3e9-0448630ee70b",
+  "code": "",
+  "name": "Carbon Brush HP 1500 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "710e18aa-e4a8-454e-b965-54f179b044a5",
+  "code": "Hyun TCT Blade",
+  "name": "7'x40 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1215.0,
+  "quantity": -89.0
+ },
+ {
+  "managerKey": "7182fe2f-b45d-4d74-9f4a-344debaff9ab",
+  "code": "D D CSS",
+  "name": "Diamond Dolphin 8~24 combination spanner set",
+  "unit": "sets",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "995c8c36-2a32-4b12-813c-95e0f4eb56b7"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 1780.0,
+  "quantity": -22.0
+ },
+ {
+  "managerKey": "71d4aac0-33c0-4799-be42-c1c88168a136",
+  "code": "SD 714",
+  "name": "Cut-Off Machine 2300 W",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "9ae0c95a-2406-4fb0-8a63-ebcd6aeaa676"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 17370.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "724ba025-8e0c-4bbe-a7a3-fb94f4cbdc3f",
+  "code": "",
+  "name": "Solid Short Socket 22 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 110.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "736a2d99-5c06-4c0f-b114-71b14e0b8814",
+  "code": "",
+  "name": "Motor Pack HPW 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b21845b7-b6ef-498d-bb83-46aa964785df"
+  ],
+  "costPrice": 5000.0,
+  "salePrice": 21250.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "7373935b-8af3-4e4e-8674-a56ec9a6268b",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "740ccd5b-9205-4f41-9a8a-8fecec560ffb",
+  "code": "SDH-TP13",
+  "name": "Solid T Pana 13 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "aec0ef20-56d1-4d05-9f55-edc0c4f449a6"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 250.0,
+  "quantity": 4559.0
+ },
+ {
+  "managerKey": "75a8e140-bca2-46e0-8055-448da38e5883",
+  "code": "Hyun TCT Blade",
+  "name": "8\"x40 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1085.0,
+  "salePrice": 0.0,
+  "quantity": 125.0
+ },
+ {
+  "managerKey": "75d9473b-abd7-4d34-99aa-1d7f15d6875b",
+  "code": "",
+  "name": "Surface Panel Light 24 watts",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 147.05,
+  "salePrice": 0.0,
+  "quantity": 150.0
+ },
+ {
+  "managerKey": "7632533a-59fd-452b-bd22-4a29b01c7466",
+  "code": "",
+  "name": "HPW 140-IM Head",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2625.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "765bad0b-3487-4e50-a7d7-7fcaec831353",
+  "code": "",
+  "name": "HYT-480",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 158000.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "7660ebe9-7c1c-424c-8c96-f2a777461a3f",
+  "code": "SDH-SP15",
+  "name": "Solid Screw Wrench 15\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "7ec308d1-8dbf-428d-98fb-2d237cb4e18c"
+  ],
+  "costPrice": 1250.0,
+  "salePrice": 0.0,
+  "quantity": 80.0
+ },
+ {
+  "managerKey": "76f21073-cb2c-44ff-873a-e1f0865538d9",
+  "code": "HYUN DB",
+  "name": "9\" 230 ST",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "77202f5c-84b0-4c26-a644-c2d30206082f",
+  "code": "TIG-200 Dual",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "77326594-6f18-4618-b3bf-750a5e723eff",
+  "code": "",
+  "name": "Ratchet Sleeve Ass'y HPW 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 885.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "77566db6-d5ba-4863-af5d-8def1b615f78",
+  "code": "HP-768",
+  "name": "Knapsack Sprayer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "d453915c-2dcc-4b23-a939-fa76908f0b24"
+  ],
+  "costPrice": 28500.0,
+  "salePrice": 0.0,
+  "quantity": 13.0
+ },
+ {
+  "managerKey": "77f87517-6515-42e2-a7c9-a512f2a58701",
+  "code": "",
+  "name": "Ratchet Sleeve Assy HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "90bf0561-9a34-40fd-a357-f90862715840"
+  ],
+  "costPrice": 975.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "780932db-5548-4b69-801e-4f8da50a5059",
+  "code": "Hyun 8mtr H Pipe",
+  "name": "Hyun 8 mtr metal hose pipe",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "c220070e-a4f3-4537-b523-0314315bacfc"
+  ],
+  "costPrice": 168.75,
+  "salePrice": 2500.0,
+  "quantity": 111.0
+ },
+ {
+  "managerKey": "786794d9-9fe3-458c-8903-81dfc159e418",
+  "code": "Hyun Disc",
+  "name": "9'x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 578.0,
+  "quantity": -25.0
+ },
+ {
+  "managerKey": "78752275-d969-498b-a916-9e44f568e828",
+  "code": "",
+  "name": "8\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 495.0,
+  "salePrice": 0.0,
+  "quantity": 420.0
+ },
+ {
+  "managerKey": "78894d1f-7af0-42d5-911c-4d7551b61c88",
+  "code": "XL-DB",
+  "name": "XL 180 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c13302b0-1460-4718-b807-7b9ba0fc7fe1"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 1700.0,
+  "quantity": -25.0
+ },
+ {
+  "managerKey": "78d0e715-2b3d-466e-9b32-8d50127d41c7",
+  "code": "",
+  "name": "Pump Assy HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f29f809d-4d10-4909-9724-04fd6db6f06f"
+  ],
+  "costPrice": 5000.0,
+  "salePrice": 8500.0,
+  "quantity": 9.0
+ },
+ {
+  "managerKey": "7904a2a5-1d9b-4a28-8a6e-7c68ab058711",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanner Sets 6~22 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "7fde8e9b-2a21-4381-bfc1-3166d0410da0"
+  ],
+  "costPrice": 1750.0,
+  "salePrice": 2000.0,
+  "quantity": 34.0
+ },
+ {
+  "managerKey": "79ad78b0-1d33-4d88-a82c-4016520f870f",
+  "code": "",
+  "name": "Solid Deep Socket 16 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 800.0
+ },
+ {
+  "managerKey": "79f6515b-c3c3-40fe-aa3c-7e384681af27",
+  "code": "SD 415",
+  "name": "4' grinder Long",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 4900.0,
+  "salePrice": 5600.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "7a0dc317-146c-49ab-9d50-66ba64dd13ab",
+  "code": "XL-DB",
+  "name": "XL-105 HPT Premium",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cc36a90b-de91-448e-ad4f-9d74cf2d4b45"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 520.0,
+  "quantity": -116.0
+ },
+ {
+  "managerKey": "7a37e2f0-b907-48de-9d9b-e334cfcb0281",
+  "code": "",
+  "name": "Solid Cross Pana Grey HD",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 800.0,
+  "salePrice": 0.0,
+  "quantity": 300.0
+ },
+ {
+  "managerKey": "7a8818ff-e29e-4843-bb4b-bf3f5c8f45e5",
+  "code": "",
+  "name": "Shift Ass'y HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 26.25,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "7aabbabc-ad11-45ee-b95e-a2f5944c3ad5",
+  "code": "",
+  "name": "3\"Solid Cup Brush twisted",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c05ea4b1-3175-45a9-9a2a-2d5070880b85"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "7ab411fc-0d79-4f0e-b995-a3da47a9f539",
+  "code": "Hyun Disc",
+  "name": "5'x3 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 14.55,
+  "quantity": -434.0
+ },
+ {
+  "managerKey": "7ad52185-ad42-40fb-8992-d6b46be75445",
+  "code": "",
+  "name": "17\" Solid Metal Tool Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2750.0,
+  "salePrice": 0.0,
+  "quantity": 124.0
+ },
+ {
+  "managerKey": "7ad731f6-dd0c-4c10-a805-e9fa352db324",
+  "code": "",
+  "name": "Paper Cutting Knife Stanley",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 465.0,
+  "salePrice": 0.0,
+  "quantity": 1920.0
+ },
+ {
+  "managerKey": "7aecb6cd-3acf-4e06-8711-934fc955b32e",
+  "code": "",
+  "name": "Armature HP 600 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1200.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "7aed3b35-dd3d-48e1-b635-a466ee4973d8",
+  "code": "",
+  "name": "8' Solid Round Brush",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 640.0,
+  "salePrice": 720.0,
+  "quantity": 47.0
+ },
+ {
+  "managerKey": "7ba3e9f5-a2bc-43dc-a41b-2b7b6fe23e45",
+  "code": "",
+  "name": "Solid Paper aroll # 220",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3800.0,
+  "salePrice": 0.0,
+  "quantity": 48.0
+ },
+ {
+  "managerKey": "7c09a0c0-3082-46b6-a6e0-4b7bddc4379a",
+  "code": "",
+  "name": "HP 2000-HG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3150.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "7ca9d189-e097-4330-ab47-755d9d84ecac",
+  "code": "",
+  "name": "HPW 140 IM Pump Head",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3000.0,
+  "salePrice": 0.0,
+  "quantity": 21.0
+ },
+ {
+  "managerKey": "7cc8e93c-5217-4f52-82af-b07a1dc4b41b",
+  "code": "Hyun TCT Blade",
+  "name": "10'x80 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 251.25,
+  "salePrice": 3015.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "7d0301dd-dbe6-4e58-84df-357ab50b0d35",
+  "code": "",
+  "name": "8\" F/R Solid S/Driver 8 mm +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 252.0,
+  "salePrice": 0.0,
+  "quantity": 1680.0
+ },
+ {
+  "managerKey": "7d1618ce-b3b9-4c3c-9887-15c585311503",
+  "code": "TIG-180 Dual",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "7d304484-e0fe-4fab-aedc-f540de6bc317",
+  "code": "",
+  "name": "HP 2000-HGS",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4350.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "7dca8f78-a22f-435e-b377-49ab7e5d18ad",
+  "code": "BJ-10T",
+  "name": "10 ton B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "adc3813c-1227-47f0-8e77-3411135ca1ee"
+  ],
+  "costPrice": 2675.0,
+  "salePrice": 3200.0,
+  "quantity": 2235.0
+ },
+ {
+  "managerKey": "7e5990ae-6eb0-4e09-913a-bca2977a1ab0",
+  "code": "",
+  "name": "Solid Cross Pana Grey LD",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 650.0,
+  "salePrice": 0.0,
+  "quantity": 340.0
+ },
+ {
+  "managerKey": "7e7a6f6b-0cab-4e04-8da6-313f3ad92ca6",
+  "code": "",
+  "name": "8~32 Solid Pro Combination Spanner Set G Mat",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4650.0,
+  "salePrice": 0.0,
+  "quantity": 96.0
+ },
+ {
+  "managerKey": "7e967a8b-5c2a-4dfd-9a38-bad9407031b1",
+  "code": "",
+  "name": "4\" Solid Pro Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 90.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "7e97de2b-50e5-4462-b8f5-9d91c210e7ff",
+  "code": "",
+  "name": "Gear SD 410",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 550.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "7f23d70b-13d6-485b-a8d5-3019583d481b",
+  "code": "",
+  "name": "DACP 1400 Armature",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1200.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "7f49c521-b8b1-42ce-9adc-6351d10a51df",
+  "code": "",
+  "name": "MMA 120 K",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "7f9f4d2a-4ac3-4de5-86f0-75d91a7f3cd9",
+  "code": "",
+  "name": "5 Mtr Solid Measuring Tape Orange",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 1440.0
+ },
+ {
+  "managerKey": "7fcb553b-0247-44e1-842f-5624f1660588",
+  "code": "",
+  "name": "36\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3795.0,
+  "salePrice": 0.0,
+  "quantity": 96.0
+ },
+ {
+  "managerKey": "7fd07723-1c5c-4392-b970-f16a09fa3507",
+  "code": "",
+  "name": "Solid Short Socket 12 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 1100.0
+ },
+ {
+  "managerKey": "7fe6944e-f72d-4b00-89e0-b692fd68ceae",
+  "code": "Hyun Disc",
+  "name": "4\"x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 400.0
+ },
+ {
+  "managerKey": "80bfc480-2ac4-44b5-b6ed-c903d2ee7e76",
+  "code": "Hyun TCT Blade",
+  "name": "10'x40 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 2205.0,
+  "quantity": -14.0
+ },
+ {
+  "managerKey": "80c3ab84-245b-44aa-8d4d-88149884a945",
+  "code": "",
+  "name": "Protection Sleeve Ass'y HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 280.0,
+  "salePrice": 0.0,
+  "quantity": 7.0
+ },
+ {
+  "managerKey": "814a1d1e-1fbb-4c93-95e9-88070c57ef78",
+  "code": "Hyun TCT Blade",
+  "name": "7\"x40 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 945.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "8163996e-bb2b-4b60-b234-1c9ce5cd1ce0",
+  "code": "",
+  "name": "HP 1300 EP Variable Switch",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "829e206a-4c29-40e8-b9c4-8897ba65724e",
+  "code": "SDH-RSP",
+  "name": "Solid Ring Spanners 20x22 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "9f2ada6c-ab21-4d9e-b736-6f4ebe1f3cf3"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 455.0,
+  "quantity": -6.0
+ },
+ {
+  "managerKey": "831932d0-33ad-47e3-b4bd-721333b06331",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "833ae682-fa69-417a-b938-1fa6699128a6",
+  "code": "SDH-TP11",
+  "name": "Solid T Pana 11 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b5744e06-3c84-43a1-b82a-a094dada39ea"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 255.0,
+  "quantity": 684.0
+ },
+ {
+  "managerKey": "835db403-322e-4524-82b9-2a775d330816",
+  "code": "",
+  "name": "8' Solid Plier",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 440.0,
+  "salePrice": 457.0,
+  "quantity": -40.0
+ },
+ {
+  "managerKey": "83dcdc70-d05e-4bdf-9978-6aa084b0b4b6",
+  "code": "",
+  "name": "MMA  500 Solid Welding Plant Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 12000.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "841964d7-dde4-4a77-aa56-f098e8600dc6",
+  "code": "Hyun TCT Blade",
+  "name": "9\"x40 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1323.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "84228d85-546c-45fb-b9d0-c822223f8e3d",
+  "code": "Hyun Flap Disc",
+  "name": "4' #80 Red",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 85.0,
+  "salePrice": 105.0,
+  "quantity": -790.0
+ },
+ {
+  "managerKey": "84718447-b9d1-4a75-a124-13b41a56170d",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "84bcc6d2-9363-4c0a-9fb0-5c50a1637832",
+  "code": "",
+  "name": "2.5 Ton Trolley Jack",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4650.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "85061f4d-bea2-4323-84f9-e6ee237a1aec",
+  "code": "",
+  "name": "Cross Pana small chrome",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "85ea1840-b5d9-40ab-a16b-21c384928074",
+  "code": "",
+  "name": "Motor HP 2002 LHG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "86025dc9-6da0-4bc9-bf4b-9231c98c63e7",
+  "code": "",
+  "name": "BJ-32T-K-32 TonB (K)",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "fe83b1be-6347-46c6-b72c-04bf3111435c"
+  ],
+  "costPrice": 6850.0,
+  "salePrice": 8700.0,
+  "quantity": 141.0
+ },
+ {
+  "managerKey": "8670c901-a0f4-4841-bba2-39073a9a9830",
+  "code": "",
+  "name": "Fortum T Pana 10 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 4980.0
+ },
+ {
+  "managerKey": "87092839-4f2b-47e4-97d1-b92e43a608fb",
+  "code": "",
+  "name": "14\" Solid Pro Cutting Disc Black",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 420.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "8724f11f-b8ba-4342-be76-d9bdec8a98b7",
+  "code": "",
+  "name": "Solid Screw Wrench 18\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2175.0,
+  "salePrice": 0.0,
+  "quantity": 48.0
+ },
+ {
+  "managerKey": "875b2de1-6d51-458d-ae6f-63eafaa16ac5",
+  "code": "",
+  "name": "Micro Switch Component",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 7.0
+ },
+ {
+  "managerKey": "8767c288-7b63-4c5e-84a7-ad66828c96c8",
+  "code": "",
+  "name": "Carbon HP1200 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "8773e8f8-507f-43c9-89f6-9b415786d049",
+  "code": "",
+  "name": "20 Ton Bottle Jack SQ",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 4600.0,
+  "salePrice": 0.0,
+  "quantity": 110.0
+ },
+ {
+  "managerKey": "87ad64bf-5ef7-4385-9e99-13f556d5915c",
+  "code": "",
+  "name": "Switch SD 435",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "8822a661-5d7a-4312-93e0-3fe0e48ff473",
+  "code": "Hyun Disc",
+  "name": "9\"x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "88499e8e-c618-4c5b-9a90-8e146e290238",
+  "code": "",
+  "name": "6\"Simple Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 121.0,
+  "salePrice": 0.0,
+  "quantity": 6600.0
+ },
+ {
+  "managerKey": "89c79ccb-506f-487c-82fe-5654b98ca7ae",
+  "code": "",
+  "name": "8\"x8mm F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 252.0,
+  "salePrice": 0.0,
+  "quantity": 120.0
+ },
+ {
+  "managerKey": "8a03a2cb-c305-443f-a289-9d66cf574bb3",
+  "code": "",
+  "name": "Pump of HPW 110 / HPW 140 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2250.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "8a351b5d-23d2-4168-9a15-83372075205d",
+  "code": "Hyun Disc",
+  "name": "5'x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 20.45,
+  "quantity": -177.0
+ },
+ {
+  "managerKey": "8a66edeb-b1e3-43e5-a457-795f5f58de89",
+  "code": "XL-DB",
+  "name": "XL 105 HPT std",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "bddd816c-4659-4dfe-8801-c3cede99a82f"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 300.0,
+  "quantity": -146.0
+ },
+ {
+  "managerKey": "8af684e1-2e79-4c01-a099-4f64919b37af",
+  "code": "",
+  "name": "6\" Solid 2 way Simple",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 3840.0
+ },
+ {
+  "managerKey": "8d2de18e-53a9-4d74-8cc5-58b0cdb2027f",
+  "code": "",
+  "name": "6\" Solid Round Brush",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f2f02c9c-3321-490e-a924-fbc4b8f89ec0"
+  ],
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 200.0
+ },
+ {
+  "managerKey": "8da2cda2-383c-4e9d-9607-a3815c208f7b",
+  "code": "",
+  "name": "5 mtr hose pipe Hyundai",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "fed867ed-0aab-4790-b9f8-f4da499dda4d"
+  ],
+  "costPrice": 1500.0,
+  "salePrice": 2500.0,
+  "quantity": 17.0
+ },
+ {
+  "managerKey": "8ebb32eb-abd0-474c-acfd-66b14124b2dc",
+  "code": "",
+  "name": "5 Watt HL3DL5N-4",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 392.0,
+  "salePrice": 0.0,
+  "quantity": 210.0
+ },
+ {
+  "managerKey": "8f882dc2-533b-46c0-a577-88861b9b95d3",
+  "code": "Hyun Disc",
+  "name": "4\"x1mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 40.0,
+  "salePrice": 0.0,
+  "quantity": 2000.0
+ },
+ {
+  "managerKey": "8fad56fe-3c98-49a0-ab03-517faa7f3a3a",
+  "code": "",
+  "name": "Solid Hex Key Set standard",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 315.0,
+  "salePrice": 0.0,
+  "quantity": 504.0
+ },
+ {
+  "managerKey": "8fcf8a78-ebec-4f8e-a648-cff8357c715a",
+  "code": "Hikoki",
+  "name": "PUP-M 3",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f95ee794-c1cb-460f-ab40-bb7cb265d497"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "8fda1115-af1d-472c-85cd-2203f74f3edb",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanner Sets 6~32 mm",
+  "unit": "sets",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b7c1ae1f-e507-48ac-9949-c18b0802432d"
+  ],
+  "costPrice": 4450.0,
+  "salePrice": 5100.0,
+  "quantity": 109.0
+ },
+ {
+  "managerKey": "90379c6a-6694-4d15-a1dd-fca72584b86a",
+  "code": "",
+  "name": "Middle Ring HPW 105/135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "91078779-6319-4cfe-813b-df6a5a01f5e4",
+  "code": "",
+  "name": "10 pcs S0lid Socket Set L Rod",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1100.0,
+  "salePrice": 0.0,
+  "quantity": 140.0
+ },
+ {
+  "managerKey": "9156d1b4-3c90-46b7-a36c-f1240f12446b",
+  "code": "SDH-TP10",
+  "name": "Solid T Pana 10 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "b8dbd983-c3c4-4fe0-99db-2cadf4a12028"
+  ],
+  "costPrice": 210.0,
+  "salePrice": 255.0,
+  "quantity": 13452.0
+ },
+ {
+  "managerKey": "918c864f-bc39-4f10-ad9c-7efb6e2b447d",
+  "code": "",
+  "name": "5'x1mm Solid Disc",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 91.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "91daf190-053c-449b-9881-64ef9a4d2780",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "92271479-4e9e-4c3c-a5e3-b2b6507571a2",
+  "code": "",
+  "name": "HP 800 ID",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5810.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "930c41c3-8aad-4f05-b1d2-e347e665c035",
+  "code": "",
+  "name": "8\" F/R Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 207.0,
+  "salePrice": 0.0,
+  "quantity": 1080.0
+ },
+ {
+  "managerKey": "93b05c38-3a16-4a66-be06-8476ff92bcbc",
+  "code": "",
+  "name": "Silver Blade 40 T",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 430.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "93cd3718-300d-4ce2-b2c3-f8c92358d603",
+  "code": "G HP 1500 RH",
+  "name": "Bevel Gear HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "b24b35d6-d887-4e03-a2f3-d00a7c262351"
+  ],
+  "costPrice": 390.0,
+  "salePrice": 0.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "9400c482-eb3b-4159-b69d-97f34182502e",
+  "code": "",
+  "name": "Bubble Pot 8mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2900.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "94279a04-a2d8-4922-b136-636d06075bd0",
+  "code": "",
+  "name": "8\" Solid Round Brush",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "b753f9ae-ec7d-4a80-b012-93943539fd09"
+  ],
+  "costPrice": 640.0,
+  "salePrice": 0.0,
+  "quantity": 540.0
+ },
+ {
+  "managerKey": "952717c3-dae3-44ab-9778-7d72bfd7c8f4",
+  "code": "X Y CSS",
+  "name": "Xian Yu 8~24 spanner set",
+  "unit": "sets",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "a3b61fb7-c5eb-4648-9473-5c6c9b85af30"
+  ],
+  "costPrice": 1375.0,
+  "salePrice": 1580.0,
+  "quantity": 1179.0
+ },
+ {
+  "managerKey": "955f08ce-c121-4f33-b69e-d3b27142f7e8",
+  "code": "",
+  "name": "HP 710 EB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 8400.0,
+  "salePrice": 0.0,
+  "quantity": 168.0
+ },
+ {
+  "managerKey": "9597a7b1-8e91-4fe8-ac0c-aba3236163d7",
+  "code": "",
+  "name": "7\" Hyundai 180 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1300.0,
+  "salePrice": 0.0,
+  "quantity": 152.0
+ },
+ {
+  "managerKey": "95a1e241-95ba-4639-a3c4-06fb4af77f8d",
+  "code": "",
+  "name": "HBS 20 DP",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 10900.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "966e7f3d-6388-424c-8959-fd6b03e114b0",
+  "code": "SD 730",
+  "name": "Miter Saw 10'",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "97377942-2a52-47cf-888b-472f6d1daa3b",
+  "code": "Hyun DB",
+  "name": "125 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e5ee4a4b-cf19-4e1d-b8aa-d5d332017437"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 600.0,
+  "quantity": -161.0
+ },
+ {
+  "managerKey": "973c99c3-5c60-4dc1-b256-dd3bb991e600",
+  "code": "",
+  "name": "HP 852H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 6120.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "988f136a-83d8-4faa-86ca-fe546a895456",
+  "code": "",
+  "name": "HPW 130 IM washer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 20175.0,
+  "salePrice": 0.0,
+  "quantity": 61.0
+ },
+ {
+  "managerKey": "98992b6e-0069-4474-afa7-5019fc25ffb2",
+  "code": "",
+  "name": "Crank Shaft HP 1500 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 320.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "98d8f809-93d7-4961-84c1-4a770feecabb",
+  "code": "",
+  "name": "14\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 925.0,
+  "salePrice": 0.0,
+  "quantity": 768.0
+ },
+ {
+  "managerKey": "991c6eb2-0bdb-40eb-9fa0-286836d897dd",
+  "code": "",
+  "name": "Hyun 7\"x1.6",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 16.06,
+  "salePrice": 0.0,
+  "quantity": 1000.0
+ },
+ {
+  "managerKey": "9992c450-a25a-4b1d-bc64-a2812285af1e",
+  "code": "",
+  "name": "5 Mtr Solid Measuring Tape Crystal",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "99a2a626-b916-44d5-a0a3-bee9c578fbb2",
+  "code": "",
+  "name": "Toothed Shaft Ass'y HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 960.0,
+  "salePrice": 0.0,
+  "quantity": 11.0
+ },
+ {
+  "managerKey": "99d7f733-74ec-42fc-b08f-0d45d08f0564",
+  "code": "",
+  "name": "5 Mtr x 16mm Solid Measuring Tape",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 115.0,
+  "salePrice": 0.0,
+  "quantity": 1800.0
+ },
+ {
+  "managerKey": "9a43ec22-e461-410d-b50b-244f46b578b4",
+  "code": "",
+  "name": "Solid Short Socket 28 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 230.0,
+  "salePrice": 0.0,
+  "quantity": 130.0
+ },
+ {
+  "managerKey": "9a9f2235-55fd-47df-a981-675222738fa0",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "9b39a860-9905-42c1-a6ad-4cc8d5f33168",
+  "code": "Hyun Disc",
+  "name": "16'x3 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "9ca7b39b-a197-4145-8241-2c6cd3dc2e01",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "9d14326f-c2a1-44dd-8b3d-3fca13bc53e1",
+  "code": "",
+  "name": "14\" Solid Pro Cutting Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 410.0,
+  "salePrice": 0.0,
+  "quantity": 400.0
+ },
+ {
+  "managerKey": "9d5c7162-7eb5-4a8b-92bf-efe7eae8d15a",
+  "code": "Hyun TCT Blade",
+  "name": "8'x40 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 1085.0,
+  "salePrice": 1395.0,
+  "quantity": -22.0
+ },
+ {
+  "managerKey": "9d656207-741d-4a99-8a3a-e4fe7eeb7bb8",
+  "code": "",
+  "name": "Carbon Brush HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0.5625,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "9e0ddd45-550a-4aa6-833b-315df3632022",
+  "code": "",
+  "name": "HP 2401 CM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 21900.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "9e50f237-5a15-49d4-a7ff-cb6e0ba82e5d",
+  "code": "Hyun Disc",
+  "name": "4'x3mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 110.0,
+  "quantity": -682.0
+ },
+ {
+  "managerKey": "9e75c03a-9ff8-4c70-9fa9-ee7cd0d509ee",
+  "code": "Hyun DB",
+  "name": "105 HPT",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "afe8f22f-bdf6-4efa-b832-9e74ef79df58"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 390.0,
+  "quantity": -113.0
+ },
+ {
+  "managerKey": "9ea2e3dc-2d29-475c-955f-69bd5e29b335",
+  "code": "TIG-200 Dual",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "9eead86c-c7e5-4453-8147-a8fd38e836d0",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 10 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e4207b1d-3dd1-4af3-89b4-94147107693f"
+  ],
+  "costPrice": 99.0,
+  "salePrice": 124.0,
+  "quantity": 156.0
+ },
+ {
+  "managerKey": "9f5df39d-093b-4d17-9f58-b566ffbe9713",
+  "code": "",
+  "name": "Selector Knob HP 700 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "9f8482cb-98fb-44e6-977d-96b1444de5c8",
+  "code": "",
+  "name": "Water Seats HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 24.0
+ },
+ {
+  "managerKey": "9fd18e4a-ae65-4a60-99b4-9b86333e81e1",
+  "code": "",
+  "name": "Piston Ass'y HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 33.75,
+  "salePrice": 0.0,
+  "quantity": 9.0
+ },
+ {
+  "managerKey": "9fde2024-5c10-43c7-b179-029ed35f2bae",
+  "code": "",
+  "name": "Micro Auto Switch HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "a016e5f4-9301-4842-b929-e58d93c5ebb5",
+  "code": "SD 445",
+  "name": "7\" Grinder 2400 W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a05bfaf9-2b23-4967-aea5-5fd5622a00ea",
+  "code": "",
+  "name": "Solid Deep Socket 13 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 150.0,
+  "salePrice": 0.0,
+  "quantity": 400.0
+ },
+ {
+  "managerKey": "a20d0917-608d-4df3-94a4-8cba97a94de3",
+  "code": "",
+  "name": "Solid Screw Driver 4\" 2 way Y HD",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 130.0,
+  "salePrice": 0.0,
+  "quantity": 1440.0
+ },
+ {
+  "managerKey": "a20e9d1e-e4cf-415a-8350-5299ad5a5a40",
+  "code": "Hyun DB",
+  "name": "105 S",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "a4113f4b-320e-4fbe-adb8-89b1fd21a58a"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 300.0,
+  "quantity": -13.0
+ },
+ {
+  "managerKey": "a230c64e-ca79-4b75-af2b-d7d4e59ee68b",
+  "code": "Hikoki",
+  "name": "4\" Grinder G 10 SR 4",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "a24a6c63-c082-4f04-a050-86411e8cd98d"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 15000.0,
+  "quantity": -9.0
+ },
+ {
+  "managerKey": "a3608ef2-dfdf-45ba-8a6d-5647fa76eb19",
+  "code": "",
+  "name": "Engine Jack 2 ton 75 kg",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 37000.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "a3b578b7-1e68-48d6-91c5-958d19c6f54b",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a3e0924b-5b03-4807-8b55-13d530f1bc2a",
+  "code": "",
+  "name": "Blower SD 118",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2200.0,
+  "salePrice": 0.0,
+  "quantity": 210.0
+ },
+ {
+  "managerKey": "a3eee514-375b-4571-bc44-70e0cc6bda80",
+  "code": "Hyun Flap Disc",
+  "name": "4\" #60 Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 68.0,
+  "salePrice": 0.0,
+  "quantity": 2400.0
+ },
+ {
+  "managerKey": "a45eb683-368d-49ba-81cb-5eda874f1b2c",
+  "code": "",
+  "name": "4\" F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 168.0,
+  "salePrice": 0.0,
+  "quantity": 6480.0
+ },
+ {
+  "managerKey": "a49cb474-2b00-42f1-b557-a6b15bba75c5",
+  "code": "",
+  "name": "Gear Set HP 1400 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 750.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "a534d657-c030-42fa-848e-79491f319959",
+  "code": "",
+  "name": "HP 1400H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 8100.0,
+  "salePrice": 0.0,
+  "quantity": 60.0
+ },
+ {
+  "managerKey": "a59581ef-f4c7-40e5-a852-d3dd2c9b4f60",
+  "code": "",
+  "name": "3\" submercible pump 3 hp",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 67830.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "a69cf1f1-163f-4b44-9715-5faa89a68035",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a6d6de59-999a-4178-bdcd-ddf2fb964287",
+  "code": "SDH-TP17",
+  "name": "Solid T Pana 17 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "c8c19f7a-4039-4544-be62-bf41d04e7776"
+  ],
+  "costPrice": 240.0,
+  "salePrice": 325.0,
+  "quantity": 516.0
+ },
+ {
+  "managerKey": "a70806f0-5902-47ab-b9c6-52c08547d812",
+  "code": "",
+  "name": "Armature SD 435",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2500.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "a7132607-d0d3-479b-85ce-f89a12cc2dfc",
+  "code": "",
+  "name": "22\" Guide Bar",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1200.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "a71950f1-2d37-436c-9e5a-af9ea5426107",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a72b7114-cacd-41c2-ac26-7addfd32e5d8",
+  "code": "",
+  "name": "Pump Head HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "bf85d4c0-54b9-4187-be92-a181860a6c30"
+  ],
+  "costPrice": 1275.0,
+  "salePrice": 2500.0,
+  "quantity": 28.0
+ },
+ {
+  "managerKey": "a7d3b2ec-4b3b-40fb-b461-4bb9dcbaca1a",
+  "code": "TIG-160",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a7e23594-e2bd-46e7-83b1-c081d0a04031",
+  "code": "",
+  "name": "Switch SD 410",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 125.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "a82ea6bf-2f25-46ce-9a45-17cd21b7e29f",
+  "code": "",
+  "name": "4 Ton Denting Kit",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 25500.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "a88075b7-50ab-41a4-8b07-7af01b6467db",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 17 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f1f0ee34-4083-44d1-a9ce-428e7a367a53"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 236.0,
+  "quantity": -108.0
+ },
+ {
+  "managerKey": "a8ac4590-cf8e-4df4-8f7b-b397de8b0d92",
+  "code": "",
+  "name": "HPW 130 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "a8c765ed-c1b6-47ae-aba2-db1e36c6be4e",
+  "code": "SD 430",
+  "name": "5' Grinder",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 8190.0,
+  "quantity": -1.0
+ },
+ {
+  "managerKey": "a9134753-df88-4454-873c-0ffbbf2b20af",
+  "code": "",
+  "name": "Auto Switch Component HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "a91db4d8-b229-4999-b19c-17f0e7f95d66",
+  "code": "",
+  "name": "24 liter Oil Free Air Comp",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 29400.0,
+  "salePrice": 0.0,
+  "quantity": 27.0
+ },
+ {
+  "managerKey": "a9b372a2-8b5a-420b-83b3-31adbe73b0b6",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 18x19 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "bf64f20d-5ff9-48bc-a54a-20417fd83b7d"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 289.0,
+  "quantity": -18.0
+ },
+ {
+  "managerKey": "a9b4322f-a3ad-4986-8646-8956cdb1d463",
+  "code": "",
+  "name": "Hyundai 7\"x3mm Cutting Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 195.0,
+  "salePrice": 0.0,
+  "quantity": 200.0
+ },
+ {
+  "managerKey": "aa2e2860-a532-4a28-8aa6-1592e6ac7eda",
+  "code": "BJ-5T",
+  "name": "05 ton B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c7663916-2b4d-4025-a6e0-9e77d9885a0c"
+  ],
+  "costPrice": 1850.0,
+  "salePrice": 2200.0,
+  "quantity": 946.0
+ },
+ {
+  "managerKey": "aa3f68c0-a29b-4601-84f5-8b249bf756d4",
+  "code": "",
+  "name": "Switch SD 625",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 375.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "aa6c8398-6db2-4d63-85ef-11d5523d7ca0",
+  "code": "HBC-139",
+  "name": "Brush Cutter 4 Stroke",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cf45c688-6441-431b-b9ae-2eead995be27"
+  ],
+  "costPrice": 28950.0,
+  "salePrice": 34920.0,
+  "quantity": 104.0
+ },
+ {
+  "managerKey": "aa6dffb3-d0a0-4df7-aca1-0ae23acf19a2",
+  "code": "",
+  "name": "Solid Short Socket 17 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 73.0,
+  "salePrice": 0.0,
+  "quantity": 750.0
+ },
+ {
+  "managerKey": "aa7eecc8-d5ee-4df0-a599-c21c75c1b5ae",
+  "code": "",
+  "name": "5 Mtr Solid Measuring Tape Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 255.0,
+  "salePrice": 0.0,
+  "quantity": 7800.0
+ },
+ {
+  "managerKey": "ab3ded70-4556-45b6-b9c0-d8308e577287",
+  "code": "Hyun TCT Blade",
+  "name": "10'x120 th Alum",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 4050.0,
+  "quantity": -18.0
+ },
+ {
+  "managerKey": "ab5efb12-f493-4460-a11b-ec699d07230d",
+  "code": "Hyun Disc",
+  "name": "5\"x1 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 48.0,
+  "salePrice": 0.0,
+  "quantity": 5200.0
+ },
+ {
+  "managerKey": "ab676269-6a1b-4012-8a5e-08e266353a7d",
+  "code": "",
+  "name": "Solid MMA 800 HD yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 20500.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "ab6c8530-02e2-4dc2-8ce6-49dd73df489d",
+  "code": "",
+  "name": "10\" Simple Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 149.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "abc7fb0d-9ae0-449a-8891-a9bc13977a08",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanners 18 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "cdcef8c4-d04a-4721-834c-3db38594d3f1"
+  ],
+  "costPrice": 237.0,
+  "salePrice": 267.0,
+  "quantity": 18.0
+ },
+ {
+  "managerKey": "abda8cb4-7f4a-4003-852c-5a0b6cff63d2",
+  "code": "",
+  "name": "Black Blade 40 T",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 500.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "ad04a051-6e05-4124-a05c-bfe0e29c04e4",
+  "code": "",
+  "name": "Die Grinder GP 2S2",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 30780.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "adad6e0b-bce8-4812-93a3-567ede3652c1",
+  "code": "",
+  "name": "7\" Solid Pro Cutting Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 165.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "adbf4630-4d94-40c2-b720-f7a28baf1f0d",
+  "code": "XL-DB",
+  "name": "XL 125 HPT Premium",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "c67dfa26-54ef-4670-8d7f-4ee8969a926b"
+  ],
+  "costPrice": 616.0,
+  "salePrice": 900.0,
+  "quantity": 1071.0
+ },
+ {
+  "managerKey": "ae0f438a-efb8-487e-b8af-ef725a684f2e",
+  "code": "MMA-200 S",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "ae1c6e73-0fff-4485-bd6c-5677c301b6f4",
+  "code": "",
+  "name": "Solid Short Socket 29 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 230.0,
+  "salePrice": 0.0,
+  "quantity": 130.0
+ },
+ {
+  "managerKey": "ae4be0be-5a6b-4e16-b862-9210daccf3c1",
+  "code": "",
+  "name": "Solid Short Socket 08 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 500.0
+ },
+ {
+  "managerKey": "aee10a1c-5fc4-4d1f-a219-adc2f1d62d70",
+  "code": "",
+  "name": "7 HP Gasoline Engine",
+  "unit": "G 105",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 17800.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "aefa74b8-40fb-4be7-a3ed-d19771c4e9a9",
+  "code": "Hyun TCT Blade",
+  "name": "10\"x120 th Alum",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "af55ef7f-bb15-48aa-910c-edc8e5f25439",
+  "code": "",
+  "name": "5\"x1mm Solid Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 50.0,
+  "salePrice": 0.0,
+  "quantity": 2800.0
+ },
+ {
+  "managerKey": "afcdc505-51ba-4aae-8bdf-a7284e4d5fa0",
+  "code": "SD 410",
+  "name": "4\" grinder",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "aff7e45a-7ca8-442d-ba52-5842761f96b3",
+  "code": "",
+  "name": "Paper Cutting Knife Solid",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 280.0,
+  "salePrice": 0.0,
+  "quantity": 700.0
+ },
+ {
+  "managerKey": "b0b76ea6-d6e6-439c-8437-596985a97694",
+  "code": "",
+  "name": "Solid Screw Wrench 6\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "b0faff80-9972-4e65-85c1-dda4935269db",
+  "code": "",
+  "name": "Paint Spray Gun H 827 !.4mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3800.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "b10c0f93-a49d-4705-b3aa-b2f52d11ccbc",
+  "code": "Hyun Disc",
+  "name": "14'x3 mm single net",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 614.0,
+  "quantity": -127.0
+ },
+ {
+  "managerKey": "b14938d0-da24-4f7f-9696-b5cd204cd623",
+  "code": "",
+  "name": "Solid MMA 300 Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 8000.0,
+  "salePrice": 0.0,
+  "quantity": 38.0
+ },
+ {
+  "managerKey": "b1ac972b-18bc-4094-ae2c-81922ec9a67e",
+  "code": "Hyun Disc",
+  "name": "7x1.6 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "ffa27818-00c1-458c-b214-4f077973dbc2"
+  ],
+  "costPrice": 12.75,
+  "salePrice": 0.0,
+  "quantity": 1000.0
+ },
+ {
+  "managerKey": "b2db119b-4e9f-441c-8d0f-e29fd022d9c6",
+  "code": "Hyun TCT Blade",
+  "name": "4'x30 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 675.0,
+  "quantity": -16.0
+ },
+ {
+  "managerKey": "b365bba1-6ec8-4b1d-905c-d13ef2c5c0f1",
+  "code": "",
+  "name": "10' Solid Screw Pana",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 445.0,
+  "salePrice": 480.0,
+  "quantity": 149.0
+ },
+ {
+  "managerKey": "b3674c0b-f8ab-47c2-b606-217f1815009f",
+  "code": "",
+  "name": "4\" Simple Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 107.0,
+  "salePrice": 0.0,
+  "quantity": 4080.0
+ },
+ {
+  "managerKey": "b3d2b391-9973-4a0b-8ba3-4476fdbda688",
+  "code": "Z 52 pcs",
+  "name": "Zhon Xing 52 pcs socket",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "da1a09f8-760c-43e6-8b0b-7e9dc90272c4"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 3420.0,
+  "quantity": -9.0
+ },
+ {
+  "managerKey": "b47085f0-808e-454f-8879-959d3dee966c",
+  "code": "XL-DB",
+  "name": "XL 180 ST",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "dc051f88-6fe1-4889-97aa-fe1e926ebae5"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 1675.0,
+  "quantity": -56.0
+ },
+ {
+  "managerKey": "b4d45cf6-284e-437a-a768-154bef4c02a1",
+  "code": "",
+  "name": "17' Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 1300.0,
+  "salePrice": 1485.0,
+  "quantity": 77.0
+ },
+ {
+  "managerKey": "b4e7d786-bc06-4a17-99c9-50e9fc8f5e23",
+  "code": "SDH-CSP",
+  "name": "Solid Combination Spanner Sets 6~24",
+  "unit": "sets",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "d397ab4d-44a2-4316-8fc3-9a89c13799a1"
+  ],
+  "costPrice": 2350.0,
+  "salePrice": 2700.0,
+  "quantity": 44.0
+ },
+ {
+  "managerKey": "b57debde-b1d2-4b8c-aeca-f1d9caeb4384",
+  "code": "PH HPW 110 IM",
+  "name": "Pump Head HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "f6cd428f-ebad-4da7-9657-da5f4a9f91bd"
+  ],
+  "costPrice": 2625.0,
+  "salePrice": 4500.0,
+  "quantity": 77.0
+ },
+ {
+  "managerKey": "b59345e2-d549-48d9-8d8d-f797f4b0c90e",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "b5a31bac-9ae5-4997-8228-424104fa8cdb",
+  "code": "",
+  "name": "HYHT 26 Hedge Trimmer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 23000.0,
+  "salePrice": 0.0,
+  "quantity": 14.0
+ },
+ {
+  "managerKey": "b5c7a881-3f40-4558-8b1f-a8065732614f",
+  "code": "",
+  "name": "3' Solid Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 200.0,
+  "salePrice": 225.0,
+  "quantity": -111.0
+ },
+ {
+  "managerKey": "b5c9b969-51d1-41e9-b64c-91f6e5bf89e8",
+  "code": "",
+  "name": "Oil Seal HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 192.0
+ },
+ {
+  "managerKey": "b6204eae-3430-4b9b-99cc-b7009f2d0681",
+  "code": "Hitachi",
+  "name": "16\" CC 16 SB",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "d73fb08b-29c7-4be8-8e76-92568003988b"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "b6f84cda-1d7a-472b-abd4-438090948203",
+  "code": "",
+  "name": "Solid Deep Socket 10 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "b71c0cc0-b9c4-48e4-a8da-f5047e21ab42",
+  "code": "",
+  "name": "Solid Deep Socket 08 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 1200.0
+ },
+ {
+  "managerKey": "b775559d-c497-4d69-b562-0fa8df221e82",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "b7b06e6f-096a-4e2a-8e9b-e099effe5ee5",
+  "code": "Hyun Flap Disc",
+  "name": "4\" #80 Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 68.0,
+  "salePrice": 0.0,
+  "quantity": 57600.0
+ },
+ {
+  "managerKey": "b989e3b4-b3fa-4979-b352-1a78b6641a12",
+  "code": "",
+  "name": "Ratchet Sleeve Ass'y HP 800 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 141.75,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "b9ce03c4-5e41-4d16-b361-7fe4df5e1354",
+  "code": "",
+  "name": "14\" Solid Disc Green",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 420.0,
+  "salePrice": 0.0,
+  "quantity": 375.0
+ },
+ {
+  "managerKey": "bafb76fa-4f13-4cb3-9c74-adeab036818b",
+  "code": "Hyun Disc",
+  "name": "4'x1mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 70.0,
+  "quantity": -1867.0
+ },
+ {
+  "managerKey": "bb1211fe-f05b-49a4-8dd2-55452c1f7737",
+  "code": "",
+  "name": "TJ - 3 ton Trolley (28)",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "e1a05251-4f6f-43f6-bb90-e6cfcabaf18c",
+   "e1ee77ca-f91c-4a2c-85c9-64d26e6514c0"
+  ],
+  "costPrice": 19000.0,
+  "salePrice": 20500.0,
+  "quantity": 4.0
+ },
+ {
+  "managerKey": "bbe19dd5-3a7b-4105-b6f3-b8281cacc800",
+  "code": "Hyun TCT Blade",
+  "name": "9\"x60 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1596.0,
+  "salePrice": 0.0,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "bc82c1dd-ec8c-4149-903c-0f03ebc72126",
+  "code": "",
+  "name": "6' Solid Cutter Plier",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 375.0,
+  "salePrice": 396.0,
+  "quantity": 380.0
+ },
+ {
+  "managerKey": "bcfea56c-c75b-427e-bd4a-e8d65448e0fc",
+  "code": "SD 430",
+  "name": "5\" Grinder",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "be857f1c-b504-42b0-a093-7842e6cd120f",
+  "code": "",
+  "name": "armature HP 840 PL",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1500.0,
+  "salePrice": 0.0,
+  "quantity": 10.0
+ },
+ {
+  "managerKey": "be9759f7-1731-4cf1-8cd5-e5cc68542533",
+  "code": "",
+  "name": "HPW 140 IM Washer",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 22050.0,
+  "salePrice": 0.0,
+  "quantity": 1497.0
+ },
+ {
+  "managerKey": "bf289ddb-a3c1-40a7-9725-cc046ce2b786",
+  "code": "",
+  "name": "Solid Socket set 24 pcs",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 5040.0,
+  "quantity": -18.0
+ },
+ {
+  "managerKey": "bfc6cd58-8cff-49d3-bb21-0faa7a0eb288",
+  "code": "SD 415",
+  "name": "4\" grinder Long",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c05b9b6f-feec-4c34-8f91-9d4e1c7c146d",
+  "code": "",
+  "name": "HYCS 58 Techno 700",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 25500.0,
+  "salePrice": 0.0,
+  "quantity": 28.0
+ },
+ {
+  "managerKey": "c06d0035-dca6-46b1-8bdd-5c088b904427",
+  "code": "",
+  "name": "2 way Solid Screw Driver Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 72.0,
+  "salePrice": 0.0,
+  "quantity": 5832.0
+ },
+ {
+  "managerKey": "c097fbb8-921e-427a-864a-6b84c642383f",
+  "code": "",
+  "name": "DAV-150",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "d5a351c1-ee09-4eec-b40c-363a421d5fb3",
+   "f5c2a1df-e06a-47b3-837c-eeca58ddcaf0"
+  ],
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c0ec6998-c1fb-4bca-8440-1807d1fff3a9",
+  "code": "",
+  "name": "Flap Disc Hyun 4\" # 120 Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 65.0,
+  "salePrice": 0.0,
+  "quantity": 800.0
+ },
+ {
+  "managerKey": "c138feb1-b637-45c3-9bf3-a146f153ca1d",
+  "code": "TIG-200",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c1f1a1dc-5a71-4164-b227-9fc8489c1d44",
+  "code": "",
+  "name": "14' Solid Tool Box",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 1150.0,
+  "salePrice": 1305.0,
+  "quantity": 85.0
+ },
+ {
+  "managerKey": "c208b1d7-f7da-4122-8fa5-155b556ad206",
+  "code": "",
+  "name": "18\" Cross Pana H D",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1300.0,
+  "salePrice": 0.0,
+  "quantity": 60.0
+ },
+ {
+  "managerKey": "c22e82e9-8aec-4dce-aa8a-50d10328ca71",
+  "code": "",
+  "name": "Solid Short Socket 23 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 125.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "c26a128f-7a7d-43a0-a14e-67b72c13d170",
+  "code": "",
+  "name": "Armature HP 751 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 975.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "c2d6076d-2bd4-4ca0-b2a2-afa44d31dbc6",
+  "code": "",
+  "name": "SD 140 B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 14500.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "c32fff83-06b0-4966-8df8-abb4b688689a",
+  "code": "",
+  "name": "4' Solid Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 275.0,
+  "salePrice": 324.0,
+  "quantity": 104.0
+ },
+ {
+  "managerKey": "c356847d-8166-4934-9365-733cfa554438",
+  "code": "",
+  "name": "Solid Short Socket 26 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 165.0,
+  "salePrice": 0.0,
+  "quantity": 130.0
+ },
+ {
+  "managerKey": "c35d1623-51e0-487c-a3f5-84d7436fc3cb",
+  "code": "",
+  "name": "2x2 LED Backlit panel 36 W",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 6375.0,
+  "salePrice": 0.0,
+  "quantity": 80.0
+ },
+ {
+  "managerKey": "c3d928c9-9c6e-45e3-88a4-cc1b5872d70a",
+  "code": "Hyun Disc",
+  "name": "14\"x1/8 mm double net",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c3e92912-4b9e-40e2-8baf-dd6b0a6efdf2",
+  "code": "SD 435",
+  "name": "7' Grinder 1800 W",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 11520.0,
+  "quantity": -5.0
+ },
+ {
+  "managerKey": "c4825d50-bf1e-4ccc-b919-f4d52490de91",
+  "code": "",
+  "name": "Fortum T Pana 12 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 2760.0
+ },
+ {
+  "managerKey": "c4fc67f1-40b3-49ea-ad7e-5368027d787b",
+  "code": "",
+  "name": "Solid Deep Socket  21 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 840.0
+ },
+ {
+  "managerKey": "c57cb6f7-259c-49c6-af1a-e3f5629d9609",
+  "code": "",
+  "name": "Part of 3X 3\"x3\" Pump",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1550.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "c5c6c87b-1914-497f-a142-0ced05aeda91",
+  "code": "",
+  "name": "Gear Case HP 1300 EP",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c653a426-4a13-4965-86ff-89e7e999a80a",
+  "code": "SDH-SP8",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c7238b6c-3170-4d06-b4ce-80073f2c5ef3",
+  "code": "Hyun TCT Blade",
+  "name": "14'x120 th  Alum",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 7380.0,
+  "quantity": -8.0
+ },
+ {
+  "managerKey": "c7319b1c-7699-4015-8ee7-0115647642f2",
+  "code": "SDH-SP15",
+  "name": "Solid Screw Pana 15\"",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1550.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "c750760c-de0c-496e-8cf8-142f5d550b99",
+  "code": "",
+  "name": "Switch SD 415",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 120.0,
+  "salePrice": 0.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "c784c62d-c79d-42d5-89a1-5739127c9e17",
+  "code": "",
+  "name": "3\"x M10 Solid Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 160.0,
+  "salePrice": 0.0,
+  "quantity": 6400.0
+ },
+ {
+  "managerKey": "c7cb24b6-1e68-46e4-a148-473cf4322e24",
+  "code": "",
+  "name": "7\" Solid Pro Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 250.0,
+  "salePrice": 0.0,
+  "quantity": 650.0
+ },
+ {
+  "managerKey": "c7d114a3-16bf-4fbf-ad74-d369206c9ad5",
+  "code": "",
+  "name": "Solid Short Socket 21 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 100.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "c8776f4e-57ee-4cd3-8c46-8455d3c8e8ea",
+  "code": "SDH-SP8",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "c8afa1df-23f8-42b8-b65b-2e001aa41171",
+  "code": "BJ-3T",
+  "name": "03 ton B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "f242617e-146a-4b3b-898b-f46ce53e62de"
+  ],
+  "costPrice": 1650.0,
+  "salePrice": 2050.0,
+  "quantity": 379.0
+ },
+ {
+  "managerKey": "c93eec5e-105f-479a-8ec0-134e18e6de6e",
+  "code": "",
+  "name": "Solid Hex Key Set Xtra Long",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 480.0,
+  "salePrice": 0.0,
+  "quantity": 360.0
+ },
+ {
+  "managerKey": "c9c780d7-70d9-4d7a-90c0-0598e415b331",
+  "code": "",
+  "name": "Armature HP 1300 DH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2625.0,
+  "salePrice": 0.0,
+  "quantity": 7.0
+ },
+ {
+  "managerKey": "c9d1b17b-cd75-49a8-9b98-ffcfd2ccc470",
+  "code": "SDH-FSP",
+  "name": "Solid Fix Spanners 12x13 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e9530c70-a6a2-43b0-a492-bdc055cbf261"
+  ],
+  "costPrice": 106.0,
+  "salePrice": 150.0,
+  "quantity": 324.0
+ },
+ {
+  "managerKey": "c9d616d7-d24e-46ac-8cda-350ab6f1b468",
+  "code": "",
+  "name": "Solid Screw Driver 4\" 2 way R Insulated HD",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 165.0,
+  "salePrice": 0.0,
+  "quantity": 480.0
+ },
+ {
+  "managerKey": "ca337358-7ee5-451b-a5d2-3d82f2d3b699",
+  "code": "",
+  "name": "6\"Simple Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 121.0,
+  "salePrice": 0.0,
+  "quantity": 11364.0
+ },
+ {
+  "managerKey": "cb795d5e-feaf-4c2e-9abf-746782fa8936",
+  "code": "",
+  "name": "MIG 310 K",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 14000.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "cb7e1359-fca7-42fb-ab19-f98b9e264730",
+  "code": "",
+  "name": "MMA 100 Mini",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 10750.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "cb85a0b6-ec40-421e-a7d9-813e4603cf5a",
+  "code": "",
+  "name": "4\" Solid D/B Thin",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 310.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "cbecb87e-5933-4fc1-baf7-bb0504aa5457",
+  "code": "",
+  "name": "3 Ton Trolley low Profile 30 kg",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 22500.0,
+  "salePrice": 0.0,
+  "quantity": 55.0
+ },
+ {
+  "managerKey": "cc2d89f0-a26f-4690-841d-c8280858ec17",
+  "code": "",
+  "name": "4\"x1mm Solid Disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 32.0,
+  "salePrice": 0.0,
+  "quantity": 2400.0
+ },
+ {
+  "managerKey": "cc7f4cfb-6e26-4e9b-8328-9377e5174930",
+  "code": "",
+  "name": "Hyun 7'x1.6",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 182.0,
+  "quantity": -462.0
+ },
+ {
+  "managerKey": "ce1c7ccd-89dd-413b-b719-f5000a58341e",
+  "code": "Hyun TCT Blade",
+  "name": "12'x80 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "ce35961e-c5e1-4d55-bce9-4f28d8304d12",
+  "code": "Hyun TCT Blade",
+  "name": "8\"x60 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1253.0,
+  "salePrice": 0.0,
+  "quantity": 450.0
+ },
+ {
+  "managerKey": "ce5e769b-b10f-466e-b863-236c8f1f89ed",
+  "code": "",
+  "name": "Switch HP 1300 DH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 48.75,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "ce880530-2bfb-4cd7-b336-d0ec5e46fe90",
+  "code": "",
+  "name": "10 Ton Bottle Jack LD",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2350.0,
+  "salePrice": 0.0,
+  "quantity": 1340.0
+ },
+ {
+  "managerKey": "ceb2bbcc-28b3-45eb-bd17-5dcd89aba3d5",
+  "code": "",
+  "name": "12\" Max Power Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 665.0,
+  "salePrice": 0.0,
+  "quantity": 36.0
+ },
+ {
+  "managerKey": "cef22082-4c13-4f39-8f19-8e5a09d98315",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "d01f87f6-2f0f-47f3-b03c-a78bcc4ee073",
+  "code": "",
+  "name": "4\" Simple Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 107.0,
+  "salePrice": 0.0,
+  "quantity": 2400.0
+ },
+ {
+  "managerKey": "d02d9faa-8361-4230-9b32-892d42f12488",
+  "code": "SD 610",
+  "name": "Circular Saw 180mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e1296280-50bc-4062-927f-d7735bcf5049"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 10440.0,
+  "quantity": -2.0
+ },
+ {
+  "managerKey": "d0d1f85a-8897-4683-8e7e-a811c3f242f5",
+  "code": "",
+  "name": "Piston Ass'y HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 36.0
+ },
+ {
+  "managerKey": "d10055e4-7718-47f0-93e0-0d634106f813",
+  "code": "",
+  "name": "4\" Hyun Flap Disc # 120 Red",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 105.0,
+  "quantity": -10.0
+ },
+ {
+  "managerKey": "d16d1b53-d9f7-448d-838d-c8675931da91",
+  "code": "",
+  "name": "Solid Short Socket 10 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 62.0,
+  "salePrice": 0.0,
+  "quantity": 500.0
+ },
+ {
+  "managerKey": "d1b04726-656a-4048-8758-b63a31cf3295",
+  "code": "",
+  "name": "Selector Knob HP 650 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 225.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "d209fce2-6698-42fc-836b-02f9e4e1cba8",
+  "code": "",
+  "name": "12 pcs Socket Set",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1625.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "d2269fd0-f255-4957-a3c0-2cf72481d836",
+  "code": "",
+  "name": "HP 752H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5724.0,
+  "salePrice": 0.0,
+  "quantity": 50.0
+ },
+ {
+  "managerKey": "d23651cb-589b-48f9-92e9-83e59c27bcf1",
+  "code": "",
+  "name": "Oil Seal HPW 105 / 135",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 75.0,
+  "salePrice": 0.0,
+  "quantity": 126.0
+ },
+ {
+  "managerKey": "d28e9abc-e278-459e-92d5-878f869873dc",
+  "code": "SDH-SP 8'",
+  "name": "Solid Screw Pana 8'",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 345.0,
+  "salePrice": 380.0,
+  "quantity": 359.0
+ },
+ {
+  "managerKey": "d3391f07-e131-45d6-9bc1-a9d5657c9954",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "d3621d6f-7792-4fc3-8d68-d0d1b88cf872",
+  "code": "",
+  "name": "HP 2423H-AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 14100.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "d39b1ac3-a93b-4476-9f81-5da3b4972c64",
+  "code": "Hyun Disc",
+  "name": "7\"\"x3 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 195.0,
+  "salePrice": 0.0,
+  "quantity": 2000.0
+ },
+ {
+  "managerKey": "d3f7c0ea-e402-4d2a-8c3d-6311b8fba3cb",
+  "code": "",
+  "name": "Solid Deep Socket 18 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 170.0,
+  "salePrice": 0.0,
+  "quantity": 540.0
+ },
+ {
+  "managerKey": "d4a0c89a-087a-4285-81dd-ca244897ba77",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "d4eafda6-8710-41bc-8ecf-6bee2fa3e659",
+  "code": "SD 116",
+  "name": "Dust Blower 500 W",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "d57292aa-02de-4c04-8c65-8e0d187afcc7"
+  ],
+  "costPrice": 0.0,
+  "salePrice": 3420.0,
+  "quantity": -5.0
+ },
+ {
+  "managerKey": "d4f54746-9a11-4ef1-b491-c79b63281de7",
+  "code": "",
+  "name": "6' Solid Round Brush",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 540.0,
+  "salePrice": 60.75,
+  "quantity": 100.0
+ },
+ {
+  "managerKey": "d528f4fb-d950-4e72-a690-6f5ab5ffae74",
+  "code": "SDH-SP10",
+  "name": "Solid Screw Pana 10\"",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "d635a1b8-d2c7-42e1-86c7-93e2ef159524",
+  "code": "",
+  "name": "G 18 ST",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 28000.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "d83b0bc3-f263-4d24-9309-2313dae545b4",
+  "code": "",
+  "name": "8\" Simple Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 135.0,
+  "salePrice": 0.0,
+  "quantity": 2568.0
+ },
+ {
+  "managerKey": "d84ec8ca-b25e-40a7-afd9-5248e4e26cbe",
+  "code": "",
+  "name": "50 liter Oil Free Air Comp",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 34930.0,
+  "salePrice": 0.0,
+  "quantity": 28.0
+ },
+ {
+  "managerKey": "d86a19c8-f0ef-4f6f-b245-657f4bd9cc81",
+  "code": "",
+  "name": "6' Solid Long Nose",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 375.0,
+  "salePrice": 396.0,
+  "quantity": 170.0
+ },
+ {
+  "managerKey": "d9491658-e274-4e94-8b9a-5b0d40617d75",
+  "code": "",
+  "name": "3\"xM14 Solid Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 160.0,
+  "salePrice": 0.0,
+  "quantity": 1800.0
+ },
+ {
+  "managerKey": "d96c947d-e3b3-4878-92c5-1e790b8c3d8b",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "db9eecd5-b7f2-43ae-b744-124c0f30affb",
+  "code": "",
+  "name": "HP 802 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 10800.0,
+  "salePrice": 0.0,
+  "quantity": 12.0
+ },
+ {
+  "managerKey": "dbcb4e30-8797-4620-ae90-4d6358261506",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "dc5bba95-1612-4e84-bbcc-5f66f193ac72",
+  "code": "Hyun Disc",
+  "name": "9'x3 mm",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 346.0,
+  "quantity": -455.0
+ },
+ {
+  "managerKey": "dceed692-2e16-4f1f-bdd9-0995bf5b0e2f",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "dd0c4e81-506d-43ce-b503-0904f71858d2",
+  "code": "Hyun Disc",
+  "name": "14\"x3 mm single net",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 460.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "dd4ff375-1390-493b-a9cc-6292e951c59b",
+  "code": "",
+  "name": "Armature HP 1300 EP",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1725.0,
+  "salePrice": 0.0,
+  "quantity": 6.0
+ },
+ {
+  "managerKey": "dde57464-4950-4149-aa14-b471162da9e0",
+  "code": "B Pot 9.4mm",
+  "name": "Bubble Pot 9.4mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "fd8cd562-8e39-477c-8bce-8255e9687279"
+  ],
+  "costPrice": 2900.0,
+  "salePrice": 3600.0,
+  "quantity": 84.0
+ },
+ {
+  "managerKey": "de433c40-7814-4c19-8d0f-922d92c0c33e",
+  "code": "",
+  "name": "Fortum T Pana 8 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 4676.0
+ },
+ {
+  "managerKey": "de4b0b59-ace8-4d97-a8c8-20e40e24d83b",
+  "code": "",
+  "name": "3\" x M14 Solid Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 1400.0
+ },
+ {
+  "managerKey": "de6e3287-7e50-49e6-8a00-cec7f4b85f30",
+  "code": "",
+  "name": "3\"x M10 Solid Cup Brush Twisted",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 200.0,
+  "salePrice": 0.0,
+  "quantity": 3600.0
+ },
+ {
+  "managerKey": "dead5463-226c-4b1a-b21e-1bb74dfeca71",
+  "code": "",
+  "name": "Solid Screw Driver Set 3 in 1 insulated",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 350.0,
+  "salePrice": 0.0,
+  "quantity": 360.0
+ },
+ {
+  "managerKey": "df6c5f09-4bd0-4df9-bf0d-07d19d0c8dd5",
+  "code": "Hyun Disc",
+  "name": "5\"x1/4 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 165.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "dfaac165-484a-4153-9827-5c714c4b8cc9",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "dfe78947-35b6-4d5a-a0e6-37c34c49dc5b",
+  "code": "SDPR-P80",
+  "name": "Solid Paper Roll P 80",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "fd91f53c-838a-46e3-94ea-95844bf03bbf"
+  ],
+  "costPrice": 3800.0,
+  "salePrice": 5500.0,
+  "quantity": 107.0
+ },
+ {
+  "managerKey": "e03647d5-4c24-40a3-9085-590fa74e6a49",
+  "code": "TIG-180 Dual",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "e1105f42-e8ed-4ae5-a07e-cfe96132f141",
+  "code": "",
+  "name": "Water Outlet Connector HPW 110 IM",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 300.0,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "e1c89f56-cbef-455d-b947-a58b1ead3f52",
+  "code": "",
+  "name": "Air Hose Reel",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "e32ae85d-3452-4853-8510-a93b82cc33a2"
+  ],
+  "costPrice": 3500.0,
+  "salePrice": 4500.0,
+  "quantity": 17.0
+ },
+ {
+  "managerKey": "e1eeae2f-417e-4432-a245-f9b9b3bf52ce",
+  "code": "",
+  "name": "Solid Deep Socket 24 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 240.0,
+  "salePrice": 0.0,
+  "quantity": 240.0
+ },
+ {
+  "managerKey": "e1faa183-515d-4857-bb25-7109c77c8f04",
+  "code": "",
+  "name": "Gear Set HP 2000 AG",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 600.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "e26ae888-159c-45ae-8a76-76fe60cdd347",
+  "code": "",
+  "name": "9 pcs E Star Socket Blue Box",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1175.0,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "e38a8362-72c3-4f79-a99d-dbf3347f3815",
+  "code": "",
+  "name": "10 mm Anchor Bolt",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1.05,
+  "salePrice": 0.0,
+  "quantity": 200000.0
+ },
+ {
+  "managerKey": "e4cbf30b-f66d-4013-bca5-65a8c6aa12c0",
+  "code": "",
+  "name": "SD 800 AMP Blue",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 17000.0,
+  "salePrice": 0.0,
+  "quantity": 5.0
+ },
+ {
+  "managerKey": "e5e97a74-9405-4680-b91d-73730314dd30",
+  "code": "BJ-6T",
+  "name": "06 ton B",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "altKeys": [
+   "fc23f804-f93a-44ea-b7c5-a0d34b503d63"
+  ],
+  "costPrice": 2050.0,
+  "salePrice": 2500.0,
+  "quantity": 951.0
+ },
+ {
+  "managerKey": "e63d63d7-60cb-48c9-bf0c-427412a7c168",
+  "code": "",
+  "name": "Solid Deep Socket 12 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 140.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "e65bef90-c96f-4833-b875-f62246ee9ae0",
+  "code": "",
+  "name": "48\" Solid Pipe Wrench",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 5495.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "e6b5362a-4c4b-48d0-926b-83f57b78543a",
+  "code": "BJ-2T",
+  "name": "02 ton B",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "altKeys": [
+   "ed06f1de-3147-4815-ae84-47de4ed9020a"
+  ],
+  "costPrice": 4650.0,
+  "salePrice": 1780.0,
+  "quantity": 1887.0
+ },
+ {
+  "managerKey": "e8bfa325-c380-46e5-885a-8e01013550e2",
+  "code": "",
+  "name": "Solid Short Socket 18 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 83.0,
+  "salePrice": 0.0,
+  "quantity": 250.0
+ },
+ {
+  "managerKey": "e97c64ef-6c84-4aa9-8fae-fa1fa1f69624",
+  "code": "",
+  "name": "Armature HPW 105 S/E",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2475.0,
+  "salePrice": 0.0,
+  "quantity": 14.0
+ },
+ {
+  "managerKey": "e99ee577-13e3-4cfc-9600-d543e127f93e",
+  "code": "",
+  "name": "8\" Solid Plier Black/Yellow",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 525.0,
+  "salePrice": 0.0,
+  "quantity": 180.0
+ },
+ {
+  "managerKey": "e9a4fec5-074b-4f09-9d63-94af26d2ab4e",
+  "code": "",
+  "name": "6\" cutter Xianyu",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 230.0,
+  "salePrice": 0.0,
+  "quantity": 2280.0
+ },
+ {
+  "managerKey": "e9c96829-8f7d-4e74-a477-aa7510f5f3eb",
+  "code": "",
+  "name": "40 T Silver Brush Cutter Blade",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 55.0
+ },
+ {
+  "managerKey": "ea3e79fd-34f2-4849-bc8c-7c11366d9607",
+  "code": "Hyun TCT Blade",
+  "name": "9'x40 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 1701.0,
+  "quantity": -61.0
+ },
+ {
+  "managerKey": "eab0d037-c67b-46eb-9e40-a8ab9adaa9e2",
+  "code": "",
+  "name": "5\" Solid Grinding disc",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "ebd9fc9c-ce58-4d47-9641-3b640dbf3be1",
+  "code": "SDH-SP 8\"",
+  "name": "Solid Screw Wrench 8\"",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 325.0,
+  "salePrice": 0.0,
+  "quantity": 600.0
+ },
+ {
+  "managerKey": "ec8f288d-e8e8-47ea-b5f8-dfcf84e321f1",
+  "code": "",
+  "name": "Fortum T Pana 14 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 185.0,
+  "salePrice": 0.0,
+  "quantity": 2340.0
+ },
+ {
+  "managerKey": "ed185895-bfef-409c-a9e0-7d0e9e9d1514",
+  "code": "",
+  "name": "Solid Deep Socket 17 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 160.0,
+  "salePrice": 0.0,
+  "quantity": 540.0
+ },
+ {
+  "managerKey": "ed355585-efe4-4813-a4c0-03c803e8d851",
+  "code": "",
+  "name": "12\" F/R Solid S/Driver +",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 325.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "ed704fdc-98dd-430c-b405-c57a14ad6826",
+  "code": "",
+  "name": "Solid Deep Socket 22 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 220.0,
+  "salePrice": 0.0,
+  "quantity": 180.0
+ },
+ {
+  "managerKey": "ed746f4d-f59f-44f6-97a9-9f6ca14cf738",
+  "code": "",
+  "name": "4' Solid Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 220.0,
+  "salePrice": 24.75,
+  "quantity": 177.0
+ },
+ {
+  "managerKey": "edb8f354-ec1d-4210-8b23-6c9462a0c3e0",
+  "code": "",
+  "name": "Toothed Shaft Ass'y HP 710 RH",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 885.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "ede5bdf0-7bfb-4734-b940-26aa6db81f69",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "ef366cc9-5d6a-4d10-b86d-98d10d77eb52",
+  "code": "",
+  "name": "Paint Spray Gun F 75 G1.5mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 2850.0,
+  "salePrice": 0.0,
+  "quantity": 20.0
+ },
+ {
+  "managerKey": "f00d5117-ffa5-415b-b99d-09218b150dcb",
+  "code": "",
+  "name": "HP 1300-EP Carbon Brush",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 30.0
+ },
+ {
+  "managerKey": "f1630cd9-1a85-46ce-b63f-74ec1087a543",
+  "code": "Hyun Flap Disc",
+  "name": "4' #60 Blue",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 105.0,
+  "quantity": -560.0
+ },
+ {
+  "managerKey": "f1c4d0ae-86cc-4154-a741-7237b157f605",
+  "code": "Hyun TCT Blade",
+  "name": "9'x60 th",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 2052.0,
+  "quantity": -72.0
+ },
+ {
+  "managerKey": "f235b94f-a474-436c-82a2-87e8ad0719e5",
+  "code": "",
+  "name": "3' Solid Cup Brush Crimped",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 160.0,
+  "salePrice": 180.0,
+  "quantity": 138.0
+ },
+ {
+  "managerKey": "f350423b-21c8-43e5-9779-45cbe3b68934",
+  "code": "",
+  "name": "SDH-CSP Solid Combination Spanner 25 mm",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 457.0,
+  "salePrice": 0.0,
+  "quantity": 36.0
+ },
+ {
+  "managerKey": "f4c536d1-8aa8-4b75-812a-f8c195a88779",
+  "code": "",
+  "name": "8\" Solid Plier",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 440.0,
+  "salePrice": 0.0,
+  "quantity": 3960.0
+ },
+ {
+  "managerKey": "f68b5af1-3406-414b-83bd-dfd194ab5330",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "f6ae371c-b013-4a0e-bb9d-8cd7b9d1c82b",
+  "code": "",
+  "name": "Oil Seal HPW 165",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 11.25,
+  "salePrice": 0.0,
+  "quantity": 15.0
+ },
+ {
+  "managerKey": "f6f830e1-7001-4252-85e5-ceb8ba7a41f2",
+  "code": "",
+  "name": "12\" Simple Solid S /Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 168.0,
+  "salePrice": 0.0,
+  "quantity": 1080.0
+ },
+ {
+  "managerKey": "f8935f60-8654-42f4-acc6-594fc4bce95a",
+  "code": "",
+  "name": "Complete gun 165 bar",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 3200.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "f8fc60f3-81da-4753-a316-6ddd3e7e2bbe",
+  "code": "",
+  "name": "5\" Solid Pro Grinding Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 145.0,
+  "salePrice": 0.0,
+  "quantity": 1500.0
+ },
+ {
+  "managerKey": "f920e3b9-356d-49c9-9491-f221595e2c7d",
+  "code": "",
+  "name": "22\" Chain",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 1350.0,
+  "salePrice": 0.0,
+  "quantity": 40.0
+ },
+ {
+  "managerKey": "f9f52ea5-59b3-4a96-951c-12bc07706dcf",
+  "code": "",
+  "name": "HP 1800 SMS",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 39600.0,
+  "salePrice": 0.0,
+  "quantity": 3.0
+ },
+ {
+  "managerKey": "fc45c044-156a-4b5f-a7d1-3c51381dd42e",
+  "code": "",
+  "name": "8\" Simple Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 135.0,
+  "salePrice": 0.0,
+  "quantity": 2280.0
+ },
+ {
+  "managerKey": "fc7a0d71-76b8-48e4-be1e-30c5a50eabb1",
+  "code": "",
+  "name": "8\" F/R Solid S/Driver _",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 207.0,
+  "salePrice": 0.0,
+  "quantity": 1320.0
+ },
+ {
+  "managerKey": "fcf4a1a5-e33d-4427-992a-cc1028a1d22b",
+  "code": "",
+  "name": "MIG 250 + Gas",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 27000.0,
+  "salePrice": 0.0,
+  "quantity": 2.0
+ },
+ {
+  "managerKey": "fcfb0a6e-90ff-435b-b395-d79d6b39ebf0",
+  "code": "",
+  "name": "",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 0,
+  "salePrice": 0,
+  "quantity": 0
+ },
+ {
+  "managerKey": "fd334390-3ae4-4136-8898-e920cbde02e0",
+  "code": "",
+  "name": "14\" Solid Cutting Disc Red",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 410.0,
+  "salePrice": 0.0,
+  "quantity": 125.0
+ },
+ {
+  "managerKey": "fdab4c93-5128-47d8-9e36-2b0d282ceae8",
+  "code": "",
+  "name": "5\"Solid Diamond Blade",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 450.0,
+  "salePrice": 0.0,
+  "quantity": 720.0
+ },
+ {
+  "managerKey": "ff522588-a0c4-4e99-8801-45cfaaf9fea1",
+  "code": "",
+  "name": "Pressure Booster Pump",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 29750.0,
+  "salePrice": 0.0,
+  "quantity": 1.0
+ },
+ {
+  "managerKey": "ff6e833a-c9ce-4a7b-8231-0bd0e5b92a05",
+  "code": "Hyun TCT Blade",
+  "name": "4\"x30 th",
+  "unit": "pcs",
+  "book": "S.I Trading Co (2026)",
+  "costPrice": 210.0,
+  "salePrice": 0.0,
+  "quantity": 500.0
+ },
+ {
+  "managerKey": "ff788ba9-be06-495a-b5da-a6da08f39df1",
+  "code": "",
+  "name": "SDH-Solid Fix Spanners 24x27",
+  "unit": "pcs",
+  "book": "S.I.Trading Co (2023)",
+  "costPrice": 0.0,
+  "salePrice": 528.0,
+  "quantity": -6.0
+ }
+]

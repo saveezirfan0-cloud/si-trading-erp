@@ -41,16 +41,13 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET and cross-origin API calls (Firebase, Firestore, FCM, etc.)
+  // Skip non-GET and cross-origin API calls (Supabase REST/auth/realtime)
   if (request.method !== 'GET') return;
   if (
-    url.hostname.includes('firebaseapp.com') ||
-    url.hostname.includes('firebaseio.com') ||
+    url.hostname.includes('supabase.co') ||
+    url.hostname.includes('supabase.in') ||
     url.hostname.includes('googleapis.com') ||
     url.hostname.includes('gstatic.com') ||
-    url.hostname.includes('firebase.googleapis.com') ||
-    url.hostname.includes('identitytoolkit.googleapis.com') ||
-    url.hostname.includes('securetoken.googleapis.com') ||
     url.protocol === 'chrome-extension:'
   ) {
     return; // Network-only — don't intercept

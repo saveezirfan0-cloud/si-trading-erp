@@ -1,12 +1,7 @@
-// src/contexts/AuthContext.js
+// src/contexts/AuthContext.js — Supabase Auth
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  signInWithEmailAndPassword, signOut,
-  onAuthStateChanged, createUserWithEmailAndPassword,
-  updateProfile
-} from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
+import { getOne, createWithId, COLLECTIONS } from '../lib/db';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -17,52 +12,66 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-        if (snap.exists()) {
-          setProfile({ id: firebaseUser.uid, ...snap.data() });
-        } else {
-          // User exists in Firebase Auth but has no Firestore profile yet
-          // Create a basic profile for them automatically
-          const basicProfile = {
-            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-            email: firebaseUser.email,
-            role: 'viewer',
-            active: true,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          };
-          await setDoc(doc(db, 'users', firebaseUser.uid), basicProfile);
-          setProfile({ id: firebaseUser.uid, ...basicProfile });
-        }
-      } else {
-        setUser(null);
-        setProfile(null);
+    let mounted = true;
+
+    const loadProfile = async (authUser) => {
+      if (!authUser) {
+        if (mounted) { setUser(null); setProfile(null); setLoading(false); }
+        return;
       }
-      setLoading(false);
+      if (mounted) setUser(authUser);
+      try {
+        let p = await getOne(COLLECTIONS.USERS, authUser.id);
+        if (!p) {
+          const basicProfile = {
+            name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+            email: authUser.email,
+            role: 'admin', // first login bootstraps as admin; manage roles in Users
+            active: true,
+          };
+          await createWithId(COLLECTIONS.USERS, authUser.id, basicProfile);
+          p = { id: authUser.id, ...basicProfile };
+        }
+        if (mounted) setProfile(p);
+      } catch (e) {
+        console.error('profile load failed', e);
+      }
+      if (mounted) setLoading(false);
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      loadProfile(session?.user ?? null);
     });
-    return unsub;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      loadProfile(session?.user ?? null);
+    });
+
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  const login = (email, password) =>
-    signInWithEmailAndPassword(auth, email, password);
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  };
 
-  const logout = () => signOut(auth);
+  const logout = async () => {
+    await supabase.auth.signOut();
+  };
 
   const register = async (email, password, name, role = 'viewer') => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      name,
-      email,
-      role,
-      active: true,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { name } },
     });
-    return cred;
+    if (error) throw error;
+    if (data.user) {
+      await createWithId(COLLECTIONS.USERS, data.user.id, {
+        name, email, role, active: true,
+      });
+    }
+    return data;
   };
 
   const hasPermission = (perm) => {

@@ -1,14 +1,8 @@
 // src/pages/users/Users.js
 import React, { useEffect, useState, useCallback } from 'react';
-import { getAll, create, update, COLLECTIONS } from '../../lib/db';
+import { getAll, create, update, createWithId, COLLECTIONS } from '../../lib/db';
 import { useAuth } from '../../contexts/AuthContext';
-import { db } from '../../lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import {
-  sendPasswordResetEmail, updatePassword,
-  EmailAuthProvider, reauthenticateWithCredential
-} from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import { supabase } from '../../lib/supabase';
 import Header from '../../components/layout/Header';
 import { Table, Btn, Modal, Input, Select, Badge, PageHeader, FormGrid, Card, Loader } from '../../components/ui';
 import toast from 'react-hot-toast';
@@ -71,13 +65,10 @@ export default function Users() {
     setSaving(false);
   };
 
-  // If a Firebase user exists but has no Firestore doc, create one
+  // If an auth user exists but has no profile row, create one
   const handleSyncUser = async (uid, email) => {
     const name = email.split('@')[0];
-    await setDoc(doc(db, 'users', uid), {
-      name, email, role: 'viewer', active: true,
-      createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
-    });
+    await createWithId(COLLECTIONS.USERS, uid, { name, email, role: 'viewer', active: true });
     toast.success('User synced to ERP');
     load();
   };
@@ -105,7 +96,8 @@ export default function Users() {
     if (!editing?.email) return;
     setSaving(true);
     try {
-      await sendPasswordResetEmail(auth, editing.email);
+      const { error } = await supabase.auth.resetPasswordForEmail(editing.email);
+      if (error) throw error;
       toast.success(`Password reset email sent to ${editing.email}`);
       setPwModal(false);
     } catch (e) { toast.error('Failed: ' + e.message); }
@@ -118,7 +110,8 @@ export default function Users() {
     if (pwForm.newPassword !== pwForm.confirmPassword) return toast.error('Passwords do not match');
     setSaving(true);
     try {
-      await updatePassword(currentUser, pwForm.newPassword);
+      const { error } = await supabase.auth.updateUser({ password: pwForm.newPassword });
+      if (error) throw error;
       toast.success('Password updated successfully');
       setPwModal(false);
       setPwForm({ newPassword: '', confirmPassword: '' });

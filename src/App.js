@@ -18,6 +18,7 @@ import Warehouses from './pages/warehouses/Warehouses';
 import SalesInvoices from './pages/sales/SalesInvoices';
 import QuickInvoice from './pages/sales/QuickInvoice';
 import PurchaseInvoices from './pages/purchases/PurchaseInvoices';
+import ScanInvoice from './pages/purchases/ScanInvoice';
 import ChartOfAccounts from './pages/accounting/ChartOfAccounts';
 import BankCash from './pages/accounting/BankCash';
 import Journals from './pages/accounting/Journals';
@@ -51,6 +52,7 @@ function AppRoutes() {
               <Route path="/sales" element={<SalesInvoices />} />
               <Route path="/sales/quick" element={<QuickInvoice />} />
               <Route path="/purchases" element={<PurchaseInvoices />} />
+              <Route path="/purchases/scan" element={<ScanInvoice />} />
               <Route path="/accounting/accounts" element={<ChartOfAccounts />} />
               <Route path="/accounting/bank" element={<BankCash />} />
               <Route path="/accounting/journals" element={<Journals />} />

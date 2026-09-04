@@ -1,6 +1,40 @@
 # S.I Trading & Co. — ERP System
 
-A full-featured Enterprise Resource Planning system built with React, Firebase, and deployed on Vercel.
+A full-featured Enterprise Resource Planning system built with React and **Supabase**
+(Postgres + Auth + Realtime + Edge Functions), deployed on Vercel.
+
+## What's new (Supabase migration)
+
+- **Firebase → Supabase**: all data lives in Postgres tables (`erp_*`) in project
+  `vdrhjjkcnkbzaxuaoonb`, with row-level security (authenticated users only),
+  realtime subscriptions, and Supabase Auth for login.
+- **Manager.io data imported**: the historical books (2023–2026 `.manager` files)
+  were decoded and imported — inventory items, customers, suppliers, and the full
+  purchase/sales invoice history with dates, line items and prices.
+  See `tools/manager-import/` for the extractor and importer.
+- **AI OCR invoice scanning**: photograph a supplier invoice → AI vision reads the
+  items → review & confirm → the purchase invoice is created and stock quantities,
+  item cost prices and the supplier balance are updated automatically.
+- **Manager.io-style UI**: light theme by default, module sidebar with live record
+  counts, blue accent. The dark theme is still available from the header toggle.
+
+## OCR setup (one-time)
+
+The scanner uses AI vision through a Supabase Edge Function (`ocr-invoice`) with
+**automatic API-key rotation and provider failover**. Configure keys in
+Supabase Dashboard → Project Settings → Edge Functions → Secrets:
+
+| Secret | Value |
+|--------|-------|
+| `ANTHROPIC_API_KEYS` | one or more Anthropic API keys, comma-separated |
+| `OPENAI_API_KEYS` | one or more OpenAI API keys, comma-separated |
+| `ANTHROPIC_MODEL` | optional, default `claude-haiku-4-5` |
+| `OPENAI_MODEL` | optional, default `gpt-4o-mini` |
+
+Rotation: the starting key rotates every minute across the list; on any failure
+(rate limit, quota, auth) the function automatically tries the next key, then the
+other provider. You can paste any number of keys — they will be used in rotation.
+If no keys are configured the scanner shows a clear error explaining what to set.
 
 ---
 
@@ -28,9 +62,10 @@ A full-featured Enterprise Resource Planning system built with React, Firebase, 
 ## Tech Stack
 
 - **Frontend:** React 18, React Router v6
-- **Database:** Firebase Firestore (real-time)
-- **Auth:** Firebase Authentication
-- **Storage:** Firebase Storage
+- **Database:** Supabase Postgres (jsonb document tables, realtime)
+- **Auth:** Supabase Auth (email/password)
+- **Storage:** Supabase Storage (`erp-scans` bucket for invoice photos)
+- **AI OCR:** Supabase Edge Function calling Anthropic / OpenAI vision with key rotation
 - **Charts:** Recharts
 - **PDF Export:** jsPDF + AutoTable
 - **CSV:** PapaParse

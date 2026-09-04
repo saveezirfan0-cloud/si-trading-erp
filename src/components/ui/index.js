@@ -6,7 +6,7 @@ import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
 // ─── Button ───────────────────────────────────────────────────────────────────
 export function Btn({ children, variant = 'primary', size = 'md', onClick, type = 'button', disabled, style, icon: Icon }) {
   const variants = {
-    primary: { background: 'var(--accent)', color: '#000', border: 'none' },
+    primary: { background: 'var(--accent)', color: 'var(--on-accent)', border: 'none' },
     secondary: { background: 'var(--bg3)', color: 'var(--text)', border: '1px solid var(--border2)' },
     danger: { background: 'transparent', color: 'var(--red)', border: '1px solid var(--red)' },
     ghost: { background: 'transparent', color: 'var(--text2)', border: 'none' },
