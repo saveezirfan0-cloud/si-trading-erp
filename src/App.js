@@ -29,6 +29,8 @@ import Users from './pages/users/Users';
 import Import from './pages/import/Import';
 import WhatsApp from './pages/WhatsApp';
 import Settings from './pages/Settings';
+import SetupRequired from './pages/SetupRequired';
+import { isSupabaseConfigured } from './lib/supabase';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -137,6 +139,10 @@ function AppInner() {
 }
 
 export default function App() {
+  // No database configured yet — show setup instructions instead of a login
+  // form that cannot possibly succeed.
+  if (!isSupabaseConfigured) return <SetupRequired />;
+
   return (
     <BrowserRouter>
       <AuthProvider>
