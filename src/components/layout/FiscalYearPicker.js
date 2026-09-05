@@ -7,15 +7,14 @@ import { useApp } from '../../contexts/AppContext';
 import { CalendarRange } from 'lucide-react';
 
 // Offer a sensible span around today; "All years" always available.
-const yearOptions = (fyOf) => {
-  const thisFy = fyOf(new Date().toISOString().slice(0, 10)) || new Date().getFullYear();
+const yearOptions = (thisFy) => {
   const years = [];
   for (let y = thisFy + 1; y >= thisFy - 8; y--) years.push(y);
   return years;
 };
 
 export default function FiscalYearPicker({ compact = false }) {
-  const { fiscalYear, setFiscalYear, fiscalYearOf, fiscalYearLabel } = useApp();
+  const { fiscalYear, setFiscalYear, thisFiscalYear, fiscalYearLabel } = useApp();
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -41,7 +40,7 @@ export default function FiscalYearPicker({ compact = false }) {
         }}
       >
         <option value="all">All years</option>
-        {yearOptions(fiscalYearOf).map((y) => (
+        {yearOptions(thisFiscalYear).map((y) => (
           <option key={y} value={String(y)}>{fiscalYearLabel(String(y))}</option>
         ))}
       </select>

@@ -4,6 +4,16 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
+// The fiscal year today falls into, given the FY's starting month.
+// FY is named after the calendar year it ends in (FY2027 = Jul 2026–Jun 2027).
+const currentFiscalYear = (startMonth) => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  if (startMonth === 1) return y;
+  return m >= startMonth ? y + 1 : y;
+};
+
 export const AppProvider = ({ children }) => {
   // ── Mobile detection ────────────────────────────────────────────────────
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -70,14 +80,24 @@ export const AppProvider = ({ children }) => {
     const v = parseInt(localStorage.getItem('si-fy-start') || '', 10);
     return v >= 1 && v <= 12 ? v : 7;
   });
-  // 'all' or the fiscal year's ending calendar year (FY2026 = Jul 2025–Jun 2026)
+  // 'all' or the fiscal year's ending calendar year (FY2026 = Jul 2025–Jun 2026).
+  // Defaults to the current fiscal year so lists open on this year's data.
   const [fiscalYear, setFiscalYear] = useState(() => {
-    try { return localStorage.getItem('si-fy') || 'all'; } catch { return 'all'; }
+    const thisFy = String(currentFiscalYear(fyStartMonth));
+    try {
+      const stored = localStorage.getItem('si-fy2');
+      if (stored) return stored;
+      // Migrate the old key. Its 'all' was the previous default rather than a
+      // deliberate choice, so only a specific year is carried over.
+      const legacy = localStorage.getItem('si-fy');
+      if (legacy && legacy !== 'all') return legacy;
+    } catch {}
+    return thisFy;
   });
 
   useEffect(() => {
     try {
-      localStorage.setItem('si-fy', fiscalYear);
+      localStorage.setItem('si-fy2', fiscalYear);
       localStorage.setItem('si-fy-start', String(fyStartMonth));
     } catch {}
   }, [fiscalYear, fyStartMonth]);
@@ -143,6 +163,7 @@ export const AppProvider = ({ children }) => {
       currency, companyName, formatCurrency, formatDate,
       fiscalYear, setFiscalYear, fyStartMonth, setFyStartMonth,
       fiscalYearRange, fiscalYearOf, filterByFiscalYear, fiscalYearLabel,
+      thisFiscalYear: currentFiscalYear(fyStartMonth),
       theme, toggleTheme,
       installPrompt, showInstallBanner, triggerInstall, dismissInstall,
     }}>
