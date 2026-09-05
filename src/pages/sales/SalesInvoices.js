@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { subscribe, remove, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Table, Btn, Select, Badge, PageHeader, Card, Loader, SearchBar, StatCard } from '../../components/ui';
+import { Table, Btn, Badge, PageHeader, Card, Loader, SearchBar, StatCard } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingUp } from 'lucide-react';
 import { exportCSV } from '../../lib/export';
@@ -89,7 +89,7 @@ export default function SalesInvoices() {
   return (
     <>
       <Header title="Sales Invoices" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Sales Invoices"
           subtitle={`${invoices.length} ${invoices.length === 1 ? 'invoice' : 'invoices'}` + (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')}
@@ -98,7 +98,7 @@ export default function SalesInvoices() {
             <Btn key="add" icon={Plus} onClick={() => { setSelected(null); setView('form'); }}>New Invoice</Btn>,
           ]}
         />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Total Revenue" value={formatCurrency(totalRevenue)} icon={TrendingUp} color="var(--accent)" />
           <StatCard label="Total Paid" value={formatCurrency(totalPaid)} icon={TrendingUp} color="var(--green)" />
           <StatCard label="Outstanding" value={formatCurrency(totalDue)} icon={FileText} color="var(--red)" />

@@ -89,7 +89,7 @@ export default function ChartOfAccounts() {
   return (
     <>
       <Header title="Chart of Accounts" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <PageHeader
           title="Chart of Accounts"
           subtitle={`${accounts.length} accounts configured`}

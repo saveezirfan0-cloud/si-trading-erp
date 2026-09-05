@@ -116,7 +116,7 @@ export default function QuickInvoice() {
   return (
     <>
       <Header title="Quick Invoice" />
-      <div style={{ padding: 24, maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="page-pad" style={{ padding: 24, maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Top */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

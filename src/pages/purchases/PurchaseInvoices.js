@@ -6,7 +6,7 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Table, Btn, Badge, PageHeader, Card, Loader, SearchBar, StatCard } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingDown, Camera } from 'lucide-react';
+import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingDown, Camera, Paperclip } from 'lucide-react';
 import { exportCSV } from '../../lib/export';
 import PurchaseInvoiceForm from './PurchaseInvoiceForm';
 import PurchaseInvoiceView from './PurchaseInvoiceView';
@@ -75,7 +75,16 @@ export default function PurchaseInvoices() {
     { key: 'supplierName', label: 'Supplier' },
     { key: 'supplierInvoiceNo', label: 'Supplier Ref' },
     { key: 'date', label: 'Date' },
-    { key: 'items', label: 'Items', render: v => <Badge color="purple">{v?.length || 0} items</Badge> },
+    { key: 'items', label: 'Items', render: (v, r) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Badge color="purple">{v?.length || 0} items</Badge>
+        {r.scanPath && (
+          <span title="Scanned invoice attached" style={{ display: 'inline-flex', color: 'var(--text3)' }}>
+            <Paperclip size={13} />
+          </span>
+        )}
+      </div>
+    )},
     { key: 'total', label: 'Total', align: 'right', render: v => <span style={{ fontWeight: 700 }}>{formatCurrency(v || 0)}</span> },
     { key: 'status', label: 'Status', render: v => <Badge color={statusColor(v)}>{v}</Badge> },
     { key: '_actions', label: '', render: (_, row) => (
@@ -90,7 +99,7 @@ export default function PurchaseInvoices() {
   return (
     <>
       <Header title="Purchase Invoices" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Purchase Invoices"
           subtitle={`${invoices.length} ${invoices.length === 1 ? 'invoice' : 'invoices'}` + (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')}
@@ -100,7 +109,7 @@ export default function PurchaseInvoices() {
             <Btn key="add" icon={Plus} onClick={() => { setSelected(null); setView('form'); }}>New Purchase</Btn>,
           ]}
         />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Total Purchases" value={formatCurrency(totalPurchases)} icon={TrendingDown} color="var(--purple)" />
           <StatCard label="Total Paid" value={formatCurrency(totalPaid)} icon={TrendingDown} color="var(--green)" />
           <StatCard label="Outstanding" value={formatCurrency(totalDue)} icon={FileText} color="var(--red)" />

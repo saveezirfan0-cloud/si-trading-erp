@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { getAll, create, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Table, Btn, Modal, Input, Select, Textarea, Badge, PageHeader, Card, Loader, FormGrid } from '../../components/ui';
+import { Table, Btn, Modal, Input, Select, Badge, PageHeader, Card, Loader, FormGrid } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Download } from 'lucide-react';
 import { exportCSV } from '../../lib/export';
@@ -19,7 +19,7 @@ const EMPTY_JOURNAL = {
 };
 
 export default function Journals() {
-  const { formatCurrency, formatDate, filterByFiscalYear } = useApp();
+  const { formatCurrency, filterByFiscalYear } = useApp();
   const [journals, setJournals] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [modal, setModal] = useState(false);
@@ -80,7 +80,7 @@ export default function Journals() {
   return (
     <>
       <Header title="Journal Entries" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Journal Entries"
           subtitle={`${journals.length} entries posted`}
@@ -111,10 +111,10 @@ export default function Journals() {
               <Btn size="sm" variant="secondary" icon={Plus} onClick={addLine}>Add Line</Btn>
             </div>
 
-            <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
+            <div className="scroll-x" style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}>
               {/* Header */}
               <div style={{
-                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px',
+                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px', minWidth: 620,
                 gap: 8, padding: '8px 12px',
                 background: 'var(--bg3)',
                 borderBottom: '1px solid var(--border)',
@@ -125,7 +125,7 @@ export default function Journals() {
 
               {form.lines.map((line, i) => (
                 <div key={i} style={{
-                  display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px',
+                  display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px', minWidth: 620,
                   gap: 8, padding: '8px 12px',
                   borderBottom: i < form.lines.length - 1 ? '1px solid var(--border)' : 'none',
                   alignItems: 'center',
@@ -169,7 +169,7 @@ export default function Journals() {
 
               {/* Totals */}
               <div style={{
-                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px',
+                display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr 32px', minWidth: 620,
                 gap: 8, padding: '10px 12px',
                 background: 'var(--bg3)',
                 borderTop: '1px solid var(--border)',

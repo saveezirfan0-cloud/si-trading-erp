@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { getAll, create, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Table, Btn, Modal, Input, Select, Textarea, Badge, PageHeader, FormGrid, Card, Loader, StatCard } from '../../components/ui';
+import { Table, Btn, Modal, Input, Select, Textarea, PageHeader, FormGrid, Card, Loader, StatCard } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { Plus, ArrowUpRight, ArrowDownLeft, DollarSign, Download } from 'lucide-react';
 import { exportCSV } from '../../lib/export';
@@ -22,7 +22,7 @@ const EMPTY = {
 };
 
 export default function BankCash() {
-  const { formatCurrency, formatDate } = useApp();
+  const { formatCurrency } = useApp();
   const [transactions, setTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [modal, setModal] = useState(false);
@@ -82,7 +82,7 @@ export default function BankCash() {
   return (
     <>
       <Header title="Bank & Cash" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Bank & Cash"
           subtitle="Track all money in and out"
@@ -92,7 +92,7 @@ export default function BankCash() {
           ]}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Total In" value={formatCurrency(totalIn)} icon={ArrowDownLeft} color="var(--green)" />
           <StatCard label="Total Out" value={formatCurrency(totalOut)} icon={ArrowUpRight} color="var(--red)" />
           <StatCard label="Net Balance" value={formatCurrency(totalIn - totalOut)} icon={DollarSign} color="var(--accent)" />
