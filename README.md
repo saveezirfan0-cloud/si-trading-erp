@@ -11,13 +11,15 @@ from environment variables. To bring up a working instance:
 1. **Create a Supabase project** (supabase.com → New project).
 2. **Apply the schema** — Dashboard → SQL Editor → paste and run
    [`supabase/migrations/0001_erp_schema.sql`](supabase/migrations/0001_erp_schema.sql),
-   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql)
-   and [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql).
+   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql),
+   [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql)
+   and [`supabase/migrations/0004_lock_down_permission_functions.sql`](supabase/migrations/0004_lock_down_permission_functions.sql).
    The first creates the `erp_*` tables with row-level security, realtime and the
    private `erp-scans` storage bucket; the second locks down the two tables that
    define access, so nobody can promote themselves through the API; the third
    adds the append-only `erp_activity` audit table, the trash indexes and the
-   private `erp-attachments` bucket. All three are safe to re-run.
+   private `erp-attachments` bucket; the fourth takes the access-control helper
+   functions off the public REST API. All four are safe to re-run.
 3. **Set the environment variables** in Vercel (Project → Settings →
    Environment Variables) and in `.env.local` for local development:
 
@@ -128,11 +130,25 @@ stat card and a status filter on both invoice lists show what is queued.
 
 ### Attachments
 
-Any invoice can carry files — the supplier's own PDF, a signed delivery note, a
-payment slip. They upload to the private `erp-attachments` bucket, are listed on
-the invoice with a preview for images, and each add/remove is recorded in the
-audit log. A paperclip in the list marks invoices that carry paperwork. (This is
-separate from the OCR photo, which is still stored in `erp-scans`.)
+Any invoice can carry as many documents as it needs — the supplier's own PDF, a
+signed delivery note, a payment slip — added either from the list's quick view
+or from the invoice page. Both surfaces render the same panel, so a file added
+in one appears in the other, and each add or remove is recorded in the audit
+log. A paperclip in the list marks invoices that carry paperwork.
+
+Three shapes exist in the data for historical reasons, and
+[`src/lib/attachments.js`](src/lib/attachments.js) flattens all of them into one
+list so nothing attached before is stranded:
+
+| Field | Written by | Bucket |
+|---|---|---|
+| `doc.scanPath` | the OCR scan screen | `erp-scans` |
+| `doc.attachmentPath` | the quick view, before this | `erp-scans` |
+| `doc.attachments[]` | everything now | `erp-attachments` |
+
+The OCR photo still shows on the invoice as the first entry, labelled as coming
+from the scan. Removing any entry clears the right field and deletes the stored
+object.
 
 ---
 
@@ -347,6 +363,7 @@ si-trading-erp/
 │   │   ├── permissions.js     ← Modules, actions and built-in roles
 │   │   ├── audit.js           ← Acting user, diffing, activity log reads/writes
 │   │   ├── invoices.js        ← Filtering, sorting and totals for the lists
+│   │   ├── attachments.js     ← One list of an invoice's documents
 │   │   ├── invoiceStatus.js   ← Invoice statuses and the approval flow
 │   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities

@@ -621,8 +621,10 @@ export default function ScanInvoice() {
   // Pinned above the search results: create-new, then what this line looks
   // closest to, so the common case is one tap and never a scroll.
   const pickerOptions = (l) => [
+    // alwaysShow: creating the item is exactly what you want when a search
+    // turns up nothing, so this row survives filtering.
     { value: '__new__', label: `➕ New item${l.ocrName ? `: ${l.ocrName}` : ''}`,
-      hint: 'Adds it to inventory when the invoice is confirmed' },
+      alwaysShow: true, hint: 'Adds it to inventory when the invoice is confirmed' },
     ...rank(l.ocrName, 5)
       .filter((x) => x.score > 0.15 && x.id !== l.itemId)
       .map((x) => ({ value: x.id, label: x.name,

@@ -370,6 +370,13 @@ export default function InvoiceListView({
   const MOBILE_COLUMNS = ['invoiceNo', partyField, 'date', 'total', 'status'];
   const shownColumns = isMobile ? columns.filter(c => MOBILE_COLUMNS.includes(c.key)) : columns;
 
+  // The quick view can change the row under itself (an approval, a file added
+  // or removed), so read it back from the live list rather than holding the
+  // snapshot the click handed over.
+  const quickRow = quickView
+    ? (allInvoices.find((r) => r.id === quickView.id) || quickView)
+    : null;
+
   const filtersActive = activeFilterCount(filters) > 0 || Boolean(filters.search);
 
   return (
@@ -502,9 +509,9 @@ export default function InvoiceListView({
         )}
       </Card>
 
-      {quickView && (
+      {quickRow && (
         <InvoiceQuickView
-          invoice={quickView}
+          invoice={quickRow}
           collection={collection}
           partyField={partyField}
           partyLabel={partyLabel}
@@ -512,8 +519,8 @@ export default function InvoiceListView({
           canEdit={canEdit}
           canApprove={canApprove}
           onClose={() => setQuickView(null)}
-          onOpenFull={() => { const row = quickView; setQuickView(null); onOpenRow(row); }}
-          onEdit={() => { const row = quickView; setQuickView(null); onEditRow(row); }}
+          onOpenFull={() => { const row = quickRow; setQuickView(null); onOpenRow(row); }}
+          onEdit={() => { const row = quickRow; setQuickView(null); onEditRow(row); }}
         />
       )}
     </>

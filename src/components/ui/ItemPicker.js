@@ -61,7 +61,7 @@ export default function ItemPicker({
   items = [],
   value = '',
   onChange,                 // (id, item) => void
-  extraOptions = [],        // [{ value, label, hint }] pinned above the results
+  extraOptions = [],        // [{ value, label, hint, alwaysShow }] pinned above results
   placeholder = 'Search item…',
   emptyLabel = 'Select item',
   disabled = false,
@@ -87,23 +87,43 @@ export default function ItemPicker({
     [extraOptions, value]
   );
 
+  const words = useMemo(() => norm(query).split(/\s+/).filter(Boolean), [query]);
+
+  // Pinned options are filtered by the query too. Callers pin real inventory
+  // items here (the scanner pins its top OCR guesses), and leaving those in
+  // place put a wall of unrelated rows above the one row you searched for.
+  // An option marked `alwaysShow` — "➕ New item" — is exempt, since it stays
+  // useful precisely when nothing matches.
+  const visibleExtras = useMemo(() => {
+    if (!words.length) return extraOptions;
+    return extraOptions.filter(o =>
+      o.alwaysShow || scoreItem({ name: o.label }, words) > 0);
+  }, [extraOptions, words]);
+
+  // A pinned option that names an inventory item would otherwise show again in
+  // the results below it — same item, listed twice in one dropdown.
+  const pinnedIds = useMemo(
+    () => new Set(visibleExtras.map(o => o.value)),
+    [visibleExtras]
+  );
+
   const results = useMemo(() => {
-    const words = norm(query).split(/\s+/).filter(Boolean);
-    if (!words.length) return items.slice(0, MAX_RESULTS);
-    return items
+    const pool = items.filter(i => !pinnedIds.has(i.id));
+    if (!words.length) return pool.slice(0, MAX_RESULTS);
+    return pool
       .map(i => ({ i, s: scoreItem(i, words) }))
       .filter(r => r.s > 0)
       .sort((a, b) => b.s - a.s || norm(a.i.name).localeCompare(norm(b.i.name)))
       .slice(0, MAX_RESULTS)
       .map(r => r.i);
-  }, [items, query]);
+  }, [items, words, pinnedIds]);
 
   // One flat list of rows so the keyboard cursor can run through the pinned
   // options and the search results without special-casing either.
   const rows = useMemo(() => [
-    ...extraOptions.map(o => ({ kind: 'extra', key: `x:${o.value}`, option: o })),
+    ...visibleExtras.map(o => ({ kind: 'extra', key: `x:${o.value}`, option: o })),
     ...results.map(i => ({ kind: 'item', key: i.id, item: i })),
-  ], [extraOptions, results]);
+  ], [visibleExtras, results]);
 
   const position = useCallback(() => {
     const el = anchorRef.current;
@@ -144,13 +164,14 @@ export default function ItemPicker({
     }
   }, [open]);
 
-  // With a query typed, the cursor starts on the first search result rather
-  // than on a pinned option — otherwise Enter after searching would create a
-  // new item instead of picking the match you just searched for.
+  // With a query typed, the cursor skips the always-shown action rows so Enter
+  // picks what you searched for rather than creating a new item. It stops at
+  // the first real candidate — which may be a pinned suggestion, since those
+  // are now filtered by the query and so are matches in their own right.
   useEffect(() => {
-    const firstItemRow = extraOptions.length;
-    setCursor(query.trim() && rows.length > firstItemRow ? firstItemRow : 0);
-  }, [query, rows.length, extraOptions.length]);
+    const firstPickable = rows.findIndex(r => !(r.kind === 'extra' && r.option.alwaysShow));
+    setCursor(query.trim() && firstPickable > 0 ? firstPickable : 0);
+  }, [query, rows]);
 
   // Keep the highlighted row inside the scroll viewport while arrowing.
   useEffect(() => {

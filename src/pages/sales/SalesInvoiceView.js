@@ -2,17 +2,18 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, ScanAttachment, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
+import { Btn, Badge, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
 import ApprovalBar from '../../components/invoices/ApprovalBar';
+import { useAuth } from '../../contexts/AuthContext';
 import { COLLECTIONS } from '../../lib/db';
 import {
   statusLabel, statusColor, statusPrintBg, statusPrintFg,
 } from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
-import { attachmentMeta } from '../../lib/invoices';
 
 export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
+  const { can } = useAuth();
   if (!invoice) return null;
 
 
@@ -308,15 +309,12 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-          {/* The single document attached from the list's quick view, or the
-              photo an OCR scan came from. */}
-          <ScanAttachment {...(attachmentMeta(invoice) || {})} />
           <RecordMeta record={invoice} />
           <Attachments
             collection={COLLECTIONS.SALES_INVOICES}
-            recordId={invoice.id}
-            attachments={invoice.attachments}
-            onChange={onChanged}
+            invoice={invoice}
+            canEdit={can('sales', 'edit')}
+            onChanged={onChanged}
             hint="Attach the signed delivery note, a payment slip or any correspondence about this invoice."
           />
           <ActivityFeed collection={COLLECTIONS.SALES_INVOICES} recordId={invoice.id} />
