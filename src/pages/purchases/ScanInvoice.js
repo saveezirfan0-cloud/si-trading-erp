@@ -15,7 +15,7 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Card, Loader, Badge } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle, Search, ChevronDown } from 'lucide-react';
+import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle, Search, ChevronDown, Copy } from 'lucide-react';
 
 // Amber isn't a theme variable — warnings use this in both themes.
 const WARN = '#e0a01a';
@@ -157,6 +157,30 @@ const reconcileQty = (l) => {
   if (rounded < 1 || rounded > 1e6 || Math.abs(implied - rounded) > 0.02) return l;
   if (rounded === l.qty) return l;
   return { ...l, qty: rounded, qtyRead: l.qty, qtyFromAmount: true };
+};
+
+// Scanning the same challan twice would post the stock and the supplier
+// balance twice over, and nothing downstream would flag it — so look for an
+// invoice that has already been entered before the user confirms this one.
+// The supplier's own invoice number is the reliable key; where it wasn't read,
+// fall back to same supplier + same date + same total.
+const norm = (v) => String(v || '').trim().toLowerCase().replace(/[\s-]/g, '');
+
+const findDuplicate = (invoices, { supplierId, supplierName, documentNo, date, total }) => {
+  const doc = norm(documentNo);
+  const name = norm(supplierName);
+  const sameSupplier = (inv) => (supplierId && inv.supplierId === supplierId)
+    || (!!name && norm(inv.supplierName) === name)
+    || (!!supplierName && similarity(inv.supplierName, supplierName) > 0.8);
+
+  for (const inv of invoices) {
+    if (inv.status === 'cancelled' || !sameSupplier(inv)) continue;
+    if (doc && norm(inv.supplierInvoiceNo) === doc) return { invoice: inv, on: 'invoice number' };
+    if (!doc && date && inv.date === date && total > 0 && !differs(num(inv.total), total)) {
+      return { invoice: inv, on: 'date and total' };
+    }
+  }
+  return null;
 };
 
 const emptyLine = () => ({
@@ -361,7 +385,7 @@ function ItemPicker({ value, ocrName, inventory, rank, flag, onChange, isMobile 
 // ── Component ────────────────────────────────────────────────────────────────
 export default function ScanInvoice() {
   const navigate = useNavigate();
-  const { formatCurrency, isMobile } = useApp();
+  const { formatCurrency, formatDate, isMobile } = useApp();
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
 
@@ -372,6 +396,8 @@ export default function ScanInvoice() {
 
   const [suppliers, setSuppliers] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [savedInvoices, setSavedInvoices] = useState([]);
+  const [dupAccepted, setDupAccepted] = useState(false);
   const [rank, setRank] = useState(() => () => []);
 
   // review state
@@ -389,10 +415,12 @@ export default function ScanInvoice() {
     try {
       const compressed = await compressImage(file);
       setImg(compressed);
-      const [supps, items] = await Promise.all([
+      const [supps, items, saved] = await Promise.all([
         getAll(COLLECTIONS.SUPPLIERS), getAll(COLLECTIONS.INVENTORY),
+        getAll(COLLECTIONS.PURCHASE_INVOICES),
       ]);
-      setSuppliers(supps); setInventory(items);
+      setSuppliers(supps); setInventory(items); setSavedInvoices(saved);
+      setDupAccepted(false);
       const ranker = makeRanker(items);
       setRank(() => ranker);
 
@@ -488,6 +516,14 @@ export default function ScanInvoice() {
     return f;
   }), [lines, formatCurrency]);
 
+  const duplicate = useMemo(() => findDuplicate(savedInvoices, {
+    supplierId: meta.supplierId,
+    supplierName: meta.supplierId
+      ? (suppliers.find((x) => x.id === meta.supplierId)?.name || '')
+      : meta.supplierName,
+    documentNo: meta.documentNo, date: meta.date, total,
+  }), [savedInvoices, meta.supplierId, meta.supplierName, meta.documentNo, meta.date, total, suppliers]);
+
   const qtyTotal = useMemo(() => activeLines.reduce((s, l) => s + num(l.qty), 0), [activeLines]);
 
   const qtyFlag = useMemo(() => {
@@ -511,13 +547,16 @@ export default function ScanInvoice() {
 
     Object.values(metaFlags).forEach(f => push(f, f.msg));
     if (!activeLines.length) errors.push('No line items — add one or rescan');
+    if (duplicate && !dupAccepted) {
+      errors.push(`Already entered as ${duplicate.invoice.invoiceNo} — confirm it is a different invoice`);
+    }
     lineFlags.forEach((flags, idx) => {
       Object.values(flags).forEach(f => push(f, `Line ${idx + 1}: ${f.msg}`));
     });
     if (qtyFlag) warnings.push(`Quantity ${qtyTotal} — ${qtyFlag.msg}`);
     if (totalFlag) warnings.push(`Total ${formatCurrency(total)} — ${totalFlag.msg}`);
     return { errors, warnings };
-  }, [metaFlags, lineFlags, activeLines.length, qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
+  }, [metaFlags, lineFlags, activeLines.length, duplicate, dupAccepted, qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
 
   const nextInvoiceNo = async () => {
     const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES);
@@ -694,6 +733,41 @@ export default function ScanInvoice() {
             gap: isMobile ? 14 : 20, alignItems: 'start',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 14 : 16, minWidth: 0 }}>
+
+              {/* Already entered */}
+              {duplicate && (
+                <div style={{
+                  background: ERR_BG, border: '1px solid var(--red)', borderLeft: '4px solid var(--red)',
+                  borderRadius: 'var(--radius-lg)', padding: '13px 15px',
+                  display: 'flex', gap: 10, alignItems: 'flex-start',
+                }}>
+                  <Copy size={16} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--red)', marginBottom: 4 }}>
+                      This invoice looks like one you already have
+                    </div>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text2)', lineHeight: 1.5 }}>
+                      {duplicate.invoice.invoiceNo} — {duplicate.invoice.supplierName || 'same supplier'}
+                      {duplicate.invoice.supplierInvoiceNo ? `, their invoice ${duplicate.invoice.supplierInvoiceNo}` : ''}
+                      {duplicate.invoice.date ? ` on ${formatDate(duplicate.invoice.date)}` : ''}
+                      {' '}for {formatCurrency(num(duplicate.invoice.total))} (matched on {duplicate.on}).
+                      Saving it again would add the stock and the supplier balance a second time.
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: '0.82rem', color: 'var(--text)' }}>
+                      <input type="checkbox" checked={dupAccepted}
+                        onChange={(e) => setDupAccepted(e.target.checked)}
+                        style={{
+                          // globals.css strips appearance from every input, which
+                          // leaves a checkbox as an empty rounded box.
+                          appearance: 'checkbox', WebkitAppearance: 'checkbox',
+                          width: 16, height: 16, minHeight: 0, minWidth: 0, flexShrink: 0,
+                          padding: 0, borderRadius: 3, accentColor: 'var(--red)',
+                        }} />
+                      This is a different invoice — save it anyway
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* What didn't come through */}
               {(problems.errors.length > 0 || problems.warnings.length > 0) && (
