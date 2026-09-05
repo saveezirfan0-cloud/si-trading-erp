@@ -88,6 +88,23 @@ const num = (v) => Number(v) || 0;
 // Printed totals are rounded, so allow a rupee (or 2%) of drift before flagging.
 const differs = (a, b) => Math.abs(a - b) > Math.max(1, Math.abs(b) * 0.02);
 
+// The printed line total is the most trustworthy number on these invoices: it
+// is machine-printed, and unlike the quantity column it is rarely written over
+// by hand. When qty × rate disagrees with it and the total divides cleanly by
+// the rate, the quantity is what was misread (warehouse carton counts get
+// pencilled straight onto the quantity column), so take the quantity the
+// printed total implies — and flag it, because the rate could be the wrong one
+// instead.
+const reconcileQty = (l) => {
+  if (!(l.printedAmount > 0) || !(l.rate > 0)) return l;
+  if (!differs(l.qty * l.rate, l.printedAmount)) return l;
+  const implied = l.printedAmount / l.rate;
+  const rounded = Math.round(implied);
+  if (rounded < 1 || rounded > 1e6 || Math.abs(implied - rounded) > 0.02) return l;
+  if (rounded === l.qty) return l;
+  return { ...l, qty: rounded, qtyRead: l.qty, qtyFromAmount: true };
+};
+
 const emptyLine = () => ({
   ocrName: '', unit: 'pcs', qty: '', rate: '', printedAmount: 0,
   action: 'create', itemId: '', matchScore: 0, manual: true,
@@ -166,7 +183,7 @@ export default function ScanInvoice() {
   // review state
   const [meta, setMeta] = useState({ supplierId: '', supplierName: '', dateRead: false,
     documentNo: '', date: '', status: 'unpaid', remarks: '', previousBalance: 0, totalDue: 0 });
-  const [printed, setPrinted] = useState({ subtotal: 0, discount: 0, netTotal: 0 });
+  const [printed, setPrinted] = useState({ subtotal: 0, discount: 0, netTotal: 0, totalQty: 0 });
   const [lines, setLines] = useState([]);
 
   const setMetaField = (changes) => setMeta(m => ({ ...m, ...changes }));
@@ -208,18 +225,27 @@ export default function ScanInvoice() {
         previousBalance: num(d.previousBalance),
         totalDue: num(d.totalDue),
       });
-      setPrinted({ subtotal: num(d.subtotal), discount: num(d.discount), netTotal: num(d.netTotal) });
-      setLines((d.items || []).map((it) => {
-        const m = bestMatch(it.name || '', items);
-        return {
-          ocrName: it.name || '', unit: (it.unit || 'pcs').toLowerCase(),
+      setPrinted({ subtotal: num(d.subtotal), discount: num(d.discount),
+        netTotal: num(d.netTotal), totalQty: num(d.totalQty) });
+      setLines((d.items || [])
+        .map((it) => ({
+          ocrName: (it.name || '').trim(),
+          unit: (it.unit || 'pcs').toLowerCase(),
           qty: num(it.qty), rate: num(it.rate), printedAmount: num(it.amount),
-          action: m ? 'match' : 'create',
-          itemId: m?.id || '',
-          matchScore: m?._score || 0,
-          manual: false,
-        };
-      }));
+        }))
+        // Models sometimes pad the table with an empty trailing row.
+        .filter((l) => l.ocrName || l.qty > 0 || l.rate > 0)
+        .map(reconcileQty)
+        .map((l) => {
+          const m = bestMatch(l.ocrName, items);
+          return {
+            ...l,
+            action: m ? 'match' : 'create',
+            itemId: m?.id || '',
+            matchScore: m?._score || 0,
+            manual: false,
+          };
+        }));
       setStep('review');
     } catch (e) {
       console.error(e);
@@ -230,6 +256,9 @@ export default function ScanInvoice() {
 
   const setLine = (idx, changes) =>
     setLines(ls => ls.map((l, i) => i === idx ? { ...l, ...changes } : l));
+
+  // Once the user types a quantity themselves it is no longer a derived one.
+  const setQty = (idx, qty) => setLine(idx, { qty, qtyFromAmount: false });
 
   const activeLines = useMemo(() => lines.filter(l => l.action !== 'skip'), [lines]);
   const total = useMemo(() =>
@@ -254,6 +283,10 @@ export default function ScanInvoice() {
     const f = {};
     if (!String(l.ocrName || '').trim()) f.name = { level: 'error', msg: "Name wasn't read", short: 'not read' };
     if (!(num(l.qty) > 0)) f.qty = { level: 'error', msg: "Qty wasn't read", short: 'not read' };
+    else if (l.qtyFromAmount) f.qty = {
+      level: 'warn', short: `read as ${l.qtyRead}`,
+      msg: `Qty read as ${l.qtyRead}; set to ${l.qty} from the printed line total ${formatCurrency(l.printedAmount)} — confirm it`,
+    };
     if (!(num(l.rate) > 0)) f.rate = { level: 'warn', msg: "Rate wasn't read", short: 'not read' };
     else if (l.printedAmount > 0 && num(l.qty) > 0 && differs(num(l.qty) * num(l.rate), l.printedAmount))
       f.rate = { level: 'warn', msg: `Qty × rate ≠ printed ${formatCurrency(l.printedAmount)}`, short: `≠ ${formatCurrency(l.printedAmount)}` };
@@ -262,6 +295,15 @@ export default function ScanInvoice() {
       f.item = { level: 'warn', msg: 'Weak match — verify this is the right item', short: 'weak match — verify' };
     return f;
   }), [lines, formatCurrency]);
+
+  const qtyTotal = useMemo(() => activeLines.reduce((s, l) => s + num(l.qty), 0), [activeLines]);
+
+  const qtyFlag = useMemo(() => {
+    if (!printed.totalQty || !activeLines.length) return null;
+    return differs(qtyTotal, printed.totalQty)
+      ? { level: 'warn', msg: `Invoice prints ${printed.totalQty} — check the quantities below` }
+      : null;
+  }, [printed.totalQty, qtyTotal, activeLines.length]);
 
   const totalFlag = useMemo(() => {
     if (!printed.netTotal || !activeLines.length) return null;
@@ -280,9 +322,10 @@ export default function ScanInvoice() {
     lineFlags.forEach((flags, idx) => {
       Object.values(flags).forEach(f => push(f, `Line ${idx + 1}: ${f.msg}`));
     });
+    if (qtyFlag) warnings.push(`Quantity ${qtyTotal} — ${qtyFlag.msg}`);
     if (totalFlag) warnings.push(`Total ${formatCurrency(total)} — ${totalFlag.msg}`);
     return { errors, warnings };
-  }, [metaFlags, lineFlags, activeLines.length, totalFlag, total, formatCurrency]);
+  }, [metaFlags, lineFlags, activeLines.length, qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
 
   const nextInvoiceNo = async () => {
     const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES);
@@ -596,7 +639,7 @@ export default function ScanInvoice() {
                             <>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 10 }}>
                                 <TextField label="Qty" type="number" flag={f.qty} value={l.qty}
-                                  onChange={e => setLine(idx, { qty: e.target.value })} inputMode="decimal" />
+                                  onChange={e => setQty(idx, e.target.value)} inputMode="decimal" />
                                 <TextField label="Unit" value={l.unit}
                                   onChange={e => setLine(idx, { unit: e.target.value })} />
                                 <TextField label="Rate" type="number" flag={f.rate} value={l.rate}
@@ -666,7 +709,7 @@ export default function ScanInvoice() {
                                 )}
                               </td>
                               <td style={{ padding: '7px 8px' }}>
-                                {cellInput(l.qty, e => setLine(idx, { qty: e.target.value }), f.qty, 'number')}
+                                {cellInput(l.qty, e => setQty(idx, e.target.value), f.qty, 'number')}
                                 <Hint flag={f.qty} short />
                               </td>
                               <td style={{ padding: '7px 8px' }}>
@@ -706,8 +749,9 @@ export default function ScanInvoice() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                     <span style={{ color: 'var(--text2)' }}>Quantity</span>
-                    <span>{activeLines.reduce((s, l) => s + num(l.qty), 0)}</span>
+                    <span style={{ color: qtyFlag ? WARN : undefined }}>{qtyTotal}</span>
                   </div>
+                  <Hint flag={qtyFlag} />
                   <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.05rem', alignItems: 'baseline' }}>
                     <span>Total</span>
