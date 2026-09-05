@@ -12,35 +12,46 @@ import {
   DollarSign, ShoppingCart, Receipt, Zap, Camera
 } from 'lucide-react';
 
+// `module` ties each link to a permission key from lib/permissions, so the nav
+// only offers pages the signed-in user can actually open.
 const NAV = [
-  { label: 'Summary', to: '/', icon: LayoutDashboard },
-  { label: 'Customers', to: '/customers', icon: Users, countKey: COLLECTIONS.CUSTOMERS },
-  { label: 'Suppliers', to: '/suppliers', icon: Truck, countKey: COLLECTIONS.SUPPLIERS },
-  { label: 'Inventory Items', to: '/inventory', icon: Package, countKey: COLLECTIONS.INVENTORY },
-  { label: 'Warehouses', to: '/warehouses', icon: Warehouse },
+  { label: 'Summary', to: '/', icon: LayoutDashboard, module: 'dashboard' },
+  { label: 'Customers', to: '/customers', icon: Users, module: 'customers', countKey: COLLECTIONS.CUSTOMERS },
+  { label: 'Suppliers', to: '/suppliers', icon: Truck, module: 'suppliers', countKey: COLLECTIONS.SUPPLIERS },
+  { label: 'Inventory Items', to: '/inventory', icon: Package, module: 'inventory', countKey: COLLECTIONS.INVENTORY },
+  { label: 'Warehouses', to: '/warehouses', icon: Warehouse, module: 'warehouses' },
   { type: 'divider', label: 'SALES & PURCHASES' },
-  { label: 'Sales Invoices', to: '/sales', icon: Receipt, countKey: COLLECTIONS.SALES_INVOICES },
-  { label: 'Quick Invoice', to: '/sales/quick', icon: Zap },
-  { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart, countKey: COLLECTIONS.PURCHASE_INVOICES },
-  { label: 'Scan Invoice (OCR)', to: '/purchases/scan', icon: Camera, highlight: true },
+  { label: 'Sales Invoices', to: '/sales', icon: Receipt, module: 'sales', countKey: COLLECTIONS.SALES_INVOICES },
+  { label: 'Quick Invoice', to: '/sales/quick', icon: Zap, module: 'sales' },
+  { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart, module: 'purchases', countKey: COLLECTIONS.PURCHASE_INVOICES },
+  { label: 'Scan Invoice (OCR)', to: '/purchases/scan', icon: Camera, module: 'scan', highlight: true },
   { type: 'divider', label: 'ACCOUNTING' },
-  { label: 'Chart of Accounts', to: '/accounting/accounts', icon: BookOpen },
-  { label: 'Bank & Cash', to: '/accounting/bank', icon: DollarSign },
-  { label: 'Journal Entries', to: '/accounting/journals', icon: FileText },
-  { label: 'Payments', to: '/accounting/payments', icon: DollarSign },
-  { label: 'Expenses', to: '/accounting/expenses', icon: FileText },
+  { label: 'Chart of Accounts', to: '/accounting/accounts', icon: BookOpen, module: 'accounts' },
+  { label: 'Bank & Cash', to: '/accounting/bank', icon: DollarSign, module: 'bank' },
+  { label: 'Journal Entries', to: '/accounting/journals', icon: FileText, module: 'journals' },
+  { label: 'Payments', to: '/accounting/payments', icon: DollarSign, module: 'payments' },
+  { label: 'Expenses', to: '/accounting/expenses', icon: FileText, module: 'expenses' },
   { type: 'divider', label: 'ANALYTICS' },
-  { label: 'Reports', to: '/reports', icon: BarChart3 },
+  { label: 'Reports', to: '/reports', icon: BarChart3, module: 'reports' },
   { type: 'divider', label: 'SYSTEM' },
-  { label: 'Users & Roles', to: '/users', icon: UserCog },
-  { label: 'Data Import', to: '/import', icon: Upload },
-  { label: 'WhatsApp', to: '/whatsapp', icon: MessageSquare },
-  { label: 'Settings', to: '/settings', icon: Settings },
+  { label: 'Users & Roles', to: '/users', icon: UserCog, module: 'users' },
+  { label: 'Data Import', to: '/import', icon: Upload, module: 'import' },
+  { label: 'WhatsApp', to: '/whatsapp', icon: MessageSquare, module: 'whatsapp' },
+  { label: 'Settings', to: '/settings', icon: Settings, module: 'settings' },
 ];
+
+// Drops links the user cannot view, plus any section heading left with nothing
+// under it.
+const visibleNav = (can) => {
+  const allowed = NAV.filter(item => item.type === 'divider' || can(item.module, 'view'));
+  return allowed.filter((item, i) =>
+    item.type !== 'divider' || allowed.slice(i + 1).some(n => n.type !== 'divider')
+  );
+};
 
 export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen, isMobile } = useApp();
-  const { logout, profile } = useAuth();
+  const { logout, profile, roles, can } = useAuth();
   const navigate = useNavigate();
   const counts = useCounts();
 
@@ -111,7 +122,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '8px 0', WebkitOverflowScrolling: 'touch' }}>
-        {NAV.map((item, i) => {
+        {visibleNav(can).map((item, i) => {
           if (item.type === 'divider') {
             return (sidebarOpen || isMobile)
               ? <div key={i} style={{ padding: '12px 16px 4px', fontSize: '0.6rem', fontFamily: 'var(--font-head)', fontWeight: 700, color: 'var(--text3)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{item.label}</div>
@@ -187,7 +198,10 @@ export default function Sidebar() {
           <>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.name || 'User'}</div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'capitalize' }}>{profile?.role || 'viewer'}</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>
+                {roles.find(r => r.key === profile?.role)?.label || profile?.role || 'Viewer'}
+                {profile?.permissionMode === 'custom' && ' · custom'}
+              </div>
             </div>
             <button
               onClick={handleLogout}

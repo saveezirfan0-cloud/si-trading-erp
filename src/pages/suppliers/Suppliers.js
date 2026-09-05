@@ -71,9 +71,11 @@ export default function Suppliers() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this supplier?')) return;
-    await remove(COLLECTIONS.SUPPLIERS, id);
-    toast.success('Deleted');
-    load();
+    try {
+      await remove(COLLECTIONS.SUPPLIERS, id);
+      toast.success('Deleted');
+      load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const columns = [

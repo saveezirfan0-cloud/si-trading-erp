@@ -6,16 +6,22 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Package, Receipt, Zap, Camera } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
+// `module` ties each slot to a permission key, so the bar only offers what the
+// signed-in user can actually open.
 const BOTTOM_NAV = [
-  { label: 'Summary', to: '/', icon: LayoutDashboard, end: true },
-  { label: 'Stock', to: '/inventory', icon: Package },
-  { label: 'Scan', to: '/purchases/scan', icon: Camera, fab: true },
-  { label: 'Quick Sale', to: '/sales/quick', icon: Zap },
-  { label: 'Sales', to: '/sales', icon: Receipt },
+  { label: 'Summary', to: '/', icon: LayoutDashboard, end: true, module: 'dashboard' },
+  { label: 'Stock', to: '/inventory', icon: Package, module: 'inventory' },
+  { label: 'Scan', to: '/purchases/scan', icon: Camera, fab: true, module: 'scan' },
+  { label: 'Quick Sale', to: '/sales/quick', icon: Zap, module: 'sales' },
+  { label: 'Sales', to: '/sales', icon: Receipt, module: 'sales' },
 ];
 
 export default function BottomNav() {
+  const { can } = useAuth();
+  const items = BOTTOM_NAV.filter(i => can(i.module, 'view'));
+  if (!items.length) return null;
   return (
     <nav
       aria-label="Primary"
@@ -33,7 +39,7 @@ export default function BottomNav() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {BOTTOM_NAV.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
         return (
           <NavLink

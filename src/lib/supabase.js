@@ -62,4 +62,23 @@ export const supabase = isSupabaseConfigured
     })
   : stub();
 
+// A throwaway client that never reads or writes the stored session.
+//
+// signUp() replaces the caller's own session with the brand-new user's, which
+// would silently log an admin out of their own account the moment they add
+// someone. Signing the new user up on an isolated client keeps the admin
+// signed in; the ERP profile row is then written with the real `supabase`
+// client, which still carries the admin's credentials.
+export const createIsolatedClient = () =>
+  isSupabaseConfigured
+    ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+          storageKey: 'erp-isolated-auth',
+        },
+      })
+    : stub();
+
 export default supabase;
