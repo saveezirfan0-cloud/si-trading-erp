@@ -7,7 +7,7 @@
 // Everything the OCR reads is editable in the review step, and anything it
 // failed to read (or read suspiciously) is highlighted so it gets checked
 // before the invoice is saved.
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { getAll, getOne, create, update, COLLECTIONS } from '../../lib/db';
@@ -15,7 +15,7 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Card, Loader, Badge } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle } from 'lucide-react';
+import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle, Search, ChevronDown } from 'lucide-react';
 
 // Amber isn't a theme variable — warnings use this in both themes.
 const WARN = '#e0a01a';
@@ -82,6 +82,60 @@ const bestMatch = (name, candidates, min = 0.3) => {
     if (s > score) { score = s; best = c; }
   }
   return score >= min ? { ...best, _score: score } : null;
+};
+
+// Ranking a line against the inventory.
+//
+// Plain token overlap treats every word as equally telling, so an invoice line
+// like "PLIERS ORANGE XIANYU CUTTER" scores the same against "6\" Solid Cutter
+// Plier" as against "Pliers Orange Xianyu Cutter" — the words that actually
+// identify the item ("xianyu", "orange") carry no more weight than the ones
+// half the catalogue shares ("solid", "6\""). So weight each token by how rare
+// it is across the inventory, and search the code and brand too.
+const makeRanker = (items) => {
+  // Score against the item name only — codes and brands are for the search box,
+  // and letting them into the score dilutes it.
+  const docs = items.map((i) => ({ item: i, set: new Set(tokens(i.name)) }));
+  const df = new Map();
+  docs.forEach((d) => d.set.forEach((t) => df.set(t, (df.get(t) || 0) + 1)));
+  const n = docs.length || 1;
+  const idf = (t) => Math.log((n + 1) / ((df.get(t) || 0) + 1)) + 1;
+  const weight = (set) => { let w = 0; set.forEach((t) => { w += idf(t); }); return w; };
+  const docWeight = docs.map((d) => weight(d.set));
+
+  return (name, limit = 5) => {
+    const q = new Set(tokens(name));
+    if (!q.size) return [];
+    const qw = weight(q);
+    const scored = [];
+    docs.forEach((d, k) => {
+      let inter = 0;
+      q.forEach((t) => { if (d.set.has(t)) inter += idf(t); });
+      if (!inter) return;
+      // Dice coefficient: rewards covering both sides, but unlike dividing by
+      // the longer side it doesn't punish an invoice line for carrying extra
+      // spec words ("SOLID HD", "( 36PCS/CTN )") the catalogue name omits.
+      scored.push({ ...d.item, score: (2 * inter) / (qw + docWeight[k]) });
+    });
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, limit);
+  };
+};
+
+// Auto-select an inventory item only when one candidate is both good and
+// clearly ahead of the next one; a near-tie means the scan has to be checked by
+// hand, and proposing a new item is safer than silently picking the wrong one.
+const AUTO_MATCH = 0.55;
+const AUTO_MARGIN = 0.08;
+
+const pickMatch = (rank, name) => {
+  const [best, next] = rank(name, 2);
+  if (!best) return { action: 'create', itemId: '', matchScore: 0, nearMiss: null };
+  const clear = best.score >= AUTO_MATCH && (!next || best.score - next.score >= AUTO_MARGIN);
+  return clear
+    ? { action: 'match', itemId: best.id, matchScore: best.score, runnerUp: next?.score || 0, nearMiss: null }
+    : { action: 'create', itemId: '', matchScore: 0,
+        nearMiss: best.score >= 0.3 ? { name: best.name, score: best.score } : null };
 };
 
 const num = (v) => Number(v) || 0;
@@ -165,6 +219,145 @@ const SelectField = ({ label, flag, value, onChange, children }) => (
   </Field>
 );
 
+// ── Inventory item picker ────────────────────────────────────────────────────
+// A native <select> over ~700 items is a wall of alphabetical text on a phone,
+// so this is a search box over name, code, brand and category, with the lines'
+// best matches offered first.
+function ItemPicker({ value, ocrName, inventory, rank, flag, onChange, isMobile }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const searchRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    setQ('');
+    const t = setTimeout(() => searchRef.current?.focus(), 40);
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => { clearTimeout(t); document.removeEventListener('keydown', onKey); };
+  }, [open]);
+
+  const selected = value ? inventory.find((i) => i.id === value) : null;
+
+  const { suggestions, rest, filtered } = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    if (!query) {
+      const sugg = rank(ocrName, 6).filter((x) => x.score > 0.15);
+      const seen = new Set(sugg.map((x) => x.id));
+      return { suggestions: sugg, rest: inventory.filter((i) => !seen.has(i.id)), filtered: false };
+    }
+    const terms = query.split(/\s+/);
+    const hit = (i) => {
+      const hay = `${i.name || ''} ${i.code || ''} ${i.brand || ''} ${i.category || ''}`.toLowerCase();
+      return terms.every((t) => hay.includes(t));
+    };
+    return { suggestions: [], rest: inventory.filter(hit), filtered: true };
+  }, [q, ocrName, inventory, rank]);
+
+  const CAP = 60;
+  const shown = rest.slice(0, CAP);
+
+  const row = (label, sub, onClick, key, extra) => (
+    <button key={key} onClick={onClick} style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+      width: '100%', textAlign: 'left', background: 'none', border: 'none',
+      borderBottom: '1px solid var(--border)', padding: '11px 14px', color: 'var(--text)',
+      fontSize: '0.88rem',
+    }}>
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        {sub && <span style={{ display: 'block', fontSize: '0.74rem', color: 'var(--text3)' }}>{sub}</span>}
+      </span>
+      {extra}
+    </button>
+  );
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)} title={selected ? selected.name : 'Choose an inventory item'}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
+          width: '100%', minWidth: 0, textAlign: 'left',
+          background: 'var(--input-bg)', border: '1px solid var(--border2)',
+          borderRadius: 'var(--radius)', color: 'var(--text)',
+          padding: isMobile ? '10px 12px' : '6px 8px', fontSize: isMobile ? '0.95rem' : '12.5px',
+          ...flagStyle(flag),
+        }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selected ? selected.name : `➕ New item${ocrName ? `: ${ocrName}` : ''}`}
+        </span>
+        <ChevronDown size={14} style={{ flexShrink: 0, color: 'var(--text3)' }} />
+      </button>
+
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 900 }} />
+          <div style={{
+            position: 'fixed', zIndex: 901, background: 'var(--bg2)',
+            border: '1px solid var(--border2)', boxShadow: 'var(--shadow)',
+            display: 'flex', flexDirection: 'column',
+            ...(isMobile
+              ? { left: 0, right: 0, bottom: 0, top: '12%', borderRadius: '16px 16px 0 0' }
+              : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 520, maxHeight: '72vh', borderRadius: 'var(--radius-lg)' }),
+          }}>
+            <div style={{ padding: 12, borderBottom: '1px solid var(--border)', display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)' }} />
+                <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search name, code or brand…"
+                  style={{ padding: '9px 12px 9px 30px', width: '100%' }} />
+              </div>
+              <button data-compact onClick={() => setOpen(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--text2)', padding: 6 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              {row(`➕ New item${ocrName ? `: ${ocrName}` : ''}`,
+                'Adds it to inventory when the invoice is confirmed',
+                () => { onChange(null); setOpen(false); }, '__new__')}
+
+              {suggestions.length > 0 && (
+                <>
+                  <div style={{ padding: '8px 14px', fontSize: '0.7rem', fontFamily: 'var(--font-head)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text3)', background: 'var(--bg3)' }}>
+                    Closest to what was scanned
+                  </div>
+                  {suggestions.map((i) => row(i.name, i.code || undefined,
+                    () => { onChange(i.id); setOpen(false); }, `s-${i.id}`,
+                    <span style={{ flexShrink: 0, fontSize: '0.72rem', color: i.score > 0.7 ? 'var(--green)' : WARN }}>
+                      {Math.round(i.score * 100)}%
+                    </span>))}
+                </>
+              )}
+
+              {!filtered && shown.length > 0 && (
+                <div style={{ padding: '8px 14px', fontSize: '0.7rem', fontFamily: 'var(--font-head)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text3)', background: 'var(--bg3)' }}>
+                  All items ({rest.length})
+                </div>
+              )}
+              {shown.map((i) => row(i.name, i.code || undefined,
+                () => { onChange(i.id); setOpen(false); }, i.id))}
+
+              {rest.length > CAP && (
+                <div style={{ padding: '12px 14px', fontSize: '0.78rem', color: 'var(--text3)' }}>
+                  Showing {CAP} of {rest.length} — keep typing to narrow it down.
+                </div>
+              )}
+              {filtered && rest.length === 0 && (
+                <div style={{ padding: '18px 14px', fontSize: '0.85rem', color: 'var(--text2)' }}>
+                  Nothing matches “{q}”. Pick “New item” to add it to inventory.
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 export default function ScanInvoice() {
   const navigate = useNavigate();
@@ -179,6 +372,7 @@ export default function ScanInvoice() {
 
   const [suppliers, setSuppliers] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [rank, setRank] = useState(() => () => []);
 
   // review state
   const [meta, setMeta] = useState({ supplierId: '', supplierName: '', dateRead: false,
@@ -199,6 +393,8 @@ export default function ScanInvoice() {
         getAll(COLLECTIONS.SUPPLIERS), getAll(COLLECTIONS.INVENTORY),
       ]);
       setSuppliers(supps); setInventory(items);
+      const ranker = makeRanker(items);
+      setRank(() => ranker);
 
       const { data: res, error: fnError } = await supabase.functions.invoke('ocr-invoice', {
         body: { image: compressed.base64, mimeType: compressed.mimeType },
@@ -236,16 +432,7 @@ export default function ScanInvoice() {
         // Models sometimes pad the table with an empty trailing row.
         .filter((l) => l.ocrName || l.qty > 0 || l.rate > 0)
         .map(reconcileQty)
-        .map((l) => {
-          const m = bestMatch(l.ocrName, items);
-          return {
-            ...l,
-            action: m ? 'match' : 'create',
-            itemId: m?.id || '',
-            matchScore: m?._score || 0,
-            manual: false,
-          };
-        }));
+        .map((l) => ({ ...l, ...pickMatch(ranker, l.ocrName), manual: false })));
       setStep('review');
     } catch (e) {
       console.error(e);
@@ -291,8 +478,13 @@ export default function ScanInvoice() {
     else if (l.printedAmount > 0 && num(l.qty) > 0 && differs(num(l.qty) * num(l.rate), l.printedAmount))
       f.rate = { level: 'warn', msg: `Qty × rate ≠ printed ${formatCurrency(l.printedAmount)}`, short: `≠ ${formatCurrency(l.printedAmount)}` };
     if (l.action === 'match' && !l.itemId) f.item = { level: 'error', msg: 'Pick an inventory item', short: 'pick an item' };
-    else if (l.action === 'match' && l.matchScore > 0 && l.matchScore < 0.5)
-      f.item = { level: 'warn', msg: 'Weak match — verify this is the right item', short: 'weak match — verify' };
+    else if (l.action === 'match' && !l.userPicked && l.matchScore < 0.75)
+      f.item = { level: 'warn', msg: 'Not a confident match — check this is the right item', short: 'check the item' };
+    else if (l.action === 'create' && l.nearMiss)
+      f.item = {
+        level: 'warn', short: 'similar item exists',
+        msg: `Will create a new item — "${l.nearMiss.name}" already looks similar (${Math.round(l.nearMiss.score * 100)}%)`,
+      };
     return f;
   }), [lines, formatCurrency]);
 
@@ -435,17 +627,10 @@ export default function ScanInvoice() {
       style={{ width: '100%', minWidth: 0, padding: '6px 8px', borderRadius: 6, fontSize: '13px', ...flagStyle(flag) }} />
   );
 
-  const itemOptions = (l) => (
-    <>
-      <option value="__new__">➕ New item{l.ocrName ? `: ${l.ocrName.slice(0, 34)}` : ''}</option>
-      {inventory.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-    </>
-  );
-  const onItemChange = (idx) => (e) => {
-    const v = e.target.value;
-    if (v === '__new__') setLine(idx, { action: 'create', itemId: '' });
-    else setLine(idx, { action: 'match', itemId: v });
-  };
+  const onItemPick = (idx) => (id) =>
+    setLine(idx, id
+      ? { action: 'match', itemId: id, matchScore: 1, userPicked: true, nearMiss: null }
+      : { action: 'create', itemId: '', matchScore: 0, userPicked: true, nearMiss: null });
   const toggleSkip = (idx, l) =>
     setLine(idx, { action: l.action === 'skip' ? (l.itemId ? 'match' : 'create') : 'skip' });
 
@@ -646,17 +831,17 @@ export default function ScanInvoice() {
                                   onChange={e => setLine(idx, { rate: e.target.value })} inputMode="decimal" />
                               </div>
                               <div style={{ marginTop: 10 }}>
-                                <SelectField label="Inventory item" flag={f.item}
-                                  value={l.action === 'create' ? '__new__' : l.itemId}
-                                  onChange={onItemChange(idx)}>
-                                  {itemOptions(l)}
-                                </SelectField>
+                                <Field label="Inventory item" flag={f.item}>
+                                  <ItemPicker value={l.itemId} ocrName={l.ocrName}
+                                    inventory={inventory} rank={rank} flag={f.item}
+                                    onChange={onItemPick(idx)} isMobile />
+                                </Field>
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: '0.85rem' }}>
                                 <span style={{ color: 'var(--text2)' }}>
-                                  {l.action === 'match' && l.matchScore > 0
-                                    ? `${Math.round(l.matchScore * 100)}% match`
-                                    : l.action === 'create' ? 'Will be created' : ''}
+                                  {l.action !== 'match' ? 'Will be created'
+                                    : l.userPicked ? 'Chosen by you'
+                                    : `${Math.round(l.matchScore * 100)}% match`}
                                 </span>
                                 <span style={{ fontWeight: 700 }}>{amountOf(l)}</span>
                               </div>
@@ -693,15 +878,13 @@ export default function ScanInvoice() {
                               <td style={{ padding: '7px 8px' }}>
                                 {skipped ? <span style={{ color: 'var(--text3)', fontSize: '12px' }}>skipped</span> : (
                                   <>
-                                    <select value={l.action === 'create' ? '__new__' : l.itemId}
-                                      onChange={onItemChange(idx)}
-                                      style={{ width: '100%', minWidth: 0, padding: '6px 24px 6px 7px', borderRadius: 6, fontSize: '12.5px', ...flagStyle(f.item) }}>
-                                      {itemOptions(l)}
-                                    </select>
+                                    <ItemPicker value={l.itemId} ocrName={l.ocrName}
+                                      inventory={inventory} rank={rank} flag={f.item}
+                                      onChange={onItemPick(idx)} isMobile={false} />
                                     {f.item
                                       ? <Hint flag={f.item} short />
-                                      : l.action === 'match' && l.matchScore > 0 && (
-                                        <span style={{ fontSize: '10px', color: l.matchScore > 0.7 ? 'var(--green)' : WARN }}>
+                                      : l.action === 'match' && l.matchScore > 0 && !l.userPicked && (
+                                        <span style={{ fontSize: '10px', color: 'var(--green)' }}>
                                           {Math.round(l.matchScore * 100)}% match
                                         </span>
                                       )}
