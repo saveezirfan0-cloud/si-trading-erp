@@ -4,6 +4,14 @@
 // using AI vision. Providers: Anthropic (Claude) and OpenAI, with automatic
 // API-key rotation and failover.
 //
+// The model is asked for the printed serial number of every row and for the
+// invoice's own printed totals, so the reply can be checked against the paper
+// before anyone sees it: a row count that disagrees with the serials, a
+// quantity sum that disagrees with the printed total, or a repeated
+// description are all caught here. A reply that fails those checks gets one
+// repair pass; whatever is still wrong is reported as warnings for the review
+// screen rather than being silently accepted.
+//
 // Secrets (set in Supabase dashboard → Edge Functions → Secrets):
 //   ANTHROPIC_API_KEYS  comma-separated list, rotated automatically
 //   OPENAI_API_KEYS     comma-separated list, rotated automatically
@@ -11,9 +19,11 @@
 //   OPENAI_MODEL        optional, default gpt-4o-mini
 //
 // POST { image: <base64 without data: prefix>, mimeType: "image/jpeg" }
-// →    { ok: true, provider, data: { supplierName, documentNo, date, items:[
-//        { name, unit, qty, rate, amount } ], subtotal, discount, netTotal,
-//        previousBalance, totalDue, remarks } }
+// →    { ok: true, provider, repaired, warnings: [...], checks: {...},
+//        data: { supplierName, documentNo, date, items:[
+//        { serial, name, unit, qty, rate, amount, duplicateOf } ], lineCount,
+//        subtotal, discount, netTotal, printedTotalQty, previousBalance,
+//        totalDue, remarks } }
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -23,14 +33,18 @@ const CORS = {
 
 const PROMPT = `You are reading a photo of a supplier's sales invoice / delivery challan from a hardware-tools wholesale business in Pakistan (amounts in PKR).
 
+The photo may be rotated, creased or annotated by hand — read the printed table regardless.
+
 Extract the data and reply with ONLY a JSON object (no markdown, no commentary) in exactly this shape:
 {
   "supplierName": "name of the business that issued the invoice",
   "documentNo": "invoice/document number",
   "date": "YYYY-MM-DD",
+  "lineCount": 0,
   "items": [
-    { "name": "item description as printed", "unit": "PCS|SET|NOS|CTN|...", "qty": 0, "rate": 0, "amount": 0 }
+    { "serial": 1, "name": "item description as printed", "unit": "PCS|SET|NOS|CTN|...", "qty": 0, "rate": 0, "amount": 0 }
   ],
+  "printedTotalQty": 0,
   "subtotal": 0,
   "discount": 0,
   "netTotal": 0,
@@ -39,12 +53,31 @@ Extract the data and reply with ONLY a JSON object (no markdown, no commentary) 
   "remarks": "any remarks/transporter/bilty text"
 }
 
-Rules:
+Rules for the item table — follow these exactly, they matter more than anything else:
+- The table has a printed Serial column. Return exactly one object per printed serial number, in order, and copy that number into "serial".
+- Set "lineCount" to how many rows are printed in the table. items must have exactly that many entries.
+- Read ACROSS each row: the name, UOM, quantity, rate and total value of one object must all come from the SAME printed row. Do not let a description slide onto the next row's UOM or quantity.
+- Never split one printed row into two objects, never merge two printed rows into one, and never repeat a description. If two rows really do share a description they must differ in serial, and their quantities and rates are read separately.
+- If a row is unreadable, still emit it with its serial and whatever you can read; do not drop it and do not invent an extra row to make the totals work.
+- "printedTotalQty" is the quantity total printed under the table (not your own sum). "netTotal" is the printed Net Total. Copy them as printed; they are used to check your reading.
+
+Other rules:
 - Numbers must be plain numbers without thousands separators.
 - Dates on these invoices are DD/MM/YYYY; convert to YYYY-MM-DD.
 - If a field is not present use "" for strings and 0 for numbers.
 - Copy item names exactly as printed, including size/spec text.
-- amount should be qty × rate as printed (use the printed total value column when available).`;
+- amount should be qty × rate as printed (use the printed total value column when available).
+
+CRITICAL — do not invent data. This feeds an accounting system: fabricated
+figures become real stock movements and real money owed to a supplier. If the
+image is blank, too blurry to read, not an invoice, or you cannot actually make
+out the line items, reply with ONLY this and nothing else:
+{"readable": false, "reason": "<short reason>"}
+Never guess a supplier name, a document number, an item or a price that you
+cannot actually see in the image. Returning "readable": false is always better
+than a plausible guess. Report only the line items you can genuinely read; if
+some rows are legible and others are not, include the legible ones and say so
+in "remarks".`;
 
 function keys(envName: string): string[] {
   return (Deno.env.get(envName) || "")
@@ -59,7 +92,7 @@ function rotated<T>(arr: T[]): T[] {
   return [...arr.slice(start), ...arr.slice(0, start)];
 }
 
-async function callAnthropic(key: string, image: string, mimeType: string) {
+async function callAnthropic(key: string, image: string, mimeType: string, extra = "") {
   const model = Deno.env.get("ANTHROPIC_MODEL") || "claude-haiku-4-5";
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -75,7 +108,7 @@ async function callAnthropic(key: string, image: string, mimeType: string) {
         role: "user",
         content: [
           { type: "image", source: { type: "base64", media_type: mimeType, data: image } },
-          { type: "text", text: PROMPT },
+          { type: "text", text: PROMPT + extra },
         ],
       }],
     }),
@@ -85,7 +118,7 @@ async function callAnthropic(key: string, image: string, mimeType: string) {
   return json.content?.[0]?.text ?? "";
 }
 
-async function callOpenAI(key: string, image: string, mimeType: string) {
+async function callOpenAI(key: string, image: string, mimeType: string, extra = "") {
   const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -97,7 +130,7 @@ async function callOpenAI(key: string, image: string, mimeType: string) {
         role: "user",
         content: [
           { type: "image_url", image_url: { url: `data:${mimeType};base64,${image}` } },
-          { type: "text", text: PROMPT },
+          { type: "text", text: PROMPT + extra },
         ],
       }],
     }),
@@ -115,6 +148,136 @@ function parseModelJson(text: string) {
   if (start === -1 || end === -1) throw new Error("no JSON in model reply");
   return JSON.parse(cleaned.slice(start, end + 1));
 }
+
+// ── Sanity checking the reply against the invoice's own printed totals ───────
+
+type Item = {
+  serial: number; name: string; unit: string;
+  qty: number; rate: number; amount: number;
+  duplicateOf?: number;
+};
+
+// Models sometimes return "1,320" or "Rs 795" despite the instruction.
+function num(v: unknown): number {
+  if (typeof v === "number") return Number.isFinite(v) ? v : 0;
+  const n = parseFloat(String(v ?? "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+const norm = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const close = (a: number, b: number, tol = 1) => Math.abs(a - b) <= tol;
+
+function normalizeItems(raw: unknown): Item[] {
+  const arr = Array.isArray(raw) ? raw : [];
+  const out: Item[] = [];
+  arr.forEach((r, i) => {
+    const o = (r ?? {}) as Record<string, unknown>;
+    const name = String(o.name ?? "").trim();
+    const qty = num(o.qty);
+    const rate = num(o.rate);
+    const amount = num(o.amount) || qty * rate;
+    if (!name && !qty && !rate) return; // blank filler row
+    out.push({
+      serial: num(o.serial) || i + 1,
+      name,
+      unit: String(o.unit ?? "").trim().toUpperCase(),
+      qty, rate, amount,
+    });
+  });
+  return out;
+}
+
+// Flag — never silently drop — rows that look like the same printed row read
+// twice: the duplicated description on a neighbouring row's UOM is the classic
+// failure on these dense, rotated challans. A supplier genuinely can list one
+// product twice, so this only marks rows the review screen then pre-skips.
+function flagDuplicates(items: Item[]): { items: Item[]; duplicates: number } {
+  const flagged = items.map((it) => ({ ...it }));
+  let duplicates = 0;
+  for (let i = 0; i < flagged.length; i++) {
+    const it = flagged[i];
+    for (let j = 0; j < i; j++) {
+      const prev = flagged[j];
+      if (prev.duplicateOf !== undefined) continue;
+      if (norm(prev.name) !== norm(it.name) || !norm(it.name)) continue;
+      // Same description on both rows. Treat as a re-read of the earlier row
+      // when nothing distinguishes them: identical rate, or an empty qty/rate.
+      const sameRate = close(prev.rate, it.rate, 0.01);
+      const emptyRow = !it.qty || !it.rate;
+      const sameSerial = prev.serial === it.serial;
+      if (sameRate || emptyRow || sameSerial) {
+        it.duplicateOf = prev.serial;
+        duplicates++;
+        break;
+      }
+    }
+  }
+  return { items: flagged, duplicates };
+}
+
+type Checks = {
+  lineCount: number;          // rows the model says are printed
+  extracted: number;          // rows it actually returned
+  duplicates: number;
+  qtySum: number; printedTotalQty: number;
+  amountSum: number; netTotal: number;
+  countOk: boolean; qtyOk: boolean; totalOk: boolean;
+};
+
+function check(data: Record<string, unknown>, items: Item[], duplicates: number): Checks {
+  const live = items.filter((i) => i.duplicateOf === undefined);
+  const qtySum = live.reduce((s, i) => s + i.qty, 0);
+  const amountSum = live.reduce((s, i) => s + i.amount, 0);
+  const lineCount = num(data.lineCount);
+  const printedTotalQty = num(data.printedTotalQty);
+  const netTotal = num(data.netTotal) || num(data.subtotal);
+  return {
+    lineCount, extracted: live.length, duplicates,
+    qtySum, printedTotalQty, amountSum, netTotal,
+    // A total the model did not read back is not evidence either way, so an
+    // absent printed total counts as "nothing to contradict".
+    countOk: !lineCount || lineCount === live.length,
+    qtyOk: !printedTotalQty || close(qtySum, printedTotalQty, 0.5),
+    totalOk: !netTotal || close(amountSum, netTotal, 1),
+  };
+}
+
+function warningsFor(c: Checks): string[] {
+  const w: string[] = [];
+  if (c.duplicates) {
+    w.push(`${c.duplicates} line${c.duplicates > 1 ? "s were" : " was"} read twice from the same ` +
+           `invoice row and ${c.duplicates > 1 ? "have" : "has"} been skipped — restore ${c.duplicates > 1 ? "them" : "it"} if the invoice really lists the item twice.`);
+  }
+  if (!c.countOk) {
+    w.push(`The invoice prints ${c.lineCount} rows but ${c.extracted} were extracted — check for a missing or duplicated line.`);
+  }
+  if (!c.qtyOk) {
+    w.push(`Quantities add up to ${c.qtySum} but the invoice's printed total quantity is ${c.printedTotalQty}.`);
+  }
+  if (!c.totalOk) {
+    w.push(`Line amounts add up to ${Math.round(c.amountSum).toLocaleString("en-PK")} but the invoice's printed net total is ${Math.round(c.netTotal).toLocaleString("en-PK")}.`);
+  }
+  return w;
+}
+
+const failCount = (c: Checks) =>
+  (c.countOk ? 0 : 1) + (c.qtyOk ? 0 : 1) + (c.totalOk ? 0 : 1);
+
+// What to tell the model on the repair pass, in terms of its own reply.
+function repairNote(c: Checks, items: Item[]): string {
+  const problems: string[] = [];
+  if (!c.countOk) problems.push(`you returned ${c.extracted} items but said the invoice prints ${c.lineCount} rows`);
+  if (!c.qtyOk) problems.push(`your quantities sum to ${c.qtySum} but the printed total quantity is ${c.printedTotalQty}`);
+  if (!c.totalOk) problems.push(`your line amounts sum to ${Math.round(c.amountSum)} but the printed net total is ${Math.round(c.netTotal)}`);
+  const dup = items.filter((i) => i.duplicateOf !== undefined).map((i) => i.name);
+  if (dup.length) problems.push(`these descriptions were repeated across rows: ${dup.join("; ")}`);
+  return `
+
+A previous reading of this same photo was rejected because ${problems.join(", and ")}.
+Read the table again, one object per printed serial number, taking each row's name, UOM, quantity and rate from the same printed row. Reply with the corrected JSON only.`;
+}
+
+// ── Handler ─────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -134,12 +297,13 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: "image (base64) required" }), { status: 400, headers: CORS });
   }
 
-  const attempts: { provider: string; call: () => Promise<string> }[] = [];
+  type Call = (extra?: string) => Promise<string>;
+  const attempts: { provider: string; call: Call }[] = [];
   for (const k of rotated(keys("ANTHROPIC_API_KEYS"))) {
-    attempts.push({ provider: "anthropic", call: () => callAnthropic(k, image, mimeType) });
+    attempts.push({ provider: "anthropic", call: (extra) => callAnthropic(k, image, mimeType, extra) });
   }
   for (const k of rotated(keys("OPENAI_API_KEYS"))) {
-    attempts.push({ provider: "openai", call: () => callOpenAI(k, image, mimeType) });
+    attempts.push({ provider: "openai", call: (extra) => callOpenAI(k, image, mimeType, extra) });
   }
   if (attempts.length === 0) {
     return new Response(JSON.stringify({
@@ -148,20 +312,85 @@ Deno.serve(async (req: Request) => {
     }), { status: 503, headers: CORS });
   }
 
+  // Raised when the model reports it cannot read the image, or returns nothing
+  // to read. Handled below the provider loop.
+  class Unreadable extends Error {
+    constructor(readonly detail: string) { super("unreadable"); }
+  }
+
+  const read = (text: string) => {
+    const data = parseModelJson(text) as Record<string, unknown>;
+
+    // Guard against invention. A blank or illegible photo must not become a
+    // confident set of line items: in an accounting system those turn into real
+    // stock movements and real money owed.
+    if (data && data.readable === false) {
+      throw new Unreadable(
+        typeof data.reason === "string" && data.reason
+          ? data.reason
+          : "The photo was not legible enough to extract invoice lines."
+      );
+    }
+
+    const { items, duplicates } = flagDuplicates(normalizeItems(data.items));
+
+    if (items.length === 0) {
+      throw new Unreadable(
+        "Nothing readable was found on this image. Retake the photo with the whole "
+        + "invoice in frame and in focus."
+      );
+    }
+
+    return { data, items, checks: check(data, items, duplicates) };
+  };
+
   const errors: string[] = [];
   for (const a of attempts) {
+    let first;
     try {
-      const text = await a.call();
-      const data = parseModelJson(text);
-      return new Response(JSON.stringify({ ok: true, provider: a.provider, data }), {
-        headers: { ...CORS, "content-type": "application/json" },
-      });
+      first = read(await a.call());
     } catch (e) {
+      // An unreadable image is a fact about the photo, not a provider fault —
+      // retrying other keys would only produce another invented reading.
+      if (e instanceof Unreadable) {
+        return new Response(JSON.stringify({
+          error: "Could not read this image",
+          detail: e.detail,
+          unreadable: true,
+        }), { status: 422, headers: { ...CORS, "content-type": "application/json" } });
+      }
       const msg = e instanceof Error ? e.message : String(e);
       errors.push(`${a.provider}: ${msg.slice(0, 300)}`);
-      // keep trying remaining keys/providers on any failure
+      continue; // keep trying remaining keys/providers on any failure
     }
+
+    // The reading disagrees with the invoice's own totals — give the same
+    // provider one corrective pass before handing it over for review.
+    let best = first;
+    let repaired = false;
+    if (failCount(first.checks) > 0) {
+      try {
+        const second = read(await a.call(repairNote(first.checks, first.items)));
+        if (failCount(second.checks) < failCount(best.checks)) {
+          best = second;
+          repaired = true;
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        errors.push(`${a.provider} (repair pass): ${msg.slice(0, 200)}`);
+      }
+    }
+
+    return new Response(JSON.stringify({
+      ok: true,
+      provider: a.provider,
+      repaired,
+      checks: best.checks,
+      warnings: warningsFor(best.checks),
+      data: { ...best.data, items: best.items },
+    }), { headers: { ...CORS, "content-type": "application/json" } });
   }
+
   return new Response(JSON.stringify({ error: "All providers failed", details: errors }), {
     status: 502, headers: { ...CORS, "content-type": "application/json" },
   });

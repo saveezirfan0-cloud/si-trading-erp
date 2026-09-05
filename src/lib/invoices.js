@@ -117,6 +117,44 @@ export const yearsOf = (rows = []) => {
   return undated ? [...years, { value: 'none', label: 'No date' }] : years;
 };
 
+// ── Duplicates ────────────────────────────────────────────────────────────────
+//
+// The same supplier invoice often gets photographed twice — a second copy of
+// the paper, or a re-scan after a bad crop. A repeat is identified by the three
+// things printed on the document: its date, who issued it, and their reference
+// number. Repeats are still recorded (the scan is evidence, and deleting a
+// user's capture silently would be worse), but they are marked and excluded
+// from every total, balance and stock movement.
+
+const normRef = (v) => String(v ?? '').trim().toLowerCase().replace(/\s+/g, '');
+
+// Null when the invoice lacks the fields needed to judge it — an undated or
+// unreferenced document cannot be called a repeat of anything.
+export const duplicateKey = (inv, partyField = 'supplierName') => {
+  const date = String(inv?.date || '').slice(0, 10);
+  const ref = normRef(inv?.supplierInvoiceNo);
+  const party = normRef(inv?.[partyField === 'supplierName' ? 'supplierId' : 'customerId'])
+    || normRef(inv?.[partyField]);
+  if (!date || !ref || !party) return null;
+  return `${date}|${party}|${ref}`;
+};
+
+export const isDuplicate = (inv) => Boolean(inv?.isDuplicate);
+
+// The row an incoming invoice repeats, or null. Existing duplicates are not
+// themselves candidates, so a third copy points at the original.
+export const findDuplicate = (rows = [], candidate, partyField = 'supplierName') => {
+  const key = duplicateKey(candidate, partyField);
+  if (!key) return null;
+  return rows.find(
+    (r) => r.id !== candidate?.id && !isDuplicate(r) && duplicateKey(r, partyField) === key
+  ) || null;
+};
+
+// Rows that count towards money and stock.
+export const activeInvoices = (rows = []) => rows.filter((r) => !isDuplicate(r));
+export const duplicateInvoices = (rows = []) => rows.filter(isDuplicate);
+
 // ── Data quality ──────────────────────────────────────────────────────────────
 export const invoiceIssues = (inv, partyField = 'customerName') => {
   const issues = [];
@@ -179,6 +217,7 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
     if (f.flag === 'duesoon' && !isDueSoon(inv, 7, today)) return false;
     if (f.flag === 'outstanding' && balanceDue(inv) <= 0) return false;
     if (f.flag === 'issues' && invoiceIssues(inv, partyField).length === 0) return false;
+    if (f.flag === 'duplicates' && !isDuplicate(inv)) return false;
 
     return true;
   });
@@ -256,10 +295,12 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
   }));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
-// Drafts and invoices still in review are left out of the money entirely — they
-// are not sales or purchases yet — and reported separately so the list can say
-// what is waiting on somebody.
-export const summarise = (rows = []) => {
+// Duplicates are excluded here, which is what keeps them out of every stat card
+// and dashboard figure that runs through this helper. Drafts and invoices still
+// in review are left out of the money too — they are not sales or purchases yet
+// — and reported separately so the list can say what is waiting on somebody.
+export const summarise = (allRows = []) => {
+  const rows = activeInvoices(allRows);
   const today = todayISO();
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
   let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
@@ -279,5 +320,6 @@ export const summarise = (rows = []) => {
   return {
     count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
     provisionalCount, awaitingCount, awaitingAmount,
+    duplicates: allRows.length - rows.length,
   };
 };

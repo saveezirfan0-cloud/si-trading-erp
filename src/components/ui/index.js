@@ -6,6 +6,24 @@ import {
   ArrowUp, ArrowDown, ArrowUpDown,
 } from 'lucide-react';
 
+
+// True below the phone breakpoint. Kept here so the UI kit can adapt its own
+// layout without every caller threading a prop through.
+function useIsNarrow(breakpoint = 700) {
+  const query = `(max-width: ${breakpoint}px)`;
+  const [narrow, setNarrow] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const onChange = (e) => setNarrow(e.matches);
+    setNarrow(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [query]);
+  return narrow;
+}
+
 // ─── Button ───────────────────────────────────────────────────────────────────
 export function Btn({ children, variant = 'primary', size = 'md', onClick, type = 'button', disabled, style, icon: Icon }) {
   const variants = {
@@ -184,6 +202,65 @@ function pageWindow(current, totalPages) {
   return out;
 }
 
+// On a phone a nine-column table is a sideways-scrolling chore. The same rows
+// render as cards instead: the first column becomes the card's title, an
+// actions column moves to the footer, and everything else becomes a labelled
+// pair. Columns can opt out with `hideOnMobile`.
+function RowCards({ columns, rows, onRowClick, selectable, selected, toggleRow, startIdx }) {
+  const [titleCol, ...restCols] = columns.filter((c) => c.key !== '_select');
+  const actionCol = restCols.find((c) => c.key === '_actions');
+  const bodyCols = restCols.filter((c) => c.key !== '_actions' && !c.hideOnMobile);
+
+  const cell = (col, row) =>
+    col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—');
+
+  return (
+    <div className="row-cards">
+      {rows.map((row, i) => (
+        <div
+          key={row.id || startIdx + i}
+          className="row-card"
+          onClick={onRowClick ? () => onRowClick(row) : undefined}
+          style={{ cursor: onRowClick ? 'pointer' : 'default' }}
+        >
+          <div className="row-card-head">
+            {selectable && (
+              <input
+                type="checkbox"
+                checked={selected.has(row.id)}
+                onClick={(e) => e.stopPropagation()}
+                onChange={() => toggleRow(row.id)}
+                aria-label="Select row"
+                style={{ width: 18, height: 18, flexShrink: 0, marginRight: 2 }}
+              />
+            )}
+            <div className="row-card-title">{titleCol ? cell(titleCol, row) : null}</div>
+          </div>
+
+          <dl className="row-card-body">
+            {bodyCols.map((col) => {
+              const value = cell(col, row);
+              if (value === null || value === undefined || value === '') return null;
+              return (
+                <div className="row-card-pair" key={col.key}>
+                  <dt>{col.label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              );
+            })}
+          </dl>
+
+          {actionCol && (
+            <div className="row-card-actions" onClick={(e) => e.stopPropagation()}>
+              {cell(actionCol, row)}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function Table({
   columns,
   data,
@@ -200,7 +277,10 @@ export function Table({
   selectable = false,
   selectedIds = [],
   onSelectionChange,
+  // Wide tables become cards on a phone; short ones (few columns) stay tabular.
+  cardsOnMobile = true,
 }) {
+  const narrow = useIsNarrow();
   const rows = useMemo(() => data || [], [data]);
   const total = rows.length;
   const [pageSize, setPageSize] = useState(initialPageSize);
@@ -296,6 +376,88 @@ export function Table({
     />
   );
 
+  const footer = paginate && total > PAGE_SIZES[0] ? (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      gap: 12, flexWrap: 'wrap',
+      padding: '11px 14px', borderTop: '1px solid var(--border)',
+      background: 'var(--bg3)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text2)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {total === 0
+            ? 'No records'
+            : `${startIdx + 1}–${Math.min(startIdx + pageSize, total)} of ${total}`}
+        </span>
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          aria-label="Rows per page"
+          style={{
+            background: 'var(--bg2)', border: '1px solid var(--border)',
+            borderRadius: 7, color: 'var(--text2)', fontSize: '0.78rem',
+            fontFamily: 'var(--font-body)', padding: '4px 22px 4px 8px',
+            minHeight: 30, cursor: 'pointer',
+          }}
+        >
+          {PAGE_SIZES.map((n) => (
+            <option key={n} value={n}>{n} per page</option>
+          ))}
+        </select>
+      </div>
+
+      {enabled && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+          <button onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1} style={navBtn(page === 1)} aria-label="Previous page">
+            <ChevronLeft size={14} /> Prev
+          </button>
+
+          {pageWindow(page, totalPages).map((n) =>
+            typeof n === 'string' ? (
+              <span key={n} style={{ color: 'var(--text3)', padding: '0 2px' }}>…</span>
+            ) : (
+              <button key={n} onClick={() => setPage(n)} style={pageBtn(n === page)}
+                aria-current={n === page ? 'page' : undefined}>
+                {n}
+              </button>
+            )
+          )}
+
+          <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages} style={navBtn(page === totalPages)} aria-label="Next page">
+            Next <ChevronRight size={14} />
+          </button>
+        </div>
+      )}
+    </div>
+  ) : null;
+
+  // A phone gets cards; a desktop gets the table. Only worth swapping when the
+  // table is actually wide — a two-column list reads fine either way.
+  const asCards = cardsOnMobile && narrow && columns.length > 3;
+
+  if (asCards) {
+    return (
+      <>
+        {visible.length === 0 ? (
+          <div style={{ padding: 36, textAlign: 'center', color: 'var(--text3)' }}>{emptyMsg}</div>
+        ) : (
+          <RowCards
+            columns={columns}
+            rows={visible}
+            onRowClick={onRowClick}
+            selectable={selectable}
+            selected={selected}
+            toggleRow={toggleRow}
+            startIdx={startIdx}
+          />
+        )}
+        {footer}
+      </>
+    );
+  }
+
   return (
     <>
       <div style={{ overflowX: 'auto' }}>
@@ -359,62 +521,7 @@ export function Table({
         </table>
       </div>
 
-      {paginate && total > PAGE_SIZES[0] && (
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          gap: 12, flexWrap: 'wrap',
-          padding: '11px 14px', borderTop: '1px solid var(--border)',
-          background: 'var(--bg3)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text2)' }}>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-              {total === 0
-                ? 'No records'
-                : `${startIdx + 1}–${Math.min(startIdx + pageSize, total)} of ${total}`}
-            </span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              aria-label="Rows per page"
-              style={{
-                background: 'var(--bg2)', border: '1px solid var(--border)',
-                borderRadius: 7, color: 'var(--text2)', fontSize: '0.78rem',
-                fontFamily: 'var(--font-body)', padding: '4px 22px 4px 8px',
-                minHeight: 30, cursor: 'pointer',
-              }}
-            >
-              {PAGE_SIZES.map((n) => (
-                <option key={n} value={n}>{n} per page</option>
-              ))}
-            </select>
-          </div>
-
-          {enabled && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1} style={navBtn(page === 1)} aria-label="Previous page">
-                <ChevronLeft size={14} /> Prev
-              </button>
-
-              {pageWindow(page, totalPages).map((n) =>
-                typeof n === 'string' ? (
-                  <span key={n} style={{ color: 'var(--text3)', padding: '0 2px' }}>…</span>
-                ) : (
-                  <button key={n} onClick={() => setPage(n)} style={pageBtn(n === page)}
-                    aria-current={n === page ? 'page' : undefined}>
-                    {n}
-                  </button>
-                )
-              )}
-
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages} style={navBtn(page === totalPages)} aria-label="Next page">
-                Next <ChevronRight size={14} />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+      {footer}
     </>
   );
 }
@@ -427,6 +534,8 @@ export function Badge({ children, color = 'default' }) {
     red: { bg: 'rgba(239,68,68,0.15)', color: 'var(--red)' },
     blue: { bg: 'rgba(59,130,246,0.15)', color: 'var(--blue)' },
     yellow: { bg: 'rgba(240,165,0,0.15)', color: 'var(--accent)' },
+    // A real amber, independent of the accent, for "needs a second look".
+    warn: { bg: 'rgba(217,119,6,0.15)', color: 'var(--yellow)' },
     purple: { bg: 'rgba(139,92,246,0.15)', color: 'var(--purple)' },
   };
   const c = colors[color] || colors.default;
@@ -641,6 +750,9 @@ export function Divider({ label }) {
 
 // ─── Scan attachment ──────────────────────────────────────────────────────────
 export { default as ScanAttachment } from './ScanAttachment';
+
+// ─── Searchable inventory picker ──────────────────────────────────────────────
+export { default as ItemPicker } from './ItemPicker';
 
 // ─── Audit trail ──────────────────────────────────────────────────────────────
 export { default as RecordMeta } from './RecordMeta';

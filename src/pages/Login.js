@@ -87,9 +87,11 @@ export default function Login() {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      const msg = /invalid login/i.test(err?.message || '')
-        ? 'Incorrect email or password.'
-        : err?.message || 'Sign in failed.';
+      const msg = err?.code === 'identifier_not_found'
+        ? err.message
+        : /invalid login/i.test(err?.message || '')
+          ? 'Those sign-in details are not correct.'
+          : err?.message || 'Sign in failed.';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -164,6 +166,10 @@ export default function Login() {
               <input id="reset-email" type="email" required autoFocus autoComplete="email"
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com" style={field} />
+              <p style={{ color: 'var(--text3)', fontSize: '0.76rem', marginTop: 8, lineHeight: 1.5 }}>
+                Signing in with a phone number or username? There is no mailbox to send
+                a link to — ask an administrator to set a new password for you.
+              </p>
             </div>
 
             <button type="submit" disabled={loading} style={primaryBtn(loading)}>
@@ -176,10 +182,11 @@ export default function Login() {
             <h2 style={{ fontSize: '1.05rem', marginBottom: 20 }}>Sign in</h2>
 
             <div style={{ marginBottom: 16 }}>
-              <label style={label} htmlFor="email">Email address</label>
-              <input id="email" type="email" required autoComplete="email"
+              <label style={label} htmlFor="email">Email, phone or username</label>
+              <input id="email" type="text" required autoComplete="username"
+                inputMode="email" autoCapitalize="none" autoCorrect="off"
                 value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com" style={field} />
+                placeholder="you@company.com  ·  0300 1234567  ·  saveez" style={field} />
             </div>
 
             <div style={{ marginBottom: 10 }}>

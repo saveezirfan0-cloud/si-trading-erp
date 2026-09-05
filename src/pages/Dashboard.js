@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribe, COLLECTIONS } from '../lib/db';
 import { INVOICE_STATUSES, countsToTotals } from '../lib/invoiceStatus';
+import { activeInvoices } from '../lib/invoices';
 import { Card, Loader } from '../components/ui';
 import Header from '../components/layout/Header';
 import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
@@ -80,10 +81,10 @@ export default function Dashboard() {
     track(COLLECTIONS.EXPENSES, rows => { const r = filterByFiscalYear(rows); d = { ...d, totalExpenses: r.reduce((s, e) => s + (Number(e.amount) || 0), 0) }; setStats({ ...d }); done(); });
 
     track(COLLECTIONS.SALES_INVOICES, rows => {
-      // Drafts and invoices still awaiting approval are not sales yet, so they
-      // stay out of the headline totals and the monthly chart — the same rule
-      // the Sales Invoices page uses.
-      const r = filterByFiscalYear(rows).filter(i => countsToTotals(i.status));
+      // Duplicates never count, and drafts and invoices still awaiting
+      // approval are not sales yet — they stay out of the headline totals and
+      // the monthly chart, the same rule the Sales Invoices page uses.
+      const r = activeInvoices(filterByFiscalYear(rows)).filter(i => countsToTotals(i.status));
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
       setStats({ ...d });
 
@@ -111,7 +112,7 @@ export default function Dashboard() {
     });
 
     track(COLLECTIONS.PURCHASE_INVOICES, rows => {
-      const r = filterByFiscalYear(rows).filter(i => countsToTotals(i.status));
+      const r = activeInvoices(filterByFiscalYear(rows)).filter(i => countsToTotals(i.status));
       d = { ...d, purchasesTotal: r.reduce((s, i) => s + (i.total || 0), 0), purchasesCount: r.length };
       setStats({ ...d });
       const monthMap = {};
