@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Users, Truck, Package, Warehouse,
   BookOpen, FileText, BarChart3, UserCog, Upload,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
-  DollarSign, ShoppingCart, Receipt, Zap, Camera
+  DollarSign, ShoppingCart, Receipt, Zap, Camera, History, Trash2
 } from 'lucide-react';
 
 const NAV = [
@@ -33,6 +33,8 @@ const NAV = [
   { label: 'Reports', to: '/reports', icon: BarChart3 },
   { type: 'divider', label: 'SYSTEM' },
   { label: 'Users & Roles', to: '/users', icon: UserCog },
+  { label: 'Audit Log', to: '/audit', icon: History },
+  { label: 'Trash', to: '/trash', icon: Trash2 },
   { label: 'Data Import', to: '/import', icon: Upload },
   { label: 'WhatsApp', to: '/whatsapp', icon: MessageSquare },
   { label: 'Settings', to: '/settings', icon: Settings },

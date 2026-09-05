@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { getOne, createWithId, COLLECTIONS } from '../lib/db';
+import { setCurrentActor } from '../lib/audit';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -18,10 +19,18 @@ export const AuthProvider = ({ children }) => {
 
     const loadProfile = async (authUser) => {
       if (!authUser) {
+        setCurrentActor(null);
         if (mounted) { setUser(null); setProfile(null); setLoading(false); }
         return;
       }
       if (mounted) setUser(authUser);
+      // Name the actor for the audit trail before any write can happen — the
+      // profile row below is itself created through the logged data layer.
+      setCurrentActor({
+        id: authUser.id,
+        name: authUser.user_metadata?.name || authUser.email,
+        email: authUser.email,
+      });
       try {
         let p = await getOne(COLLECTIONS.USERS, authUser.id);
         if (!p) {
@@ -34,6 +43,7 @@ export const AuthProvider = ({ children }) => {
           await createWithId(COLLECTIONS.USERS, authUser.id, basicProfile);
           p = { id: authUser.id, ...basicProfile };
         }
+        setCurrentActor({ id: authUser.id, name: p.name, email: p.email || authUser.email, role: p.role });
         if (mounted) setProfile(p);
       } catch (e) {
         console.error('profile load failed', e);
@@ -64,6 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
+    setCurrentActor(null);
   };
 
   // Emails a recovery link that lands on /reset-password, where the user picks
@@ -94,11 +105,13 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  // 'approve' signs off an invoice that is pending review; 'purge' empties the
+  // trash for good. Both are deliberately kept away from day-to-day staff.
   const hasPermission = (perm) => {
     const rolePerms = {
-      admin: ['read', 'write', 'delete', 'export', 'import', 'manage_users'],
-      manager: ['read', 'write', 'export', 'import'],
-      accountant: ['read', 'write', 'export'],
+      admin: ['read', 'write', 'delete', 'export', 'import', 'manage_users', 'approve', 'purge', 'audit'],
+      manager: ['read', 'write', 'export', 'import', 'approve', 'audit'],
+      accountant: ['read', 'write', 'export', 'audit'],
       staff: ['read', 'write'],
       viewer: ['read'],
     };

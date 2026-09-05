@@ -39,7 +39,9 @@ export default function QuickInvoice() {
       const [c, inv, si] = await Promise.all([
         getAll(COLLECTIONS.CUSTOMERS),
         getAll(COLLECTIONS.INVENTORY),
-        getAll(COLLECTIONS.SALES_INVOICES),
+        // Trashed invoices count too: a restored invoice must not collide
+        // with a number handed out while it sat in the trash.
+        getAll(COLLECTIONS.SALES_INVOICES, [], { includeDeleted: true }),
       ]);
       setCustomers(c);
       setInventory(inv);

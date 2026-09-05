@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { create, update, getAll, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Input, Select, Textarea, Card, FormGrid } from '../../components/ui';
+import { Btn, Input, Select, Textarea, Card, FormGrid, RecordMeta } from '../../components/ui';
+import { STATUS_OPTIONS, approvalPatch } from '../../lib/invoiceStatus';
+import { getCurrentActor } from '../../lib/audit';
 import { QuickAddCustomer } from '../../components/ui/QuickAddModal';
 import toast from 'react-hot-toast';
 import { Plus, ArrowLeft, Save, Eye, UserPlus } from 'lucide-react';
@@ -33,7 +35,9 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
 
   useEffect(() => {
     const load = async () => {
-      const [c, inv, si] = await Promise.all([getAll(COLLECTIONS.CUSTOMERS), getAll(COLLECTIONS.INVENTORY), getAll(COLLECTIONS.SALES_INVOICES)]);
+      // Invoice numbering counts trashed invoices too, so a restored invoice
+      // cannot collide with a number handed out while it sat in the trash.
+      const [c, inv, si] = await Promise.all([getAll(COLLECTIONS.CUSTOMERS), getAll(COLLECTIONS.INVENTORY), getAll(COLLECTIONS.SALES_INVOICES, [], { includeDeleted: true })]);
       setCustomers(c); setInventory(inv);
       if (invoice) setForm({ ...invoice });
       else setForm(f => ({ ...f, invoiceNo: nextInvoiceNo(si) }));
@@ -101,7 +105,8 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
     if (!form.items.length || !form.items[0].itemName) return toast.error('Add at least one item');
     setSaving(true);
     try {
-      const data = { ...form, status };
+      // Moving into (or back out of) review carries the approval stamps with it.
+      const data = { ...form, status, ...approvalPatch(status, getCurrentActor()) };
       if (invoice?.id) { await update(COLLECTIONS.SALES_INVOICES, invoice.id, data); toast.success('Invoice updated'); }
       else { await create(COLLECTIONS.SALES_INVOICES, data); toast.success('Invoice created'); }
       onBack();
@@ -128,6 +133,9 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
           <Btn icon={Save} onClick={() => handleSave()} disabled={saving}>{saving ? 'Saving...' : invoice ? 'Update Invoice' : 'Save Invoice'}</Btn>
         </div>
 
+        {/* Who raised this and who touched it last */}
+        {invoice?.id && <RecordMeta record={invoice} />}
+
         <div className="g-main" style={{ gap: 20 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -137,7 +145,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
               <FormGrid cols={2}>
                 <Input label="Invoice No." value={form.invoiceNo} onChange={e => setForm(f => ({ ...f, invoiceNo: e.target.value }))} />
                 <Select label="Status" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                  options={[{ value: 'draft', label: 'Draft' }, { value: 'unpaid', label: 'Unpaid' }, { value: 'paid', label: 'Paid' }, { value: 'partial', label: 'Partially Paid' }, { value: 'cancelled', label: 'Cancelled' }]} />
+                  options={STATUS_OPTIONS} />
                 <Input label="Invoice Date" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
                 <Input label="Due Date" type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
               </FormGrid>
@@ -276,6 +284,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <Btn icon={Save} onClick={() => handleSave()} disabled={saving} style={{ justifyContent: 'center', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: 8, padding: '10px' }}>Save Invoice</Btn>
                 <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving} style={{ justifyContent: 'center' }}>Mark as Paid</Btn>
+                <Btn variant="secondary" onClick={() => handleSave('pending_review')} disabled={saving} style={{ justifyContent: 'center' }}>Submit for Review</Btn>
                 <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving} style={{ justifyContent: 'center' }}>Save as Draft</Btn>
                 {onPreview && <Btn variant="secondary" icon={Eye} onClick={() => onPreview(form)} style={{ justifyContent: 'center' }}>Preview & Print</Btn>}
               </div>
