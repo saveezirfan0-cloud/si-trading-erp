@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { COLLECTIONS } from '../../lib/db';
+import { useAuth } from '../../contexts/AuthContext';
 import Header from '../../components/layout/Header';
 import { Btn } from '../../components/ui';
 import { Camera } from 'lucide-react';
@@ -11,6 +12,7 @@ import PurchaseInvoiceView from './PurchaseInvoiceView';
 
 export default function PurchaseInvoices() {
   const navigate = useNavigate();
+  const { can } = useAuth();
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
 
@@ -44,9 +46,9 @@ export default function PurchaseInvoices() {
           totalLabel="Total Purchases"
           newLabel="New Purchase"
           exportName="purchase_invoices"
-          extraActions={[
+          extraActions={can('scan', 'create') ? [
             <Btn key="scan" variant="secondary" icon={Camera} onClick={() => navigate('/purchases/scan')}>Scan Invoice</Btn>,
-          ]}
+          ] : []}
           onNew={() => { setSelected(null); setView('form'); }}
           onEditRow={(row) => { setSelected(row); setView('form'); }}
           onOpenRow={(row) => { setSelected(row); setView('preview'); }}

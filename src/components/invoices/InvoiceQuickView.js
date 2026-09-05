@@ -38,7 +38,7 @@ export default function InvoiceQuickView({
   partyField = 'customerName',
   partyLabel = 'Customer',
   accent = 'var(--accent)',
-  canWrite = false,
+  canEdit = false,
   onClose,
   onOpenFull,
   onEdit,
@@ -200,10 +200,10 @@ export default function InvoiceQuickView({
                 </a>
               </>
             )}
-            {canWrite && isManualFile && (
+            {canEdit && isManualFile && (
               <Btn size="sm" variant="danger" icon={Trash2} onClick={handleRemove} disabled={busy}>Remove</Btn>
             )}
-            {canWrite && (
+            {canEdit && (
               <label style={{ display: 'inline-flex' }}>
                 <input
                   type="file"
@@ -226,7 +226,7 @@ export default function InvoiceQuickView({
 
           {!path && (
             <p style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>
-              No file attached. {canWrite ? 'Attach a photo or PDF of the original document.' : ''}
+              No file attached. {canEdit ? 'Attach a photo or PDF of the original document.' : ''}
             </p>
           )}
           {path && loadingFile && <Loader />}
@@ -266,12 +266,12 @@ export default function InvoiceQuickView({
         {/* Actions */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', borderTop: '1px solid var(--border)', paddingTop: 14 }}>
           <Btn variant="secondary" icon={Eye} onClick={onOpenFull}>Open full invoice</Btn>
-          {canWrite && <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>}
+          {canEdit && <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>}
           <div style={{ flex: 1 }} />
-          {canWrite && invoice.status !== 'paid' && (
+          {canEdit && invoice.status !== 'paid' && (
             <Btn variant="success" icon={CheckCircle2} disabled={busy} onClick={() => setStatus('paid')}>Mark paid</Btn>
           )}
-          {canWrite && invoice.status === 'paid' && (
+          {canEdit && invoice.status === 'paid' && (
             <Btn variant="secondary" disabled={busy} onClick={() => setStatus('unpaid')}>Mark unpaid</Btn>
           )}
         </div>

@@ -85,7 +85,7 @@ test('the quick view shows the invoice, its origin and its line items', () => {
       collection="erp_purchase_invoices"
       partyField="supplierName"
       partyLabel="Supplier"
-      canWrite
+      canEdit
       onClose={() => {}}
       onOpenFull={() => {}}
       onEdit={() => {}}

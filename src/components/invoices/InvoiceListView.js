@@ -55,8 +55,16 @@ export default function InvoiceListView({
   onOpenRow,
 }) {
   const { formatCurrency, formatDate, filterByFiscalYear, fiscalYear, fiscalYearLabel, isMobile } = useApp();
-  const { hasPermission } = useAuth();
-  const canWrite = hasPermission('write');
+  // Sales and purchases are separate permission modules, and each action is
+  // granted on its own — the buttons follow the same grid the data layer
+  // enforces in lib/db.js.
+  const { can } = useAuth();
+  const moduleKey = kind === 'sales' ? 'sales' : 'purchases';
+  const canCreate = can(moduleKey, 'create');
+  const canEdit = can(moduleKey, 'edit');
+  const canDelete = can(moduleKey, 'delete');
+  const canExport = can(moduleKey, 'export');
+  const canSelect = canEdit || canDelete || canExport;
 
   const prefsKey = `si-invoice-view-${kind}`;
   const initial = useRef(loadPrefs(prefsKey)).current;
@@ -283,8 +291,8 @@ export default function InvoiceListView({
       render: (_, row) => (
         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
           <Btn size="sm" variant="secondary" icon={Eye} onClick={e => { e.stopPropagation(); onOpenRow(row); }}>Open</Btn>
-          {canWrite && <Btn size="sm" variant="secondary" icon={Edit2} onClick={e => { e.stopPropagation(); onEditRow(row); }} />}
-          {canWrite && <Btn size="sm" variant="danger" icon={Trash2} onClick={e => { e.stopPropagation(); handleDelete(row.id); }} />}
+          {canEdit && <Btn size="sm" variant="secondary" icon={Edit2} onClick={e => { e.stopPropagation(); onEditRow(row); }} />}
+          {canDelete && <Btn size="sm" variant="danger" icon={Trash2} onClick={e => { e.stopPropagation(); handleDelete(row.id); }} />}
         </div>
       ),
     },
@@ -307,9 +315,11 @@ export default function InvoiceListView({
         }
         actions={[
           ...extraActions,
-          <Btn key="csv" variant="secondary" icon={Download} onClick={() => exportRows(visible)}>Export CSV</Btn>,
-          <Btn key="pdf" variant="secondary" icon={FileDown} onClick={() => exportPdf(visible)}>PDF</Btn>,
-          ...(canWrite ? [<Btn key="add" icon={Plus} onClick={onNew}>{newLabel}</Btn>] : []),
+          ...(canExport ? [
+            <Btn key="csv" variant="secondary" icon={Download} onClick={() => exportRows(visible)}>Export CSV</Btn>,
+            <Btn key="pdf" variant="secondary" icon={FileDown} onClick={() => exportPdf(visible)}>PDF</Btn>,
+          ] : []),
+          ...(canCreate ? [<Btn key="add" icon={Plus} onClick={onNew}>{newLabel}</Btn>] : []),
         ]}
       />
 
@@ -351,10 +361,10 @@ export default function InvoiceListView({
           }}>
             <strong style={{ fontSize: '0.82rem' }}>{selectedIds.length} selected</strong>
             <div style={{ flex: 1 }} />
-            <Btn size="sm" variant="secondary" icon={Download} onClick={() => exportRows(selectedRows, '_selected')}>Export</Btn>
-            {canWrite && <Btn size="sm" variant="success" icon={CheckCircle2} disabled={busy} onClick={() => bulkStatus('paid')}>Mark paid</Btn>}
-            {canWrite && <Btn size="sm" variant="secondary" icon={XCircle} disabled={busy} onClick={() => bulkStatus('unpaid')}>Mark unpaid</Btn>}
-            {canWrite && <Btn size="sm" variant="danger" icon={Trash2} disabled={busy} onClick={bulkDelete}>Delete</Btn>}
+            {canExport && <Btn size="sm" variant="secondary" icon={Download} onClick={() => exportRows(selectedRows, '_selected')}>Export</Btn>}
+            {canEdit && <Btn size="sm" variant="success" icon={CheckCircle2} disabled={busy} onClick={() => bulkStatus('paid')}>Mark paid</Btn>}
+            {canEdit && <Btn size="sm" variant="secondary" icon={XCircle} disabled={busy} onClick={() => bulkStatus('unpaid')}>Mark unpaid</Btn>}
+            {canDelete && <Btn size="sm" variant="danger" icon={Trash2} disabled={busy} onClick={bulkDelete}>Delete</Btn>}
             <Btn size="sm" variant="ghost" onClick={() => setSelectedIds([])}>Clear</Btn>
           </div>
         )}
@@ -365,7 +375,7 @@ export default function InvoiceListView({
             data={visible}
             sort={sort}
             onSort={toggleSort}
-            selectable={canWrite}
+            selectable={canSelect}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
             onRowClick={row => setQuickView(row)}
@@ -381,7 +391,7 @@ export default function InvoiceListView({
           partyField={partyField}
           partyLabel={partyLabel}
           accent={accent}
-          canWrite={canWrite}
+          canEdit={canEdit}
           onClose={() => setQuickView(null)}
           onOpenFull={() => { const row = quickView; setQuickView(null); onOpenRow(row); }}
           onEdit={() => { const row = quickView; setQuickView(null); onEditRow(row); }}
