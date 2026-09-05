@@ -87,9 +87,11 @@ export default function Inventory() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Move this item to the trash? You can restore it from Trash.')) return;
-    await remove(COLLECTIONS.INVENTORY, id);
-    toast.success('Moved to trash');
-    load();
+    try {
+      await remove(COLLECTIONS.INVENTORY, id);
+      toast.success('Moved to trash');
+      load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const totalValue = items.reduce((s, i) => s + (i.costPrice * i.quantity), 0);

@@ -13,6 +13,7 @@ import { Download, ShieldAlert, Activity, Users, Trash2, AlertCircle } from 'luc
 import { subscribeActivity, ACTIONS, MODULE_LABELS, actionLabel } from '../../lib/audit';
 import { formatDateTime, timeAgo } from '../../lib/datetime';
 import { exportCSV } from '../../lib/export';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MODULE_OPTIONS = Object.entries(MODULE_LABELS)
   .map(([value, label]) => ({ value, label }))
@@ -32,6 +33,7 @@ const summarise = (entry) => {
 const selectStyle = { padding: '8px 12px', maxWidth: 190 };
 
 export default function AuditLog() {
+  const { can } = useAuth();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -124,9 +126,9 @@ export default function AuditLog() {
         <PageHeader
           title="Audit Log"
           subtitle="Every change made in the ERP, and who made it"
-          actions={[
-            <Btn key="exp" variant="secondary" icon={Download} onClick={handleExport}>Export</Btn>,
-          ]}
+          actions={can('audit', 'export')
+            ? [<Btn key="exp" variant="secondary" icon={Download} onClick={handleExport}>Export</Btn>]
+            : []}
         />
 
         <div className="g-stats" style={{ gap: 16 }}>
@@ -168,7 +170,7 @@ export default function AuditLog() {
               onRowClick={(row) => setDetail(row)}
               emptyMsg={
                 entries.length === 0
-                  ? 'Nothing recorded yet for this period. If this stays empty, apply supabase/migrations/0002_activity_trash_attachments.sql.'
+                  ? 'Nothing recorded yet for this period. If this stays empty, apply supabase/migrations/0003_activity_trash_attachments.sql.'
                   : 'No entries match these filters.'
               }
             />

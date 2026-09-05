@@ -2,15 +2,16 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
+import { Btn, Badge, ScanAttachment, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
 import ApprovalBar from '../../components/invoices/ApprovalBar';
 import { COLLECTIONS } from '../../lib/db';
 import {
   statusLabel, statusColor, statusPrintBg, statusPrintFg,
 } from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
+import { attachmentMeta } from '../../lib/invoices';
 
-export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
+export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
   if (!invoice) return null;
 
@@ -171,16 +172,19 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
     <>
       <Header title={`Invoice — ${invoice.invoiceNo}`} />
       <div className="page-pad" style={{ padding: 24, maxWidth: 860 }}>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+        <div className="toolbar" style={{ marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
-          <div style={{ flex: 1 }} />
-          <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
-          <Btn icon={Printer} onClick={handlePrint}>Print / Save PDF</Btn>
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
+            <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
+            <Btn icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
+          </div>
         </div>
 
         {/* Where this invoice sits in the review flow, and what can be done next */}
         <div style={{ marginBottom: 16 }}>
-          <ApprovalBar collection={COLLECTIONS.SALES_INVOICES} invoice={invoice} />
+          <ApprovalBar collection={COLLECTIONS.SALES_INVOICES} moduleKey="sales"
+            invoice={invoice} onChanged={onChanged} />
         </div>
 
         {/* Preview card */}
@@ -226,7 +230,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
           </div>
 
           {/* Items table */}
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
+          <div className="doc-table-wrap" style={{ marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--bg3)' }}>
                 {['#', 'Item', 'Description', 'Qty', 'Unit', 'Unit Price', 'Disc%', 'Tax%', 'Total'].map((h, i) => (
@@ -253,6 +258,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
               ))}
             </tbody>
           </table>
+          </div>
 
           {/* Totals */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 32 }}>
@@ -302,11 +308,15 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+          {/* The single document attached from the list's quick view, or the
+              photo an OCR scan came from. */}
+          <ScanAttachment {...(attachmentMeta(invoice) || {})} />
           <RecordMeta record={invoice} />
           <Attachments
             collection={COLLECTIONS.SALES_INVOICES}
             recordId={invoice.id}
             attachments={invoice.attachments}
+            onChange={onChanged}
             hint="Attach the signed delivery note, a payment slip or any correspondence about this invoice."
           />
           <ActivityFeed collection={COLLECTIONS.SALES_INVOICES} recordId={invoice.id} />

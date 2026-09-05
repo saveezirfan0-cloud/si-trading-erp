@@ -94,7 +94,7 @@ export default function ActivityFeed({ collection, recordId, max = 100, embedded
           <span>
             History is not recording yet. Run{' '}
             <code style={{ fontFamily: 'var(--font-mono)' }}>
-              supabase/migrations/0002_activity_trash_attachments.sql
+              supabase/migrations/0003_activity_trash_attachments.sql
             </code>{' '}
             in the Supabase SQL editor to switch on the activity log.
           </span>

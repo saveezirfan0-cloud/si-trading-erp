@@ -125,12 +125,14 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
       <Header title={invoice ? `Edit — ${form.invoiceNo}` : 'New Sales Invoice'} />
       <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200 }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <div className="toolbar">
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
-          <div style={{ flex: 1 }} />
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
           <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving}>Save as Draft</Btn>
           {onPreview && <Btn variant="secondary" icon={Eye} onClick={() => onPreview(form)} disabled={saving}>Preview</Btn>}
-          <Btn icon={Save} onClick={() => handleSave()} disabled={saving}>{saving ? 'Saving...' : invoice ? 'Update Invoice' : 'Save Invoice'}</Btn>
+          <Btn icon={Save} onClick={() => handleSave()} disabled={saving}>{saving ? 'Saving…' : invoice ? 'Update' : 'Save'}</Btn>
+          </div>
         </div>
 
         {/* Who raised this and who touched it last */}

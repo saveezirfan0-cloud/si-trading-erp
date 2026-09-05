@@ -11,7 +11,7 @@ import {
 } from '../../components/ui';
 import { RotateCcw, Trash2, AlertCircle, Archive, RefreshCw } from 'lucide-react';
 import {
-  getDeleted, restore, purge, COLLECTIONS, TRASHABLE_COLLECTIONS,
+  getDeleted, restore, purge, COLLECTIONS, TRASHABLE_COLLECTIONS, COLLECTION_MODULES,
 } from '../../lib/db';
 import { moduleLabel, recordLabel } from '../../lib/audit';
 import { formatDateTime, timeAgo } from '../../lib/datetime';
@@ -25,7 +25,9 @@ const amountOf = (row) =>
       : null;
 
 export default function Trash() {
-  const { hasPermission } = useAuth();
+  // Restoring is an edit and purging is a delete, judged per module: someone
+  // who may not delete invoices cannot destroy one from here either.
+  const { can } = useAuth();
   const { formatCurrency } = useApp();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,7 +35,9 @@ export default function Trash() {
   const [search, setSearch] = useState('');
   const [module, setModule] = useState('all');
 
-  const canPurge = hasPermission('purge');
+  const canRestoreRow = (row) => can('trash', 'edit') && can(COLLECTION_MODULES[row._collection], 'edit');
+  const canPurgeRow = (row) => can('trash', 'delete') && can(COLLECTION_MODULES[row._collection], 'delete');
+  const canPurgeAny = can('trash', 'delete');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -100,13 +104,15 @@ export default function Trash() {
   };
 
   const handleEmpty = async () => {
-    if (!filtered.length) return;
+    // Only the rows this person is actually allowed to destroy.
+    const targets = filtered.filter(canPurgeRow);
+    if (!targets.length) return toast.error('You cannot permanently delete any of these records.');
     if (!window.confirm(
-      `Permanently delete all ${filtered.length} record(s) shown? This cannot be undone.`
+      `Permanently delete ${targets.length} record(s)? This cannot be undone.`
     )) return;
     setBusy(true);
     let failed = 0;
-    for (const row of filtered) {
+    for (const row of targets) {
       try { await purge(row._collection, row.id); } catch { failed += 1; }
     }
     setBusy(false);
@@ -135,10 +141,12 @@ export default function Trash() {
     { key: 'createdByName', label: 'Originally Created By', render: (v) => v || '—' },
     { key: '_actions', label: '', render: (_, row) => (
       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-        <Btn size="sm" variant="secondary" icon={RotateCcw} disabled={busy}
-          onClick={(e) => { e.stopPropagation(); handleRestore(row); }}>Restore</Btn>
+        {canRestoreRow(row) && (
+          <Btn size="sm" variant="secondary" icon={RotateCcw} disabled={busy}
+            onClick={(e) => { e.stopPropagation(); handleRestore(row); }}>Restore</Btn>
+        )}
         <HistoryButton collection={row._collection} recordId={row.id} label={recordLabel(row, row.id)} />
-        {canPurge && (
+        {canPurgeRow(row) && (
           <Btn size="sm" variant="danger" icon={Trash2} disabled={busy}
             onClick={(e) => { e.stopPropagation(); handlePurge(row); }}>Delete</Btn>
         )}
@@ -159,7 +167,7 @@ export default function Trash() {
           subtitle="Deleted records, kept until someone clears them out"
           actions={[
             <Btn key="ref" variant="secondary" icon={RefreshCw} onClick={load} disabled={loading}>Refresh</Btn>,
-            ...(canPurge && filtered.length
+            ...(canPurgeAny && filtered.length
               ? [<Btn key="empty" variant="danger" icon={Trash2} onClick={handleEmpty} disabled={busy}>
                    Empty {module === 'all' ? 'Trash' : 'This Module'}
                  </Btn>]
@@ -194,9 +202,9 @@ export default function Trash() {
           <AlertCircle size={14} style={{ flexShrink: 0, marginTop: 2 }} />
           <span>
             Restoring puts a record back exactly where it was, invoice number and all.
-            {canPurge
+            {canPurgeAny
               ? ' Permanent deletion removes the record itself; its history stays in the audit log.'
-              : ' Only an admin can delete a record permanently.'}
+              : ' Deleting a record permanently needs the Trash delete permission.'}
           </span>
         </div>
       </div>

@@ -41,8 +41,10 @@ export default function Warehouses() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Move this warehouse to the trash? You can restore it from Trash.')) return;
-    await remove(COLLECTIONS.WAREHOUSES, id);
-    toast.success('Moved to trash'); load();
+    try {
+      await remove(COLLECTIONS.WAREHOUSES, id);
+      toast.success('Moved to trash'); load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const columns = [

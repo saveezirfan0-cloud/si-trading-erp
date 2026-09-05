@@ -7,8 +7,9 @@ import ApprovalBar from '../../components/invoices/ApprovalBar';
 import { COLLECTIONS } from '../../lib/db';
 import { statusLabel, statusColor } from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
+import { attachmentMeta } from '../../lib/invoices';
 
-export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
+export default function PurchaseInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
   if (!invoice) return null;
 
@@ -34,16 +35,19 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
     <>
       <Header title={`Purchase — ${invoice.invoiceNo}`} />
       <div className="page-pad" style={{ padding: 24, maxWidth: 900 }}>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+        <div className="toolbar" style={{ marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
-          <div style={{ flex: 1 }} />
-          <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
-          <Btn variant="secondary" icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
+            <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
+            <Btn variant="secondary" icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
+          </div>
         </div>
 
         {/* Where this invoice sits in the review flow, and what can be done next */}
         <div style={{ marginBottom: 16 }}>
-          <ApprovalBar collection={COLLECTIONS.PURCHASE_INVOICES} invoice={invoice} />
+          <ApprovalBar collection={COLLECTIONS.PURCHASE_INVOICES} moduleKey="purchases"
+            invoice={invoice} onChanged={onChanged} />
         </div>
 
         <Card>
@@ -81,7 +85,8 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
               </div>
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
+            <div className="doc-table-wrap" style={{ marginBottom: 20 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--bg3)', borderBottom: '2px solid var(--border)' }}>
                   {['#', 'Item', 'Description', 'Qty', 'Unit', 'Cost Price', 'Disc %', 'Tax %', 'Total'].map((h, i) => (
@@ -108,6 +113,7 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
                 ))}
               </tbody>
             </table>
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 24 }}>
               <div style={{ width: 280 }}>
@@ -144,17 +150,14 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
         </Card>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-          {/* The photo this invoice was scanned from, when it came via OCR. */}
-          <ScanAttachment
-            path={invoice.scanPath}
-            uploadedAt={invoice.scanUploadedAt}
-            size={invoice.scanSize}
-          />
+          {/* The photo this invoice was scanned from, or the file attached to it. */}
+          <ScanAttachment {...(attachmentMeta(invoice) || {})} />
           <RecordMeta record={invoice} />
           <Attachments
             collection={COLLECTIONS.PURCHASE_INVOICES}
             recordId={invoice.id}
             attachments={invoice.attachments}
+            onChange={onChanged}
             hint="Attach the supplier’s own invoice, the goods-received note or a payment proof."
           />
           <ActivityFeed collection={COLLECTIONS.PURCHASE_INVOICES} recordId={invoice.id} />

@@ -33,11 +33,28 @@ import Import from './pages/import/Import';
 import WhatsApp from './pages/WhatsApp';
 import Settings from './pages/Settings';
 import SetupRequired from './pages/SetupRequired';
+import NoAccess from './pages/NoAccess';
 import { isSupabaseConfigured } from './lib/supabase';
+import { MODULES } from './lib/permissions';
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+  const { user, profile, permissions } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  // Signed in, but shut out: deactivated, or granted nothing at all.
+  if (profile && profile.active === false) return <NoAccess reason="inactive" />;
+  if (profile && Object.keys(permissions).length === 0) return <NoAccess reason="empty" />;
+  return children;
+}
+
+// Wraps a route so a user who lacks the module's `view` permission is sent to
+// the first page they can actually open instead of a blank screen.
+function Require({ module, children }) {
+  const { can } = useAuth();
+  if (can(module, 'view')) return children;
+  // PrivateRoute already catches "no permissions at all", so a fallback exists
+  // in practice; /no-access is the belt-and-braces case.
+  const fallback = MODULES.find(m => can(m.key, 'view'))?.path;
+  return <Navigate to={fallback || '/no-access'} replace />;
 }
 
 // Signed in, database reachable, but the tables are absent — tell the operator
@@ -74,27 +91,28 @@ function AppRoutes() {
         <PrivateRoute>
           <Layout>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/suppliers" element={<Suppliers />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/warehouses" element={<Warehouses />} />
-              <Route path="/sales" element={<SalesInvoices />} />
-              <Route path="/sales/quick" element={<QuickInvoice />} />
-              <Route path="/purchases" element={<PurchaseInvoices />} />
-              <Route path="/purchases/scan" element={<ScanInvoice />} />
-              <Route path="/accounting/accounts" element={<ChartOfAccounts />} />
-              <Route path="/accounting/bank" element={<BankCash />} />
-              <Route path="/accounting/journals" element={<Journals />} />
-              <Route path="/accounting/payments" element={<Payments />} />
-              <Route path="/accounting/expenses" element={<Expenses />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/audit" element={<AuditLog />} />
-              <Route path="/trash" element={<Trash />} />
-              <Route path="/import" element={<Import />} />
-              <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/" element={<Require module="dashboard"><Dashboard /></Require>} />
+              <Route path="/customers" element={<Require module="customers"><Customers /></Require>} />
+              <Route path="/suppliers" element={<Require module="suppliers"><Suppliers /></Require>} />
+              <Route path="/inventory" element={<Require module="inventory"><Inventory /></Require>} />
+              <Route path="/warehouses" element={<Require module="warehouses"><Warehouses /></Require>} />
+              <Route path="/sales" element={<Require module="sales"><SalesInvoices /></Require>} />
+              <Route path="/sales/quick" element={<Require module="sales"><QuickInvoice /></Require>} />
+              <Route path="/purchases" element={<Require module="purchases"><PurchaseInvoices /></Require>} />
+              <Route path="/purchases/scan" element={<Require module="scan"><ScanInvoice /></Require>} />
+              <Route path="/accounting/accounts" element={<Require module="accounts"><ChartOfAccounts /></Require>} />
+              <Route path="/accounting/bank" element={<Require module="bank"><BankCash /></Require>} />
+              <Route path="/accounting/journals" element={<Require module="journals"><Journals /></Require>} />
+              <Route path="/accounting/payments" element={<Require module="payments"><Payments /></Require>} />
+              <Route path="/accounting/expenses" element={<Require module="expenses"><Expenses /></Require>} />
+              <Route path="/reports" element={<Require module="reports"><Reports /></Require>} />
+              <Route path="/users" element={<Require module="users"><Users /></Require>} />
+              <Route path="/audit" element={<Require module="audit"><AuditLog /></Require>} />
+              <Route path="/trash" element={<Require module="trash"><Trash /></Require>} />
+              <Route path="/import" element={<Require module="import"><Import /></Require>} />
+              <Route path="/whatsapp" element={<Require module="whatsapp"><WhatsApp /></Require>} />
+              <Route path="/settings" element={<Require module="settings"><Settings /></Require>} />
+              <Route path="/no-access" element={<NoAccess reason="empty" />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Layout>

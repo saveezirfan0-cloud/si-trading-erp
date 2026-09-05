@@ -2,8 +2,8 @@
 //
 // The review/approve strip on an invoice: where it sits in the approval flow,
 // who signed it off, and the moves available to the person looking at it.
-// Approving is restricted to roles holding the 'approve' permission (admin and
-// manager); anyone with write access can send a draft for review.
+// Approving needs the module's 'approve' grant (admins and managers have it by
+// default); anyone who can edit the invoice may send a draft for review.
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { ShieldCheck, ClipboardCheck } from 'lucide-react';
@@ -15,14 +15,16 @@ import {
 } from '../../lib/invoiceStatus';
 import { formatDateTime } from '../../lib/datetime';
 
-export default function ApprovalBar({ collection, invoice, onChanged }) {
-  const { profile, hasPermission } = useAuth();
+export default function ApprovalBar({ collection, moduleKey, invoice, onChanged }) {
+  const { profile, can } = useAuth();
   const [busy, setBusy] = useState(false);
 
   // An unsaved preview has no id yet — there is nothing to approve.
   if (!invoice?.id) return null;
 
-  const canApprove = hasPermission('approve');
+  // Sales and purchases are separate permission modules, each with its own
+  // 'approve' grant (admins and managers hold it by default).
+  const canApprove = can(moduleKey, 'approve');
   const actions = approvalActions(invoice.status, canApprove);
 
   const move = async (action) => {

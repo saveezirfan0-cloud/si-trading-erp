@@ -51,8 +51,10 @@ export default function ChartOfAccounts() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Move this account to the trash? You can restore it from Trash.')) return;
-    await remove(COLLECTIONS.ACCOUNTS, id);
-    toast.success('Moved to trash'); load();
+    try {
+      await remove(COLLECTIONS.ACCOUNTS, id);
+      toast.success('Moved to trash'); load();
+    } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 
   const grouped = ACCOUNT_TYPES.map(t => ({

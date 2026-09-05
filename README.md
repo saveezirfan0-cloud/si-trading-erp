@@ -11,11 +11,13 @@ from environment variables. To bring up a working instance:
 1. **Create a Supabase project** (supabase.com → New project).
 2. **Apply the schema** — Dashboard → SQL Editor → paste and run
    [`supabase/migrations/0001_erp_schema.sql`](supabase/migrations/0001_erp_schema.sql),
-   then [`supabase/migrations/0002_activity_trash_attachments.sql`](supabase/migrations/0002_activity_trash_attachments.sql).
+   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql)
+   and [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql).
    The first creates the `erp_*` tables with row-level security, realtime and the
-   private `erp-scans` storage bucket; the second adds the append-only
-   `erp_activity` audit table, the trash indexes and the private
-   `erp-attachments` bucket. Both are safe to re-run.
+   private `erp-scans` storage bucket; the second locks down the two tables that
+   define access, so nobody can promote themselves through the API; the third
+   adds the append-only `erp_activity` audit table, the trash indexes and the
+   private `erp-attachments` bucket. All three are safe to re-run.
 3. **Set the environment variables** in Vercel (Project → Settings →
    Environment Variables) and in `.env.local` for local development:
 
@@ -28,8 +30,8 @@ from environment variables. To bring up a working instance:
 4. **Redeploy.** Until the variables are set the app shows a setup screen
    explaining exactly what is missing, rather than a login form that cannot work.
 5. **Create your first user** in Supabase → Authentication → Users. The first
-   account to sign in is given the `admin` role automatically; manage everyone
-   else from the Users page.
+   account to sign in is given the `admin` role automatically. Add everyone
+   else from **Users & Roles** in the sidebar — see below.
 
 ## Importing the Manager.io books
 
@@ -193,15 +195,79 @@ The `vercel.json` handles SPA routing automatically.
 
 ---
 
-## User Roles
+## Users, access and permissions
 
-| Role | Permissions |
-|------|------------|
-| **admin** | Full access — read, write, delete, import, manage users, approve invoices, empty the trash, audit log |
-| **manager** | Read, write, export, import, approve invoices, audit log |
-| **accountant** | Read, write, export, audit log |
-| **staff** | Read, write |
-| **viewer** | Read only |
+Everything to do with access lives on one page: **Users & Roles** in the
+sidebar (`/users`), under SYSTEM. It has two tabs.
+
+### Users tab
+
+**Add User** creates the Supabase Auth login and the ERP profile in one step —
+name, email, password, role — and the new person can sign in immediately. The
+admin doing the creating stays signed in (the sign-up runs on an isolated
+client so it cannot take over the current session).
+
+Per user you can also:
+
+- **Edit** — name, phone, role, active/inactive.
+- **Access** — keep the role's permissions, or switch to a permission grid for
+  that person alone.
+- **Password** — change your own, or email anyone else a reset link.
+- **Deactivate / Remove** — a deactivated user can sign in but sees a "no
+  access" screen. Removing deletes the ERP profile; the Supabase Auth login
+  itself has to be deleted in the Supabase dashboard.
+
+The ERP will not let you demote, deactivate or remove the last active admin.
+Someone who exists in Supabase Auth but has no ERP profile is provisioned as an
+**inactive viewer** on first sign-in and waits for an admin to let them in.
+
+### Roles & Permissions tab
+
+A role is a grid of **modules × actions** — view, create, edit, delete, export
+for each of the 18 modules. The built-in roles can be edited (and reset), and
+you can add your own, e.g. "Warehouse Supervisor":
+
+| Role | Intent |
+|------|--------|
+| **Admin** | Full access, fixed. Cannot be edited or emptied, so the system always has an administrator. |
+| **Manager** | Runs day-to-day trading and accounting; sees users but cannot change them. |
+| **Accountant** | Owns the accounting modules; reads the trading side. |
+| **Staff** | Creates and edits invoices and master data. No deletes, no accounting. |
+| **Viewer** | Read-only across trading, accounting and reports. |
+
+Custom and edited roles are stored in `erp_roles`; the built-in definitions
+live in [`src/lib/permissions.js`](src/lib/permissions.js).
+
+### How it is enforced
+
+- **Navigation** — the sidebar and mobile bottom bar only list pages you can view.
+- **Routes** — a page you lack `view` on redirects to the first one you can open.
+- **Writes** — every create/edit/delete goes through `src/lib/db.js`, which
+  checks the module's permission before touching the database, so no screen can
+  forget to.
+- **Database** — `erp_roles` is admin-only, and a trigger on `erp_users` throws
+  away any change a non-admin makes to `role`, `active` or a permission
+  override. That is what stops privilege escalation through the API; the layers
+  above it are the app being tidy.
+
+Adding users and editing roles is deliberately admin-only, in the app and in
+the database alike. Other roles can be given `view` on Users & Roles to see the
+directory.
+
+### Approvals, the audit log and the trash
+
+Three of the grants in that grid come from the audit work rather than plain
+CRUD:
+
+- **Approve** (Sales Invoices, Purchase Invoices) — sign off an invoice that is
+  pending review. Admins and managers hold it by default.
+- **Audit Log** — `view` opens the company-wide log of who changed what;
+  `export` downloads it. Managers and accountants have it; staff and viewers do
+  not, because it shows everyone's activity.
+- **Trash** — `view` lists deleted records, `edit` restores one, `delete`
+  destroys it for good. Restoring or purging also needs the matching permission
+  on the record's own module, so someone who cannot delete invoices cannot
+  destroy one from the trash either.
 
 ---
 
@@ -219,9 +285,10 @@ erp_purchase_invoices  erp_ocr_drafts      erp_activity
 ```
 
 All have row-level security enabled: signed-in staff can read and write,
-anonymous visitors get nothing. `erp_activity` is the exception — staff can read
-and append to it but there is no update or delete policy, so the audit trail
-cannot be altered through the API.
+anonymous visitors get nothing. `erp_roles` and the privilege fields of
+`erp_users` are further restricted to admins by migration 0002. `erp_activity`
+is the other exception — staff can read and append to it but there is no update
+or delete policy, so the audit trail cannot be altered through the API.
 
 Deleted records stay in their own table with `doc.deletedAt` set; every query in
 `src/lib/db.js` filters them out, and the Trash page is the only place they are
@@ -272,21 +339,25 @@ si-trading-erp/
 │   ├── App.js                 ← Routes
 │   ├── index.js               ← Entry point + SW registration
 │   ├── contexts/
-│   │   ├── AuthContext.js     ← Supabase auth + user profile
+│   │   ├── AuthContext.js     ← Supabase auth + profile + permission gate
 │   │   └── AppContext.js      ← Global state (currency, sidebar)
 │   ├── lib/
 │   │   ├── supabase.js        ← Supabase client (env-driven)
-│   │   ├── db.js              ← CRUD + attribution, activity log, soft delete
+│   │   ├── db.js              ← CRUD, write permissions, attribution, soft delete
+│   │   ├── permissions.js     ← Modules, actions and built-in roles
 │   │   ├── audit.js           ← Acting user, diffing, activity log reads/writes
+│   │   ├── invoices.js        ← Filtering, sorting and totals for the lists
 │   │   ├── invoiceStatus.js   ← Invoice statuses and the approval flow
 │   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/
 │   │   ├── layout/            ← Sidebar, Header, Layout
-│   │   ├── invoices/          ← ApprovalBar (review / approve strip)
-│   │   └── ui/                ← Shared UI, RecordMeta, ActivityFeed, Attachments
+│   │   ├── invoices/          ← Shared list, filters, quick view, ApprovalBar
+│   │   └── ui/                ← Shared UI, PermissionMatrix, RecordMeta,
+│   │                            ActivityFeed, Attachments
 │   ├── pages/
 │   │   ├── Login.js
+│   │   ├── NoAccess.js        ← Signed in, but deactivated or ungranted
 │   │   ├── Dashboard.js
 │   │   ├── customers/
 │   │   ├── suppliers/
@@ -294,7 +365,7 @@ si-trading-erp/
 │   │   ├── warehouses/
 │   │   ├── accounting/        ← Accounts, Bank, Journals, Payments, Expenses
 │   │   ├── reports/
-│   │   ├── users/
+│   │   ├── users/             ← Users & Roles (add users, permissions)
 │   │   ├── audit/             ← Company-wide audit log
 │   │   ├── trash/             ← Deleted records, restore / purge
 │   │   ├── import/

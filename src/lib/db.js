@@ -5,7 +5,10 @@
 // against Firestore, so pages work unchanged: rows come back flattened as
 // { id, ...doc, createdAt, updatedAt }.
 //
-// Two behaviours are layered on top of that, and every page gets them for free:
+// Three behaviours are layered on top of that, and every page gets them free:
+//
+//   Permissions — every write is checked against the current user's module
+//   grid before it leaves the browser (see the permission gate below).
 //
 //   Attribution — writes stamp createdBy/updatedBy (id + name) into the doc and
 //   append an entry to the activity log (src/lib/audit.js) with a field-level
@@ -15,6 +18,7 @@
 //   dropping the row, and every list query filters those out. Deleted records
 //   stay restorable from the Trash page until someone purges them.
 import { supabase } from './supabase';
+import { actionsFor, getModule } from './permissions';
 import { diffDocs, logActivity, getCurrentActor, recordLabel } from './audit';
 
 export const COLLECTIONS = {
@@ -44,7 +48,71 @@ export const TRASHABLE_COLLECTIONS = [
   COLLECTIONS.CUSTOMERS, COLLECTIONS.SUPPLIERS, COLLECTIONS.INVENTORY,
   COLLECTIONS.WAREHOUSES, COLLECTIONS.PAYMENTS, COLLECTIONS.EXPENSES,
   COLLECTIONS.JOURNALS, COLLECTIONS.ACCOUNTS, COLLECTIONS.BRANDS,
+  // Removing someone's ERP access deletes their profile row; keeping it here
+  // means an admin can put it back, and AuthContext treats a trashed profile
+  // as revoked in the meantime.
+  COLLECTIONS.USERS,
 ];
+
+// ── Permission gate ─────────────────────────────────────────────────────────
+//
+// Every page writes through this module, so enforcing permissions here covers
+// all of them at once instead of relying on each screen to hide its own
+// buttons. Reads stay open: the dashboard and reports legitimately aggregate
+// across modules, and viewing is already gated by the routes and the sidebar.
+
+/** Which permission module owns each table. */
+export const COLLECTION_MODULES = {
+  [COLLECTIONS.CUSTOMERS]: 'customers',
+  [COLLECTIONS.SUPPLIERS]: 'suppliers',
+  [COLLECTIONS.INVENTORY]: 'inventory',
+  [COLLECTIONS.WAREHOUSES]: 'warehouses',
+  [COLLECTIONS.ACCOUNTS]: 'accounts',
+  [COLLECTIONS.JOURNALS]: 'journals',
+  [COLLECTIONS.TRANSACTIONS]: 'bank',
+  [COLLECTIONS.PAYMENTS]: 'payments',
+  [COLLECTIONS.EXPENSES]: 'expenses',
+  [COLLECTIONS.SALES_INVOICES]: 'sales',
+  [COLLECTIONS.PURCHASE_INVOICES]: 'purchases',
+  [COLLECTIONS.OCR_DRAFTS]: 'scan',
+  [COLLECTIONS.IMPORTS]: 'import',
+  [COLLECTIONS.USERS]: 'users',
+  [COLLECTIONS.ROLES]: 'users',
+  [COLLECTIONS.BRANDS]: 'settings',
+  [COLLECTIONS.SETTINGS]: 'settings',
+  // The activity log is append-only and is written by src/lib/audit.js rather
+  // than through this module, so nothing here ever gates it; the mapping is
+  // what the Audit Log page's own view permission is named after.
+  [COLLECTIONS.ACTIVITY]: 'audit',
+};
+
+// Installed by AuthContext once a profile is known: (module, action, ctx) => boolean.
+let permissionGate = null;
+export const setPermissionGate = (fn) => { permissionGate = fn; };
+
+export class PermissionError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'PermissionError';
+    this.code = 'permission-denied';
+  }
+}
+
+const assertAllowed = (col, action, id) => {
+  if (!permissionGate) return;              // gate not installed yet (e.g. sign-in bootstrap)
+  const moduleKey = COLLECTION_MODULES[col];
+  if (!moduleKey) return;                   // unknown table: nothing to enforce
+  // Modules without a create/delete of their own (Settings, say) fall back to
+  // their edit permission; the rest are passed through for the gate to judge.
+  const supported = actionsFor(moduleKey);
+  const needed = supported.includes(action) ? action
+    : supported.includes('edit') ? 'edit'
+    : action;
+  if (!permissionGate(moduleKey, needed, { collection: col, id })) {
+    const label = getModule(moduleKey)?.label || moduleKey;
+    throw new PermissionError(`You do not have permission to ${action} ${label}.`);
+  }
+};
 
 const flatten = (row) =>
   row ? { ...(row.doc || {}), id: row.id, createdAt: row.createdAt, updatedAt: row.updatedAt } : null;
@@ -129,6 +197,7 @@ export const getOne = async (col, id) => {
 };
 
 export const create = async (col, data) => {
+  assertAllowed(col, 'create');
   const doc = { ...toDoc(data), ...actorStamp('created'), ...actorStamp('updated') };
   const { data: row, error } = await supabase
     .from(col).insert({ doc }).select('id').single();
@@ -158,6 +227,7 @@ export const createWithId = async (col, id, data) => {
 // `meta` lets a caller label the reason for a write — { action: 'status',
 // note: 'Approved by manager' } — instead of it showing up as a plain edit.
 export const update = async (col, id, data, meta = {}) => {
+  assertAllowed(col, 'edit', id);
   const { data: existing, error: readErr } = await supabase
     .from(col).select('doc').eq('id', id).maybeSingle();
   if (readErr) throw readErr;
@@ -182,6 +252,7 @@ export const update = async (col, id, data, meta = {}) => {
 
 // Soft delete — the record moves to Trash and can be restored.
 export const remove = async (col, id, meta = {}) => {
+  assertAllowed(col, 'delete', id);
   const { data: existing, error: readErr } = await supabase
     .from(col).select('doc').eq('id', id).maybeSingle();
   if (readErr) throw readErr;
@@ -203,8 +274,10 @@ export const remove = async (col, id, meta = {}) => {
   });
 };
 
-// Bring a record back out of the trash.
+// Bring a record back out of the trash. Restoring is an edit of an existing
+// record, so it needs the module's edit permission.
 export const restore = async (col, id) => {
+  assertAllowed(col, 'edit', id);
   const { data: existing, error: readErr } = await supabase
     .from(col).select('doc').eq('id', id).maybeSingle();
   if (readErr) throw readErr;
@@ -226,6 +299,7 @@ export const restore = async (col, id) => {
 
 // Permanent delete. The row is gone; only the audit entry remains.
 export const purge = async (col, id) => {
+  assertAllowed(col, 'delete', id);
   const { data: existing } = await supabase.from(col).select('doc').eq('id', id).maybeSingle();
   const label = recordLabel(existing?.doc || {}, id);
   const { error } = await supabase.from(col).delete().eq('id', id);
@@ -270,6 +344,7 @@ export const subscribe = (col, callback, constraints = [], options = {}) => {
 // Bulk insert (CSV import, OCR seeding). One audit entry for the whole batch —
 // a per-row entry would bury the log under hundreds of identical lines.
 export const batchCreate = async (col, items, meta = {}) => {
+  assertAllowed(col, 'create');
   const stamp = { ...actorStamp('created'), ...actorStamp('updated') };
   const rows = items.map((item) => ({ doc: { ...toDoc(item), ...stamp } }));
   for (let i = 0; i < rows.length; i += 500) {

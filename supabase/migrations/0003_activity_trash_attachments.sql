@@ -1,6 +1,6 @@
 -- S.I Trading ERP — activity log, trash (soft delete) and file attachments
 --
--- Apply after 0001_erp_schema.sql: Dashboard → SQL Editor → paste → Run.
+-- Apply after 0001_erp_schema.sql and 0002_user_permissions.sql: Dashboard → SQL Editor → paste → Run.
 -- Safe to re-run.
 --
 -- What this adds:
