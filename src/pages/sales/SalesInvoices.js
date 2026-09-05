@@ -1,6 +1,6 @@
 // src/pages/sales/SalesInvoices.js
 import React, { useState } from 'react';
-import { COLLECTIONS } from '../../lib/db';
+import { COLLECTIONS, getOne } from '../../lib/db';
 import Header from '../../components/layout/Header';
 import InvoiceListView from '../../components/invoices/InvoiceListView';
 import SalesInvoiceForm from './SalesInvoiceForm';
@@ -9,6 +9,17 @@ import SalesInvoiceView from './SalesInvoiceView';
 export default function SalesInvoices() {
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
+
+  // An approval or an attachment saved from the detail view changes the record
+  // underneath it, so pull the row back rather than leaving the snapshot the
+  // list handed over.
+  const refreshSelected = async () => {
+    if (!selected?.id) return;
+    try {
+      const fresh = await getOne(COLLECTIONS.SALES_INVOICES, selected.id);
+      if (fresh) setSelected(fresh);
+    } catch (e) { console.warn('could not refresh the invoice', e); }
+  };
 
   if (view === 'form') return (
     <SalesInvoiceForm
@@ -22,6 +33,7 @@ export default function SalesInvoices() {
       invoice={selected}
       onBack={() => { setView('list'); setSelected(null); }}
       onEdit={() => setView('form')}
+      onChanged={refreshSelected}
     />
   );
 

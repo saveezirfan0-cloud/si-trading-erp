@@ -11,6 +11,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { getAll, getOne, create, update, COLLECTIONS } from '../../lib/db';
+import { findDuplicate } from '../../lib/invoices';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Card, Loader, Badge, ItemPicker } from '../../components/ui';
@@ -171,30 +172,6 @@ const reconcileQty = (l) => {
   return { ...l, qty: rounded, qtyRead: l.qty, qtyFromAmount: true };
 };
 
-// Scanning the same challan twice would post the stock and the supplier
-// balance twice over, and nothing downstream would flag it — so look for an
-// invoice that has already been entered before the user confirms this one.
-// The supplier's own invoice number is the reliable key; where it wasn't read,
-// fall back to same supplier + same date + same total.
-const norm = (v) => String(v || '').trim().toLowerCase().replace(/[\s-]/g, '');
-
-const findDuplicate = (invoices, { supplierId, supplierName, documentNo, date, total }) => {
-  const doc = norm(documentNo);
-  const name = norm(supplierName);
-  const sameSupplier = (inv) => (supplierId && inv.supplierId === supplierId)
-    || (!!name && norm(inv.supplierName) === name)
-    || (!!supplierName && similarity(inv.supplierName, supplierName) > 0.8);
-
-  for (const inv of invoices) {
-    if (inv.status === 'cancelled' || !sameSupplier(inv)) continue;
-    if (doc && norm(inv.supplierInvoiceNo) === doc) return { invoice: inv, on: 'invoice number' };
-    if (!doc && date && inv.date === date && total > 0 && !differs(num(inv.total), total)) {
-      return { invoice: inv, on: 'date and total' };
-    }
-  }
-  return null;
-};
-
 const emptyLine = () => ({
   ocrName: '', unit: 'pcs', qty: '', rate: '', printedAmount: 0,
   action: 'create', itemId: '', matchScore: 0, manual: true,
@@ -258,7 +235,7 @@ const SelectField = ({ label, flag, value, onChange, children }) => (
 // ── Component ────────────────────────────────────────────────────────────────
 export default function ScanInvoice() {
   const navigate = useNavigate();
-  const { formatCurrency, formatDate, isMobile } = useApp();
+  const { formatCurrency, isMobile } = useApp();
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
 
@@ -269,8 +246,7 @@ export default function ScanInvoice() {
 
   const [suppliers, setSuppliers] = useState([]);
   const [inventory, setInventory] = useState([]);
-  const [savedInvoices, setSavedInvoices] = useState([]);
-  const [dupAccepted, setDupAccepted] = useState(false);
+  const [existingInvoices, setExistingInvoices] = useState([]);
   const [rank, setRank] = useState(() => () => []);
 
   // review state
@@ -290,12 +266,11 @@ export default function ScanInvoice() {
     try {
       const compressed = await compressImage(file);
       setImg(compressed);
-      const [supps, items, saved] = await Promise.all([
+      const [supps, items, purchases] = await Promise.all([
         getAll(COLLECTIONS.SUPPLIERS), getAll(COLLECTIONS.INVENTORY),
         getAll(COLLECTIONS.PURCHASE_INVOICES),
       ]);
-      setSuppliers(supps); setInventory(items); setSavedInvoices(saved);
-      setDupAccepted(false);
+      setSuppliers(supps); setInventory(items); setExistingInvoices(purchases);
       const ranker = makeRanker(items);
       setRank(() => ranker);
 
@@ -303,9 +278,14 @@ export default function ScanInvoice() {
         body: { image: compressed.base64, mimeType: compressed.mimeType },
       });
       if (fnError) {
-        // supabase-js wraps non-2xx into FunctionsHttpError; surface the body
+        // supabase-js wraps non-2xx into FunctionsHttpError; surface the body.
         let detail = fnError.message;
-        try { detail = (await fnError.context.json()).error || detail; } catch {}
+        try {
+          const body = await fnError.context.json();
+          detail = body.unreadable && body.detail
+            ? `${body.error}. ${body.detail}`
+            : (body.error || detail);
+        } catch {}
         throw new Error(detail);
       }
       if (!res?.ok) throw new Error(res?.error || 'OCR failed');
@@ -364,6 +344,17 @@ export default function ScanInvoice() {
   // Once the user types a quantity themselves it is no longer a derived one.
   const setQty = (idx, qty) => setLine(idx, { qty, qtyFromAmount: false });
 
+  // Recomputed as the reviewer corrects the date, supplier or reference, so the
+  // warning tracks what would actually be saved.
+  const duplicateOf = useMemo(() => findDuplicate(existingInvoices, {
+    date: meta.date,
+    supplierInvoiceNo: meta.documentNo,
+    supplierId: meta.supplierId,
+    supplierName: meta.supplierId
+      ? (suppliers.find(s => s.id === meta.supplierId)?.name || '')
+      : meta.supplierName,
+  }), [existingInvoices, meta.date, meta.documentNo, meta.supplierId, meta.supplierName, suppliers]);
+
   const activeLines = useMemo(() => lines.filter(l => l.action !== 'skip'), [lines]);
   const total = useMemo(() =>
     activeLines.reduce((s, l) => s + num(l.qty) * num(l.rate), 0),
@@ -407,14 +398,6 @@ export default function ScanInvoice() {
     return f;
   }), [lines, formatCurrency]);
 
-  const duplicate = useMemo(() => findDuplicate(savedInvoices, {
-    supplierId: meta.supplierId,
-    supplierName: meta.supplierId
-      ? (suppliers.find((x) => x.id === meta.supplierId)?.name || '')
-      : meta.supplierName,
-    documentNo: meta.documentNo, date: meta.date, total,
-  }), [savedInvoices, meta.supplierId, meta.supplierName, meta.documentNo, meta.date, total, suppliers]);
-
   const qtyTotal = useMemo(() => activeLines.reduce((s, l) => s + num(l.qty), 0), [activeLines]);
 
   const qtyFlag = useMemo(() => {
@@ -438,9 +421,6 @@ export default function ScanInvoice() {
 
     Object.values(metaFlags).forEach(f => push(f, f.msg));
     if (!activeLines.length) errors.push('No line items — add one or rescan');
-    if (duplicate && !dupAccepted) {
-      errors.push(`Already entered as ${duplicate.invoice.invoiceNo} — confirm it is a different invoice`);
-    }
     lineFlags.forEach((flags, idx) => {
       Object.values(flags).forEach(f => push(f, `Line ${idx + 1}: ${f.msg}`));
     });
@@ -448,11 +428,13 @@ export default function ScanInvoice() {
     if (qtyFlag) warnings.push(`Quantity ${qtyTotal} — ${qtyFlag.msg}`);
     if (totalFlag) warnings.push(`Total ${formatCurrency(total)} — ${totalFlag.msg}`);
     return { errors, warnings };
-  }, [metaFlags, lineFlags, activeLines.length, duplicate, dupAccepted, serverWarnings,
+  }, [metaFlags, lineFlags, activeLines.length, serverWarnings,
       qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
 
   const nextInvoiceNo = async () => {
-    const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES);
+    // Include trashed invoices so a restored one cannot collide with a number
+    // handed out while it sat in the trash.
+    const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES, [], { includeDeleted: true });
     const nums = existing.map(i => parseInt((i.invoiceNo || 'PI-0').split('-')[1])).filter(Boolean);
     return { no: `PI-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`, existing };
   };
@@ -499,8 +481,19 @@ export default function ScanInvoice() {
         resolvedLines.push({ ...l, itemId, itemDoc });
       }
 
-      // 3. purchase invoice
-      const { no } = await nextInvoiceNo();
+      // 3. purchase invoice.
+      //
+      // Before writing it, check whether this exact document (same date, same
+      // supplier, same printed reference) is already recorded. A repeat is
+      // still saved — the photo is evidence and quietly discarding someone's
+      // capture is worse — but it is marked, and steps 5 and 6 below are
+      // skipped so it moves no stock and owes no money.
+      const { no, existing } = await nextInvoiceNo();
+      const duplicateOnSave = findDuplicate(existing, {
+        date: meta.date,
+        supplierInvoiceNo: meta.documentNo,
+        supplierId, supplierName,
+      });
       const items = resolvedLines.map(l => ({
         itemId: l.itemId,
         itemCode: l.itemDoc?.code || '',
@@ -522,6 +515,12 @@ export default function ScanInvoice() {
         total, paidAmount: paid ? total : 0, currency: 'PKR',
         source: 'ocr',
         supplierStatement: { previousBalance: num(meta.previousBalance), totalDue: num(meta.totalDue) },
+        ...(duplicateOnSave ? {
+          isDuplicate: true,
+          duplicateOf: duplicateOnSave.id,
+          duplicateOfNo: duplicateOnSave.invoiceNo || '',
+          duplicateDetectedAt: new Date().toISOString(),
+        } : {}),
       });
 
       // 4. attach the scanned photo to the invoice it produced. The invoice is
@@ -543,8 +542,9 @@ export default function ScanInvoice() {
                     { duration: 7000 });
       }
 
-      // 5. inventory quantities + cost prices
-      for (const l of resolvedLines) {
+      // 5. inventory quantities + cost prices — never for a duplicate, or the
+      // same delivery would be counted into stock twice.
+      for (const l of (duplicateOf ? [] : resolvedLines)) {
         const current = await getOne(COLLECTIONS.INVENTORY, l.itemId);
         if (!current) continue;
         await update(COLLECTIONS.INVENTORY, l.itemId, {
@@ -554,14 +554,22 @@ export default function ScanInvoice() {
       }
 
       // 6. supplier balance (unpaid amount owed to supplier)
-      if (!paid) {
+      if (!paid && !duplicateOf) {
         const supp = await getOne(COLLECTIONS.SUPPLIERS, supplierId);
         await update(COLLECTIONS.SUPPLIERS, supplierId, {
           balance: (Number(supp?.balance) || 0) + total,
         });
       }
 
-      toast.success(`Purchase invoice ${no} created — stock & supplier balance updated`);
+      if (duplicateOf) {
+        toast(
+          `Saved as a duplicate of ${duplicateOf.invoiceNo || 'an existing invoice'} — ` +
+          'stock and supplier balance were left unchanged.',
+          { icon: '⚠️', duration: 8000 }
+        );
+      } else {
+        toast.success(`Purchase invoice ${no} created — stock & supplier balance updated`);
+      }
       navigate('/purchases');
     } catch (e) {
       console.error(e);
@@ -651,41 +659,28 @@ export default function ScanInvoice() {
           </Card>
         )}
 
+
         {step === 'review' && (
           <div className="g-main" style={{ gap: isMobile ? 14 : 20, alignItems: 'start' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 14 : 16, minWidth: 0 }}>
 
-              {/* Already entered */}
-              {duplicate && (
+              {duplicateOf && (
                 <div style={{
-                  background: ERR_BG, border: '1px solid var(--red)', borderLeft: '4px solid var(--red)',
-                  borderRadius: 'var(--radius-lg)', padding: '13px 15px',
                   display: 'flex', gap: 10, alignItems: 'flex-start',
+                  background: WARN_BG, border: `1px solid ${WARN}`, borderLeft: `4px solid ${WARN}`,
+                  borderRadius: 'var(--radius-lg)', padding: '12px 14px', fontSize: '0.86rem',
+                  lineHeight: 1.55,
                 }}>
-                  <Copy size={16} style={{ color: 'var(--red)', flexShrink: 0, marginTop: 2 }} />
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--red)', marginBottom: 4 }}>
-                      This invoice looks like one you already have
-                    </div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text2)', lineHeight: 1.5 }}>
-                      {duplicate.invoice.invoiceNo} — {duplicate.invoice.supplierName || 'same supplier'}
-                      {duplicate.invoice.supplierInvoiceNo ? `, their invoice ${duplicate.invoice.supplierInvoiceNo}` : ''}
-                      {duplicate.invoice.date ? ` on ${formatDate(duplicate.invoice.date)}` : ''}
-                      {' '}for {formatCurrency(num(duplicate.invoice.total))} (matched on {duplicate.on}).
-                      Saving it again would add the stock and the supplier balance a second time.
-                    </div>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: '0.82rem', color: 'var(--text)' }}>
-                      <input type="checkbox" checked={dupAccepted}
-                        onChange={(e) => setDupAccepted(e.target.checked)}
-                        style={{
-                          // globals.css strips appearance from every input, which
-                          // leaves a checkbox as an empty rounded box.
-                          appearance: 'checkbox', WebkitAppearance: 'checkbox',
-                          width: 16, height: 16, minHeight: 0, minWidth: 0, flexShrink: 0,
-                          padding: 0, borderRadius: 3, accentColor: 'var(--red)',
-                        }} />
-                      This is a different invoice — save it anyway
-                    </label>
+                  <Copy size={17} style={{ color: WARN, flexShrink: 0, marginTop: 1 }} />
+                  <div>
+                    <strong>This looks like a duplicate.</strong>{' '}
+                    {duplicateOf.invoiceNo || 'An existing invoice'} already records reference{' '}
+                    <strong>{meta.documentNo}</strong> from{' '}
+                    <strong>{duplicateOf.supplierName || 'this supplier'}</strong> dated{' '}
+                    <strong>{meta.date}</strong>. You can still save it — the scan will be kept and
+                    flagged as a duplicate, and it will not affect stock, totals or the supplier
+                    balance. Correct the date or reference above if this is in fact a different
+                    document.
                   </div>
                 </div>
               )}
@@ -962,12 +957,15 @@ export default function ScanInvoice() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <Btn icon={Check} onClick={handleConfirm} disabled={problems.errors.length > 0}
+                    variant={duplicateOf ? 'secondary' : 'primary'}
                     style={{ justifyContent: 'center' }}>
-                    Confirm & Create Invoice
+                    {duplicateOf ? 'Save as duplicate' : 'Confirm & Create Invoice'}
                   </Btn>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', textAlign: 'center' }}>
                     {problems.errors.length
                       ? 'Fix the highlighted fields above to enable this.'
+                      : duplicateOf
+                      ? 'Records the invoice and its scan for reference only — stock, totals and the supplier balance are left untouched.'
                       : `Creates the purchase invoice, adds quantities to stock, updates item cost prices${meta.status === 'unpaid' ? ' and adds the total to the supplier balance' : ''}.`}
                   </div>
                 </div>

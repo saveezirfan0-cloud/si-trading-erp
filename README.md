@@ -11,10 +11,13 @@ from environment variables. To bring up a working instance:
 1. **Create a Supabase project** (supabase.com → New project).
 2. **Apply the schema** — Dashboard → SQL Editor → paste and run
    [`supabase/migrations/0001_erp_schema.sql`](supabase/migrations/0001_erp_schema.sql),
-   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql).
+   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql)
+   and [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql).
    The first creates the `erp_*` tables with row-level security, realtime and the
    private `erp-scans` storage bucket; the second locks down the two tables that
-   define access, so nobody can promote themselves through the API.
+   define access, so nobody can promote themselves through the API; the third
+   adds the append-only `erp_activity` audit table, the trash indexes and the
+   private `erp-attachments` bucket. All three are safe to re-run.
 3. **Set the environment variables** in Vercel (Project → Settings →
    Environment Variables) and in `.env.local` for local development:
 
@@ -82,6 +85,57 @@ list, and on any failure (rate limit, quota, auth) the function tries the next
 key and then the other provider. Paste as many keys as you like. With no keys
 configured the scanner reports that clearly instead of failing silently.
 
+## Audit trail, approvals and trash
+
+Every write the app makes goes through `src/lib/db.js`, which stamps the acting
+user onto the record and appends an entry to the append-only `erp_activity`
+table with a field-level diff. That gives four things:
+
+* **Who did what** — each invoice shows *Created by … · Last updated by …*, and
+  the invoice lists carry a **Last Updated** column with the person and how long
+  ago. Attribution comes from the signed-in profile, so it survives edits made
+  from any device.
+* **Per-record history** — the **Activity history** panel on an invoice (and the
+  **History** button on any list row or trashed record) shows every change:
+  who, when, and each field's old → new value.
+* **Audit Log** (sidebar → System → Audit Log) — the company-wide view of every
+  create, edit, approval, delete, restore and import, filterable by module,
+  action, person and period, and exportable to CSV. The table grants staff
+  `select` and `insert` only: nobody can rewrite or erase the trail from the
+  app.
+* **Trash** (sidebar → System → Trash) — deleting a record no longer destroys
+  it. `remove()` stamps `doc.deletedAt` and every list filters those rows out,
+  so a mistaken delete is one click from being restored, invoice number and all.
+  Only admins (the `purge` permission) can delete something permanently, and the
+  audit entry survives even then.
+
+### Invoice approval flow
+
+Sales and purchase invoices carry the approval step in the same status field:
+
+```
+draft → pending_review → approved → unpaid → partial → paid
+              ↑ sent back                      └────→ cancelled
+```
+
+Anyone with write access can **Submit for Review**; only admins and managers
+(the `approve` permission) can **Approve**, **Send Back to Draft** or
+**Withdraw Approval**, and the invoice records who approved it and when. Drafts
+and invoices still under review are deliberately excluded from revenue,
+purchases and outstanding totals — on the invoice lists and on the dashboard —
+because nothing is owed until an invoice is approved. An **Awaiting Approval**
+stat card and a status filter on both invoice lists show what is queued.
+
+### Attachments
+
+Any invoice can carry files — the supplier's own PDF, a signed delivery note, a
+payment slip. They upload to the private `erp-attachments` bucket, are listed on
+the invoice with a preview for images, and each add/remove is recorded in the
+audit log. A paperclip in the list marks invoices that carry paperwork. (This is
+separate from the OCR photo, which is still stored in `erp-scans`.)
+
+---
+
 ## Modules
 
 | Module | Features |
@@ -90,6 +144,7 @@ configured the scanner reports that clearly instead of failing silently.
 | **Suppliers** | Contact info, payment terms, bank details, balance |
 | **Inventory** | Brand, code, description, cost/sale price, stock levels, reorder alerts, warehouse assignment |
 | **Warehouses** | Multiple locations, manager, capacity |
+| **Sales / Purchase Invoices** | Line items, review & approval workflow, attachments, per-record history, soft delete |
 | **Chart of Accounts** | Asset, Liability, Equity, Income, Expense types |
 | **Bank & Cash** | Receipts & payments, account linking, cheque tracking |
 | **Journal Entries** | Double-entry bookkeeping with balanced debit/credit validation |
@@ -97,6 +152,8 @@ configured the scanner reports that clearly instead of failing silently.
 | **Expenses** | Category tracking, recurring support |
 | **Reports** | P&L, Balance Sheet, Cash Flow, Expense breakdown |
 | **Users & Roles** | Admin, Manager, Accountant, Staff, Viewer permissions |
+| **Audit Log** | Every change across the ERP with the user, the diff, filters and CSV export |
+| **Trash** | Soft-deleted records from every module, restore or permanent delete |
 | **Data Import** | CSV upload for Customers, Suppliers, Inventory |
 | **WhatsApp** | Message templates, wa.me link generation |
 | **Settings** | Company info, currency, fiscal year |
@@ -108,7 +165,8 @@ configured the scanner reports that clearly instead of failing silently.
 - **Frontend:** React 18, React Router v6
 - **Database:** Supabase Postgres (jsonb document tables, realtime)
 - **Auth:** Supabase Auth (email/password)
-- **Storage:** Supabase Storage (`erp-scans` bucket for invoice photos)
+- **Storage:** Supabase Storage (`erp-scans` for OCR photos, `erp-attachments`
+  for files staff attach to records)
 - **AI OCR:** Supabase Edge Function calling Anthropic / OpenAI vision with key rotation
 - **Charts:** Recharts
 - **PDF Export:** jsPDF + AutoTable
@@ -196,6 +254,21 @@ Adding users and editing roles is deliberately admin-only, in the app and in
 the database alike. Other roles can be given `view` on Users & Roles to see the
 directory.
 
+### Approvals, the audit log and the trash
+
+Three of the grants in that grid come from the audit work rather than plain
+CRUD:
+
+- **Approve** (Sales Invoices, Purchase Invoices) — sign off an invoice that is
+  pending review. Admins and managers hold it by default.
+- **Audit Log** — `view` opens the company-wide log of who changed what;
+  `export` downloads it. Managers and accountants have it; staff and viewers do
+  not, because it shows everyone's activity.
+- **Trash** — `view` lists deleted records, `edit` restores one, `delete`
+  destroys it for good. Restoring or purging also needs the matching permission
+  on the record's own module, so someone who cannot delete invoices cannot
+  destroy one from the trash either.
+
 ---
 
 ## Database tables
@@ -208,12 +281,18 @@ erp_suppliers          erp_journals        erp_roles
 erp_inventory          erp_transactions    erp_imports
 erp_warehouses         erp_payments        erp_settings
 erp_sales_invoices     erp_expenses        erp_brands
-erp_purchase_invoices  erp_ocr_drafts
+erp_purchase_invoices  erp_ocr_drafts      erp_activity
 ```
 
 All have row-level security enabled: signed-in staff can read and write,
 anonymous visitors get nothing. `erp_roles` and the privilege fields of
-`erp_users` are further restricted to admins by migration 0002.
+`erp_users` are further restricted to admins by migration 0002. `erp_activity`
+is the other exception — staff can read and append to it but there is no update
+or delete policy, so the audit trail cannot be altered through the API.
+
+Deleted records stay in their own table with `doc.deletedAt` set; every query in
+`src/lib/db.js` filters them out, and the Trash page is the only place they are
+listed.
 
 ---
 
@@ -264,12 +343,18 @@ si-trading-erp/
 │   │   └── AppContext.js      ← Global state (currency, sidebar)
 │   ├── lib/
 │   │   ├── supabase.js        ← Supabase client (env-driven)
-│   │   ├── db.js              ← Postgres document CRUD + write permission checks
+│   │   ├── db.js              ← CRUD, write permissions, attribution, soft delete
 │   │   ├── permissions.js     ← Modules, actions and built-in roles
+│   │   ├── audit.js           ← Acting user, diffing, activity log reads/writes
+│   │   ├── invoices.js        ← Filtering, sorting and totals for the lists
+│   │   ├── invoiceStatus.js   ← Invoice statuses and the approval flow
+│   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/
 │   │   ├── layout/            ← Sidebar, Header, Layout
-│   │   └── ui/                ← Shared UI components + PermissionMatrix
+│   │   ├── invoices/          ← Shared list, filters, quick view, ApprovalBar
+│   │   └── ui/                ← Shared UI, PermissionMatrix, RecordMeta,
+│   │                            ActivityFeed, Attachments
 │   ├── pages/
 │   │   ├── Login.js
 │   │   ├── NoAccess.js        ← Signed in, but deactivated or ungranted
@@ -281,6 +366,8 @@ si-trading-erp/
 │   │   ├── accounting/        ← Accounts, Bank, Journals, Payments, Expenses
 │   │   ├── reports/
 │   │   ├── users/             ← Users & Roles (add users, permissions)
+│   │   ├── audit/             ← Company-wide audit log
+│   │   ├── trash/             ← Deleted records, restore / purge
 │   │   ├── import/
 │   │   ├── WhatsApp.js
 │   │   └── Settings.js

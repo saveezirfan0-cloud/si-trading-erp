@@ -5,6 +5,8 @@
 // be filtered and ordered. Keeping that here means the two pages stay thin and
 // answer those questions identically.
 
+import { isProvisional, needsApproval } from './invoiceStatus';
+
 // ── Provenance ────────────────────────────────────────────────────────────────
 //
 // Manager.io rows are seeded by tools/manager-import with `importedFrom` and
@@ -34,7 +36,12 @@ export const importBook = (inv) => {
 
 // ── Attachments ───────────────────────────────────────────────────────────────
 export const attachmentPath = (inv) => inv?.attachmentPath || inv?.scanPath || '';
-export const hasAttachment = (inv) => Boolean(attachmentPath(inv));
+// The list's quick view attaches one file to `attachmentPath`; the invoice page
+// can hold any number in `attachments`. A row counts as having paperwork when
+// either is present.
+export const attachmentCount = (inv) =>
+  (attachmentPath(inv) ? 1 : 0) + (inv?.attachments?.length || 0);
+export const hasAttachment = (inv) => attachmentCount(inv) > 0;
 
 // Everything the viewers need to render the attachment: an invoice carries
 // either a hand-attached file or the photo its OCR scan came from.
@@ -58,17 +65,20 @@ export const invoiceTotal = (inv) => Number(inv?.total) || 0;
 export const paidAmount = (inv) => Number(inv?.paidAmount) || 0;
 
 // What is still owed. Settled and cancelled invoices owe nothing regardless of
-// the amount recorded against them.
+// the amount recorded against them, and neither do drafts or invoices still
+// waiting for approval — nothing is due until an invoice is signed off.
 export const balanceDue = (inv) => {
   if (!inv || inv.status === 'paid' || inv.status === 'cancelled') return 0;
+  if (isProvisional(inv.status)) return 0;
   return Math.max(0, invoiceTotal(inv) - paidAmount(inv));
 };
 
 export const todayISO = () => new Date().toISOString().slice(0, 10);
 
-// Drafts are not issued documents, so they cannot be late however old they are.
+// Drafts and invoices under review are not issued documents, so they cannot be
+// late however old they are.
 export const daysOverdue = (inv, today = todayISO()) => {
-  if (!inv?.dueDate || inv.status === 'draft' || balanceDue(inv) <= 0) return 0;
+  if (!inv?.dueDate || isProvisional(inv.status) || balanceDue(inv) <= 0) return 0;
   const due = String(inv.dueDate).slice(0, 10);
   if (due >= today) return 0;
   return Math.round((Date.parse(today) - Date.parse(due)) / 86400000);
@@ -78,7 +88,7 @@ export const isOverdue = (inv, today = todayISO()) => daysOverdue(inv, today) > 
 
 // Falls due inside the next `days` days (and is not already late).
 export const isDueSoon = (inv, days = 7, today = todayISO()) => {
-  if (!inv?.dueDate || inv.status === 'draft' || balanceDue(inv) <= 0) return false;
+  if (!inv?.dueDate || isProvisional(inv.status) || balanceDue(inv) <= 0) return false;
   const due = String(inv.dueDate).slice(0, 10);
   const horizon = new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
   return due >= today && due <= horizon;
@@ -106,6 +116,44 @@ export const yearsOf = (rows = []) => {
   const years = [...set].sort().reverse().map((y) => ({ value: y, label: y }));
   return undated ? [...years, { value: 'none', label: 'No date' }] : years;
 };
+
+// ── Duplicates ────────────────────────────────────────────────────────────────
+//
+// The same supplier invoice often gets photographed twice — a second copy of
+// the paper, or a re-scan after a bad crop. A repeat is identified by the three
+// things printed on the document: its date, who issued it, and their reference
+// number. Repeats are still recorded (the scan is evidence, and deleting a
+// user's capture silently would be worse), but they are marked and excluded
+// from every total, balance and stock movement.
+
+const normRef = (v) => String(v ?? '').trim().toLowerCase().replace(/\s+/g, '');
+
+// Null when the invoice lacks the fields needed to judge it — an undated or
+// unreferenced document cannot be called a repeat of anything.
+export const duplicateKey = (inv, partyField = 'supplierName') => {
+  const date = String(inv?.date || '').slice(0, 10);
+  const ref = normRef(inv?.supplierInvoiceNo);
+  const party = normRef(inv?.[partyField === 'supplierName' ? 'supplierId' : 'customerId'])
+    || normRef(inv?.[partyField]);
+  if (!date || !ref || !party) return null;
+  return `${date}|${party}|${ref}`;
+};
+
+export const isDuplicate = (inv) => Boolean(inv?.isDuplicate);
+
+// The row an incoming invoice repeats, or null. Existing duplicates are not
+// themselves candidates, so a third copy points at the original.
+export const findDuplicate = (rows = [], candidate, partyField = 'supplierName') => {
+  const key = duplicateKey(candidate, partyField);
+  if (!key) return null;
+  return rows.find(
+    (r) => r.id !== candidate?.id && !isDuplicate(r) && duplicateKey(r, partyField) === key
+  ) || null;
+};
+
+// Rows that count towards money and stock.
+export const activeInvoices = (rows = []) => rows.filter((r) => !isDuplicate(r));
+export const duplicateInvoices = (rows = []) => rows.filter(isDuplicate);
 
 // ── Data quality ──────────────────────────────────────────────────────────────
 export const invoiceIssues = (inv, partyField = 'customerName') => {
@@ -169,6 +217,7 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
     if (f.flag === 'duesoon' && !isDueSoon(inv, 7, today)) return false;
     if (f.flag === 'outstanding' && balanceDue(inv) <= 0) return false;
     if (f.flag === 'issues' && invoiceIssues(inv, partyField).length === 0) return false;
+    if (f.flag === 'duplicates' && !isDuplicate(inv)) return false;
 
     return true;
   });
@@ -185,6 +234,7 @@ export const SORT_OPTIONS = [
   { value: 'items',     label: 'Line items' },
   { value: 'status',    label: 'Status' },
   { value: 'createdAt', label: 'Date added' },
+  { value: 'updated',   label: 'Last updated' },
 ];
 
 const sortValue = (inv, key, partyField) => {
@@ -197,6 +247,7 @@ const sortValue = (inv, key, partyField) => {
     case 'items':     return (inv.items || []).length;
     case 'status':    return inv.status || '';
     case 'createdAt': return inv.createdAt || '';
+    case 'updated':   return inv.updatedAt || inv.createdAt || '';
     case 'date':
     default:          return inv.date || '';
   }
@@ -244,16 +295,31 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
   }));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
-export const summarise = (rows = []) => {
+// Duplicates are excluded here, which is what keeps them out of every stat card
+// and dashboard figure that runs through this helper. Drafts and invoices still
+// in review are left out of the money too — they are not sales or purchases yet
+// — and reported separately so the list can say what is waiting on somebody.
+export const summarise = (allRows = []) => {
+  const rows = activeInvoices(allRows);
   const today = todayISO();
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
+  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
   rows.forEach((inv) => {
+    if (hasAttachment(inv)) withAttachment += 1;
+    if (isProvisional(inv.status)) {
+      provisionalCount += 1;
+      if (needsApproval(inv.status)) { awaitingCount += 1; awaitingAmount += invoiceTotal(inv); }
+      return;
+    }
     total += invoiceTotal(inv);
     paid += inv.status === 'paid' ? invoiceTotal(inv) : paidAmount(inv);
     const bal = balanceDue(inv);
     due += bal;
     if (isOverdue(inv, today)) { overdueAmount += bal; overdueCount += 1; }
-    if (hasAttachment(inv)) withAttachment += 1;
   });
-  return { count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment };
+  return {
+    count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
+    provisionalCount, awaitingCount, awaitingAmount,
+    duplicates: allRows.length - rows.length,
+  };
 };

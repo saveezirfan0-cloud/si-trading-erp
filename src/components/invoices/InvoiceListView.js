@@ -7,11 +7,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { subscribe, remove, update } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { Table, Btn, Badge, PageHeader, Card, Loader, StatCard } from '../ui';
+import { Table, Btn, Badge, PageHeader, Card, Loader, StatCard, HistoryButton } from '../ui';
 import toast from 'react-hot-toast';
 import {
   Plus, Edit2, Trash2, Download, Eye, FileText, Paperclip, AlertTriangle,
-  CheckCircle2, XCircle, FileDown, Wallet, Clock,
+  CheckCircle2, XCircle, FileDown, Wallet, Clock, Copy, ClipboardCheck, ShieldCheck,
 } from 'lucide-react';
 import { exportCSV, exportTablePDF } from '../../lib/export';
 import InvoiceFilters from './InvoiceFilters';
@@ -19,11 +19,12 @@ import InvoiceQuickView from './InvoiceQuickView';
 import {
   EMPTY_FILTERS, SOURCES, invoiceSource, filterInvoices, sortInvoices,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
-  invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount,
+  isDuplicate, activeInvoices, duplicateInvoices,
+  invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
 } from '../../lib/invoices';
-
-const statusColor = (s) =>
-  ({ paid: 'green', unpaid: 'red', partial: 'yellow', draft: 'default', cancelled: 'red' }[s] || 'default');
+import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
+import { getCurrentActor } from '../../lib/audit';
+import { timeAgo } from '../../lib/datetime';
 
 const loadPrefs = (key) => {
   try {
@@ -64,6 +65,7 @@ export default function InvoiceListView({
   const canEdit = can(moduleKey, 'edit');
   const canDelete = can(moduleKey, 'delete');
   const canExport = can(moduleKey, 'export');
+  const canApprove = can(moduleKey, 'approve');
   const canSelect = canEdit || canDelete || canExport;
 
   const prefsKey = `si-invoice-view-${kind}`;
@@ -74,6 +76,7 @@ export default function InvoiceListView({
   const [filters, setFilters] = useState(initial.filters);
   const [sort, setSort] = useState(initial.sort);
   const [panelOpen, setPanelOpen] = useState(initial.panelOpen);
+  const [bucket, setBucket] = useState('active'); // active | duplicates | all
   const [selectedIds, setSelectedIds] = useState([]);
   const [quickView, setQuickView] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -105,7 +108,17 @@ export default function InvoiceListView({
   }, []);
 
   // The fiscal-year picker in the header scopes everything below it.
-  const scoped = useMemo(() => filterByFiscalYear(allInvoices), [allInvoices, filterByFiscalYear]);
+  const inYear = useMemo(() => filterByFiscalYear(allInvoices), [allInvoices, filterByFiscalYear]);
+
+  // Duplicates are kept out of the working list by default. They are real rows
+  // — the scan is evidence — but they carry no money and no stock, so mixing
+  // them into the normal view would misrepresent every figure on the page.
+  const dupes = useMemo(() => duplicateInvoices(inYear), [inYear]);
+  const scoped = useMemo(() => {
+    if (bucket === 'duplicates') return dupes;
+    if (bucket === 'all') return inYear;
+    return activeInvoices(inYear);
+  }, [bucket, inYear, dupes]);
 
   const visible = useMemo(
     () => sortInvoices(filterInvoices(scoped, filters, partyField), sort, partyField),
@@ -165,8 +178,8 @@ export default function InvoiceListView({
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this invoice?')) return;
-    try { await remove(collection, id); toast.success('Deleted'); }
+    if (!window.confirm('Move this invoice to the trash? You can restore it from Trash.')) return;
+    try { await remove(collection, id); toast.success('Moved to trash'); }
     catch (e) { toast.error(e.message); }
   };
 
@@ -191,9 +204,34 @@ export default function InvoiceListView({
       : toast.success(`${selectedRows.length} invoice(s) marked ${status}`);
   };
 
+  // Sign off everything selected that is waiting for review. Rows in any other
+  // state are left alone rather than dragged backwards through the flow.
+  const pendingSelected = selectedRows.filter(r => needsApproval(r.status));
+
+  const bulkApprove = async () => {
+    if (!pendingSelected.length) return;
+    if (!window.confirm(`Approve ${pendingSelected.length} invoice(s) pending review?`)) return;
+    setBusy(true);
+    let failed = 0;
+    for (const row of pendingSelected) {
+      try {
+        await update(
+          collection, row.id,
+          { status: 'approved', ...approvalPatch('approved', getCurrentActor()) },
+          { action: 'status', note: 'Approved from the invoice list' },
+        );
+      } catch (e) { failed += 1; }
+    }
+    setBusy(false);
+    setSelectedIds([]);
+    failed
+      ? toast.error(`${failed} of ${pendingSelected.length} could not be approved`)
+      : toast.success(`${pendingSelected.length} invoice(s) approved`);
+  };
+
   const bulkDelete = async () => {
     if (!selectedRows.length) return;
-    if (!window.confirm(`Delete ${selectedRows.length} invoice(s)? This cannot be undone.`)) return;
+    if (!window.confirm(`Move ${selectedRows.length} invoice(s) to the trash? You can restore them from Trash.`)) return;
     setBusy(true);
     let failed = 0;
     for (const row of selectedRows) {
@@ -202,8 +240,8 @@ export default function InvoiceListView({
     setBusy(false);
     setSelectedIds([]);
     failed
-      ? toast.error(`${failed} of ${selectedRows.length} could not be deleted`)
-      : toast.success(`${selectedRows.length} invoice(s) deleted`);
+      ? toast.error(`${failed} of ${selectedRows.length} could not be moved to the trash`)
+      : toast.success(`${selectedRows.length} invoice(s) moved to trash`);
   };
 
   // Exports follow what is on screen — filters, sort and all.
@@ -237,9 +275,17 @@ export default function InvoiceListView({
         return (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontFamily: 'var(--font-mono)', color: accent, fontWeight: 700 }}>{v || '—'}</span>
-            {hasAttachment(row) && <Paperclip size={12} color="var(--text3)" title="Has an attachment" />}
+            {hasAttachment(row) && (
+              <Paperclip size={12} color="var(--text3)"
+                title={`${attachmentCount(row)} attachment(s)`} />
+            )}
             {issues.length > 0 && (
               <AlertTriangle size={12} color="var(--accent)" title={`Needs attention: ${issues.join(', ')}`} />
+            )}
+            {isDuplicate(row) && (
+              <span title={row.duplicateOfNo ? `Duplicate of ${row.duplicateOfNo}` : 'Duplicate — excluded from totals'}>
+                <Badge color="warn">dup</Badge>
+              </span>
             )}
           </span>
         );
@@ -278,7 +324,27 @@ export default function InvoiceListView({
         return <span style={{ fontWeight: 600, color: bal > 0 ? 'var(--red)' : 'var(--text3)' }}>{bal > 0 ? formatCurrency(bal) : '—'}</span>;
       },
     },
-    { key: 'status', label: 'Status', sortable: true, render: v => <Badge color={statusColor(v)}>{v || '—'}</Badge> },
+    {
+      key: 'status', label: 'Status', sortable: true,
+      render: (v, row) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+          <Badge color={statusColor(v)}>{statusLabel(v)}</Badge>
+          {row.approvedAt && (
+            <ShieldCheck size={12} color="var(--green)"
+              title={`Approved by ${row.approvedByName || 'unknown'}`} />
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'updatedAt', label: 'Last Updated', sortable: true, sortKey: 'updated',
+      render: (v, row) => (
+        <div style={{ lineHeight: 1.35 }}>
+          <div style={{ fontSize: '0.8rem' }}>{row.updatedByName || row.createdByName || '—'}</div>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>{timeAgo(v || row.createdAt, '—')}</div>
+        </div>
+      ),
+    },
     {
       key: 'source', label: 'Source', sortable: false,
       render: (_, row) => {
@@ -292,6 +358,7 @@ export default function InvoiceListView({
         <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
           <Btn size="sm" variant="secondary" icon={Eye} onClick={e => { e.stopPropagation(); onOpenRow(row); }}>Open</Btn>
           {canEdit && <Btn size="sm" variant="secondary" icon={Edit2} onClick={e => { e.stopPropagation(); onEditRow(row); }} />}
+          <HistoryButton collection={collection} recordId={row.id} label={row.invoiceNo} />
           {canDelete && <Btn size="sm" variant="danger" icon={Trash2} onClick={e => { e.stopPropagation(); handleDelete(row.id); }} />}
         </div>
       ),
@@ -323,16 +390,62 @@ export default function InvoiceListView({
         ]}
       />
 
-      <div className="g-stats">
-        <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
-          sub={`${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
-        <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
-        <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
-        <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
-          sub={`${stats.overdueCount} past due date`} />
-        <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
-          sub={`${stats.count - stats.withAttachment} without`} />
-      </div>
+      {/* Duplicates get their own view rather than polluting the working list. */}
+      {dupes.length > 0 && (
+        <div className="bucket-tabs" role="tablist" aria-label="Invoice set">
+          {[
+            { key: 'active', label: 'Active', count: inYear.length - dupes.length },
+            { key: 'duplicates', label: 'Duplicates', count: dupes.length },
+            { key: 'all', label: 'All', count: inYear.length },
+          ].map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={bucket === t.key}
+              onClick={() => setBucket(t.key)}
+              className={`bucket-tab${bucket === t.key ? ' is-active' : ''}`}
+            >
+              {t.label}
+              <span className="bucket-tab-count">{t.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {bucket === 'duplicates' ? (
+        <div style={{
+          display: 'flex', gap: 10, alignItems: 'flex-start',
+          background: 'var(--bg2)', border: '1px solid var(--border)',
+          borderLeft: '4px solid var(--yellow)',
+          borderRadius: 'var(--radius)', padding: '13px 15px',
+          fontSize: '0.86rem', lineHeight: 1.55,
+        }}>
+          <Copy size={17} style={{ color: 'var(--yellow)', flexShrink: 0, marginTop: 1 }} />
+          <div>
+            <strong>{dupes.length} duplicate {dupes.length === 1 ? 'invoice' : 'invoices'}</strong>
+            {' '}worth {formatCurrency(dupes.reduce((sum, d) => sum + invoiceTotal(d), 0))} are kept
+            here for reference. They are excluded from every total, balance and stock movement in
+            the app. If one of these is genuinely a separate document, open it and clear its
+            duplicate flag by editing the date or supplier reference.
+          </div>
+        </div>
+      ) : (
+        <div className="g-stats">
+          <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
+            sub={stats.provisionalCount
+              ? `${stats.count} shown · ${stats.provisionalCount} draft/in review not counted`
+              : `${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
+          <StatCard compact={isMobile} label="Awaiting Approval" value={`${stats.awaitingCount}`}
+            icon={ClipboardCheck} color="var(--blue)"
+            sub={stats.awaitingCount ? formatCurrency(stats.awaitingAmount) : 'Nothing pending review'} />
+          <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
+          <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
+          <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
+            sub={`${stats.overdueCount} past due date`} />
+          <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
+            sub={`${stats.count - stats.withAttachment} without`} />
+        </div>
+      )}
 
       <Card style={{ padding: 0, overflow: 'hidden' }}>
         <InvoiceFilters
@@ -362,6 +475,11 @@ export default function InvoiceListView({
             <strong style={{ fontSize: '0.82rem' }}>{selectedIds.length} selected</strong>
             <div style={{ flex: 1 }} />
             {canExport && <Btn size="sm" variant="secondary" icon={Download} onClick={() => exportRows(selectedRows, '_selected')}>Export</Btn>}
+            {canApprove && pendingSelected.length > 0 && (
+              <Btn size="sm" variant="success" icon={ShieldCheck} disabled={busy} onClick={bulkApprove}>
+                Approve {pendingSelected.length}
+              </Btn>
+            )}
             {canEdit && <Btn size="sm" variant="success" icon={CheckCircle2} disabled={busy} onClick={() => bulkStatus('paid')}>Mark paid</Btn>}
             {canEdit && <Btn size="sm" variant="secondary" icon={XCircle} disabled={busy} onClick={() => bulkStatus('unpaid')}>Mark unpaid</Btn>}
             {canDelete && <Btn size="sm" variant="danger" icon={Trash2} disabled={busy} onClick={bulkDelete}>Delete</Btn>}
@@ -392,6 +510,7 @@ export default function InvoiceListView({
           partyLabel={partyLabel}
           accent={accent}
           canEdit={canEdit}
+          canApprove={canApprove}
           onClose={() => setQuickView(null)}
           onOpenFull={() => { const row = quickView; setQuickView(null); onOpenRow(row); }}
           onEdit={() => { const row = quickView; setQuickView(null); onEditRow(row); }}

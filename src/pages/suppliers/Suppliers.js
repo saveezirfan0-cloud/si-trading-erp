@@ -70,10 +70,10 @@ export default function Suppliers() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this supplier?')) return;
+    if (!window.confirm('Move this supplier to the trash? You can restore it from Trash.')) return;
     try {
       await remove(COLLECTIONS.SUPPLIERS, id);
-      toast.success('Deleted');
+      toast.success('Moved to trash');
       load();
     } catch (e) { toast.error('Delete failed: ' + e.message); }
   };

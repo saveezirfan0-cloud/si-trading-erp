@@ -2,18 +2,19 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, ScanAttachment } from '../../components/ui';
+import { Btn, Badge, ScanAttachment, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
+import ApprovalBar from '../../components/invoices/ApprovalBar';
+import { COLLECTIONS } from '../../lib/db';
+import {
+  statusLabel, statusColor, statusPrintBg, statusPrintFg,
+} from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
 import { attachmentMeta } from '../../lib/invoices';
 
-export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
+export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
   if (!invoice) return null;
 
-  const statusColor = s => ({ paid: 'green', unpaid: 'red', partial: 'yellow', draft: 'default', cancelled: 'red' }[s] || 'default');
-  const statusLabel = s => ({ paid: 'PAID', unpaid: 'UNPAID', partial: 'PARTIAL', draft: 'DRAFT', cancelled: 'CANCELLED' }[s] || s?.toUpperCase());
-  const statusBg = s => ({ paid: '#dcfce7', unpaid: '#fee2e2', partial: '#fef9c3', draft: '#f3f4f6', cancelled: '#fee2e2' }[s] || '#f3f4f6');
-  const statusClr = s => ({ paid: '#166534', unpaid: '#991b1b', partial: '#854d0e', draft: '#374151', cancelled: '#991b1b' }[s] || '#374151');
 
   const handlePrint = () => {
     const win = window.open('', '_blank', 'width=900,height=700');
@@ -73,8 +74,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
       <div class="invoice-label">Sales Invoice</div>
       <div class="invoice-no">${invoice.invoiceNo}</div>
       <div>
-        <span class="status-badge" style="background:${statusBg(invoice.status)};color:${statusClr(invoice.status)}">
-          ${statusLabel(invoice.status)}
+        <span class="status-badge" style="background:${statusPrintBg(invoice.status)};color:${statusPrintFg(invoice.status)}">
+          ${statusLabel(invoice.status).toUpperCase()}
         </span>
       </div>
     </div>
@@ -180,6 +181,12 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
           </div>
         </div>
 
+        {/* Where this invoice sits in the review flow, and what can be done next */}
+        <div style={{ marginBottom: 16 }}>
+          <ApprovalBar collection={COLLECTIONS.SALES_INVOICES} moduleKey="sales"
+            invoice={invoice} onChanged={onChanged} />
+        </div>
+
         {/* Preview card */}
         <div id="invoice-print-area" style={{
           background: 'var(--bg2)',
@@ -196,7 +203,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Sales Invoice</div>
               <div style={{ fontFamily: 'var(--font-head)', fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em' }}>{invoice.invoiceNo}</div>
-              <Badge color={statusColor(invoice.status)} style={{ marginTop: 8 }}>{statusLabel(invoice.status)}</Badge>
+              <Badge color={statusColor(invoice.status)} style={{ marginTop: 8 }}>{statusLabel(invoice.status).toUpperCase()}</Badge>
             </div>
           </div>
 
@@ -300,9 +307,19 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
           </div>
         </div>
 
-        {/* Whatever document is attached to this invoice. */}
-        <div style={{ marginTop: 20 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+          {/* The single document attached from the list's quick view, or the
+              photo an OCR scan came from. */}
           <ScanAttachment {...(attachmentMeta(invoice) || {})} />
+          <RecordMeta record={invoice} />
+          <Attachments
+            collection={COLLECTIONS.SALES_INVOICES}
+            recordId={invoice.id}
+            attachments={invoice.attachments}
+            onChange={onChanged}
+            hint="Attach the signed delivery note, a payment slip or any correspondence about this invoice."
+          />
+          <ActivityFeed collection={COLLECTIONS.SALES_INVOICES} recordId={invoice.id} />
         </div>
       </div>
     </>

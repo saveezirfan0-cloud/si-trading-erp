@@ -3,7 +3,8 @@
 import {
   invoiceSource, importBook, balanceDue, daysOverdue, isDueSoon, yearsOf,
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
-  activeFilterCount, EMPTY_FILTERS,
+  activeFilterCount, hasAttachment, attachmentCount, EMPTY_FILTERS,
+  duplicateKey, findDuplicate, activeInvoices, duplicateInvoices,
 } from './invoices';
 
 const imported = {
@@ -103,4 +104,94 @@ test('export flattens line items away and adds derived columns', () => {
 test('the active-filter count ignores the search box', () => {
   expect(activeFilterCount(f({ search: 'x' }))).toBe(0);
   expect(activeFilterCount(f({ year: '2024', status: 'paid' }))).toBe(2);
+});
+
+// ── Approval flow ────────────────────────────────────────────────────────────
+//
+// Nothing is owed until an invoice has been signed off, so drafts and invoices
+// still in review stay out of the balances and the totals.
+
+const inReview = {
+  id: 'd', invoiceNo: 'SI-0009', date: '2024-01-01', dueDate: '2024-01-15',
+  status: 'pending_review', total: 400, paidAmount: 0, customerName: 'Bilal',
+  items: [{ itemName: 'Drill' }],
+};
+const approved = { ...inReview, id: 'e', invoiceNo: 'SI-0010', status: 'approved' };
+
+test('drafts and invoices in review owe nothing and cannot be late', () => {
+  expect(balanceDue(inReview)).toBe(0);
+  expect(balanceDue({ ...inReview, status: 'draft' })).toBe(0);
+  expect(daysOverdue(inReview, '2026-01-01')).toBe(0);
+  expect(isDueSoon(inReview, 7, '2024-01-10')).toBe(false);
+  // Once approved it is a real receivable again.
+  expect(balanceDue(approved)).toBe(400);
+  expect(daysOverdue(approved, '2024-01-20')).toBe(5);
+});
+
+test('the summary reports what is waiting for approval separately', () => {
+  const s = summarise([...rows, inReview, approved]);
+  // The two extra invoices do not change the money except for the approved one.
+  expect(s).toMatchObject({
+    count: 5, total: 2200, due: 1400,
+    provisionalCount: 1, awaitingCount: 1, awaitingAmount: 400,
+  });
+});
+
+test('paperwork counts the quick-view file and the invoice page attachments', () => {
+  expect(hasAttachment(imported)).toBe(false);
+  expect(attachmentCount(scanned)).toBe(1);
+  expect(attachmentCount({ ...imported, attachments: [{ path: 'a' }, { path: 'b' }] })).toBe(2);
+  expect(hasAttachment({ ...imported, attachments: [{ path: 'a' }] })).toBe(true);
+});
+
+// ── Duplicates ────────────────────────────────────────────────────────────────
+describe('duplicate detection', () => {
+  const original = {
+    id: 'd1', invoiceNo: 'PI-0001', date: '2026-08-18', supplierInvoiceNo: '588',
+    supplierId: 's1', supplierName: 'Nasir Brothers', status: 'unpaid',
+    total: 538340, paidAmount: 0, items: [{ itemName: 'Plier' }],
+  };
+  const repeat = { ...original, id: 'd2', invoiceNo: 'PI-0002', isDuplicate: true, duplicateOf: 'd1' };
+
+  test('keys on date, supplier and reference', () => {
+    expect(duplicateKey(original)).toBe('2026-08-18|s1|588');
+    // whitespace and case in the printed reference must not create a new key
+    expect(duplicateKey({ ...original, supplierInvoiceNo: ' 588 ' })).toBe(duplicateKey(original));
+  });
+
+  test('refuses to judge documents missing a date or reference', () => {
+    expect(duplicateKey({ ...original, date: '' })).toBeNull();
+    expect(duplicateKey({ ...original, supplierInvoiceNo: '' })).toBeNull();
+    expect(duplicateKey({ ...original, supplierId: '', supplierName: '' })).toBeNull();
+  });
+
+  test('a different date, supplier or reference is not a duplicate', () => {
+    expect(findDuplicate([original], { ...original, id: 'x', date: '2026-08-19' })).toBeNull();
+    expect(findDuplicate([original], { ...original, id: 'x', supplierId: 's2' })).toBeNull();
+    expect(findDuplicate([original], { ...original, id: 'x', supplierInvoiceNo: '589' })).toBeNull();
+  });
+
+  test('finds the original, and never matches a row against itself', () => {
+    expect(findDuplicate([original], { ...original, id: 'x' })?.id).toBe('d1');
+    expect(findDuplicate([original], original)).toBeNull();
+  });
+
+  test('a third copy points at the original, not the second copy', () => {
+    expect(findDuplicate([original, repeat], { ...original, id: 'x' })?.id).toBe('d1');
+  });
+
+  test('duplicates are excluded from totals and balances', () => {
+    const s = summarise([original, repeat]);
+    expect(s.count).toBe(1);
+    expect(s.total).toBe(538340);      // not doubled
+    expect(s.due).toBe(538340);        // the repeat adds nothing owed
+    expect(s.duplicates).toBe(1);
+  });
+
+  test('the duplicates flag isolates them for their own tab', () => {
+    const only = filterInvoices([original, repeat], { ...EMPTY_FILTERS, flag: 'duplicates' }, 'supplierName');
+    expect(only.map(r => r.id)).toEqual(['d2']);
+    expect(activeInvoices([original, repeat]).map(r => r.id)).toEqual(['d1']);
+    expect(duplicateInvoices([original, repeat]).map(r => r.id)).toEqual(['d2']);
+  });
 });

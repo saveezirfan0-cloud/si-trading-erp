@@ -70,7 +70,18 @@ Other rules:
 - Dates on these invoices are DD/MM/YYYY; convert to YYYY-MM-DD.
 - If a field is not present use "" for strings and 0 for numbers.
 - Copy item names exactly as printed, including size/spec text.
-- amount should be qty × rate as printed (use the printed total value column when available).`;
+- amount should be qty × rate as printed (use the printed total value column when available).
+
+CRITICAL — do not invent data. This feeds an accounting system: fabricated
+figures become real stock movements and real money owed to a supplier. If the
+image is blank, too blurry to read, not an invoice, or you cannot actually make
+out the line items, reply with ONLY this and nothing else:
+{"readable": false, "reason": "<short reason>"}
+Never guess a supplier name, a document number, an item or a price that you
+cannot actually see in the image. Returning "readable": false is always better
+than a plausible guess. Report only the line items you can genuinely read; if
+some rows are legible and others are not, include the legible ones and say so
+in "remarks".`;
 
 function keys(envName: string): string[] {
   return (Deno.env.get(envName) || "")
@@ -312,9 +323,35 @@ Deno.serve(async (req: Request) => {
     }), { status: 503, headers: CORS });
   }
 
+  // Raised when the model reports it cannot read the image, or returns nothing
+  // to read. Handled below the provider loop.
+  class Unreadable extends Error {
+    constructor(readonly detail: string) { super("unreadable"); }
+  }
+
   const read = (text: string) => {
     const data = parseModelJson(text) as Record<string, unknown>;
+
+    // Guard against invention. A blank or illegible photo must not become a
+    // confident set of line items: in an accounting system those turn into real
+    // stock movements and real money owed.
+    if (data && data.readable === false) {
+      throw new Unreadable(
+        typeof data.reason === "string" && data.reason
+          ? data.reason
+          : "The photo was not legible enough to extract invoice lines."
+      );
+    }
+
     const { items, duplicates } = flagDuplicates(normalizeItems(data.items));
+
+    if (items.length === 0) {
+      throw new Unreadable(
+        "Nothing readable was found on this image. Retake the photo with the whole "
+        + "invoice in frame and in focus."
+      );
+    }
+
     return { data, items, checks: check(data, items, duplicates) };
   };
 
@@ -324,6 +361,15 @@ Deno.serve(async (req: Request) => {
     try {
       first = read(await a.call());
     } catch (e) {
+      // An unreadable image is a fact about the photo, not a provider fault —
+      // retrying other keys would only produce another invented reading.
+      if (e instanceof Unreadable) {
+        return new Response(JSON.stringify({
+          error: "Could not read this image",
+          detail: e.detail,
+          unreadable: true,
+        }), { status: 422, headers: { ...CORS, "content-type": "application/json" } });
+      }
       const msg = e instanceof Error ? e.message : String(e);
       errors.push(`${a.provider}: ${msg.slice(0, 300)}`);
       continue; // keep trying remaining keys/providers on any failure

@@ -10,8 +10,11 @@ import { SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import {
   SOURCES, MONTHS, SORT_OPTIONS, EMPTY_FILTERS, activeFilterCount,
 } from '../../lib/invoices';
+import { INVOICE_STATUSES, statusLabel } from '../../lib/invoiceStatus';
 
-const STATUSES = ['paid', 'partial', 'unpaid', 'draft', 'cancelled'];
+// In workflow order — draft, review, approved, then the payment states — so the
+// chips read as the path an invoice takes.
+const STATUSES = INVOICE_STATUSES.map(s => s.value);
 
 const FLAGS = [
   { value: 'outstanding', label: 'Outstanding' },
@@ -23,7 +26,7 @@ const FLAGS = [
 // Human-readable summary of one active filter, for the removable chips.
 const describe = (key, value, partyLabel) => {
   switch (key) {
-    case 'status': return `Status: ${value}`;
+    case 'status': return `Status: ${statusLabel(value)}`;
     case 'source': return `Source: ${SOURCES[value]?.short || value}`;
     case 'year': return value === 'none' ? 'No date' : `Year: ${value}`;
     case 'month': return `Month: ${MONTHS.find(m => m.value === value)?.label || value}`;
@@ -86,7 +89,7 @@ export default function InvoiceFilters({
               count={statusCounts[s] || 0}
               onClick={() => set({ status: filters.status === s ? 'all' : s })}
             >
-              {s[0].toUpperCase() + s.slice(1)}
+              {statusLabel(s)}
             </Chip>
           ))}
         </div>

@@ -8,7 +8,7 @@ import { useApp } from '../../contexts/AppContext';
 import { Modal, Btn, Badge, Loader } from '../ui';
 import {
   Paperclip, ExternalLink, Upload, Trash2, FileText, Edit2, Eye,
-  AlertTriangle, CheckCircle2, Download,
+  AlertTriangle, CheckCircle2, Download, ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { update } from '../../lib/db';
@@ -19,9 +19,9 @@ import {
 import {
   signedUrl, uploadAttachment, removeAttachment, isPdf, ACCEPTED_ATTACHMENTS,
 } from '../../lib/attachments';
+import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
+import { getCurrentActor } from '../../lib/audit';
 
-const statusColor = (s) =>
-  ({ paid: 'green', unpaid: 'red', partial: 'yellow', draft: 'default', cancelled: 'red' }[s] || 'default');
 
 function Row({ label, value, color }) {
   return (
@@ -39,6 +39,7 @@ export default function InvoiceQuickView({
   partyLabel = 'Customer',
   accent = 'var(--accent)',
   canEdit = false,
+  canApprove = false,
   onClose,
   onOpenFull,
   onEdit,
@@ -100,6 +101,23 @@ export default function InvoiceQuickView({
     setBusy(false);
   };
 
+  // Sign-off, with the approval stamped onto the invoice and into its history.
+  const approve = async () => {
+    setBusy(true);
+    try {
+      await update(
+        collection, invoice.id,
+        { status: 'approved', ...approvalPatch('approved', getCurrentActor()) },
+        { action: 'status', note: 'Approved from the invoice quick view' },
+      );
+      toast.success('Approved');
+      onClose();
+    } catch (e) {
+      toast.error(e.message || 'Update failed');
+    }
+    setBusy(false);
+  };
+
   const setStatus = async (status) => {
     setBusy(true);
     try {
@@ -120,7 +138,7 @@ export default function InvoiceQuickView({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Labels */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Badge color={statusColor(invoice.status)}>{invoice.status || 'unknown'}</Badge>
+          <Badge color={statusColor(invoice.status)}>{statusLabel(invoice.status)}</Badge>
           <Badge color={SOURCES[source].color}>{SOURCES[source].label}</Badge>
           {book && <Badge>{book}</Badge>}
           {invoice.date && <Badge color="blue">{String(invoice.date).slice(0, 4)}</Badge>}
@@ -268,6 +286,9 @@ export default function InvoiceQuickView({
           <Btn variant="secondary" icon={Eye} onClick={onOpenFull}>Open full invoice</Btn>
           {canEdit && <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>}
           <div style={{ flex: 1 }} />
+          {canApprove && needsApproval(invoice.status) && (
+            <Btn variant="success" icon={ShieldCheck} disabled={busy} onClick={approve}>Approve</Btn>
+          )}
           {canEdit && invoice.status !== 'paid' && (
             <Btn variant="success" icon={CheckCircle2} disabled={busy} onClick={() => setStatus('paid')}>Mark paid</Btn>
           )}

@@ -74,7 +74,8 @@ test('the filter bar lists the filters that are active', () => {
     />
   );
   expect(html).toContain('Year: 2025');
-  expect(html).toContain('Status: paid');
+  // The chip reads the status's display label, not the stored value.
+  expect(html).toContain('Status: Paid');
   expect(html).toContain('Supplier');
 });
 
