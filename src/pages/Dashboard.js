@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribe, COLLECTIONS } from '../lib/db';
+import { activeInvoices } from '../lib/invoices';
 import { Card, Loader } from '../components/ui';
 import Header from '../components/layout/Header';
 import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
@@ -79,7 +80,7 @@ export default function Dashboard() {
     track(COLLECTIONS.EXPENSES, rows => { const r = filterByFiscalYear(rows); d = { ...d, totalExpenses: r.reduce((s, e) => s + (Number(e.amount) || 0), 0) }; setStats({ ...d }); done(); });
 
     track(COLLECTIONS.SALES_INVOICES, rows => {
-      const r = filterByFiscalYear(rows);
+      const r = activeInvoices(filterByFiscalYear(rows));
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
       setStats({ ...d });
 
@@ -106,7 +107,7 @@ export default function Dashboard() {
     });
 
     track(COLLECTIONS.PURCHASE_INVOICES, rows => {
-      const r = filterByFiscalYear(rows);
+      const r = activeInvoices(filterByFiscalYear(rows));
       d = { ...d, purchasesTotal: r.reduce((s, i) => s + (i.total || 0), 0), purchasesCount: r.length };
       setStats({ ...d });
       const monthMap = {};

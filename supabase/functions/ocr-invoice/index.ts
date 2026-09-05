@@ -44,7 +44,18 @@ Rules:
 - Dates on these invoices are DD/MM/YYYY; convert to YYYY-MM-DD.
 - If a field is not present use "" for strings and 0 for numbers.
 - Copy item names exactly as printed, including size/spec text.
-- amount should be qty × rate as printed (use the printed total value column when available).`;
+- amount should be qty × rate as printed (use the printed total value column when available).
+
+CRITICAL — do not invent data. This feeds an accounting system: fabricated
+figures become real stock movements and real money owed to a supplier. If the
+image is blank, too blurry to read, not an invoice, or you cannot actually make
+out the line items, reply with ONLY this and nothing else:
+{"readable": false, "reason": "<short reason>"}
+Never guess a supplier name, a document number, an item or a price that you
+cannot actually see in the image. Returning "readable": false is always better
+than a plausible guess. Report only the line items you can genuinely read; if
+some rows are legible and others are not, include the legible ones and say so
+in "remarks".`;
 
 function keys(envName: string): string[] {
   return (Deno.env.get(envName) || "")
@@ -153,6 +164,29 @@ Deno.serve(async (req: Request) => {
     try {
       const text = await a.call();
       const data = parseModelJson(text);
+
+      // The model tells us when it cannot actually read the document. Surface
+      // that as a failure rather than handing the user invented line items.
+      if (data && data.readable === false) {
+        return new Response(JSON.stringify({
+          error: "Could not read this image",
+          detail: typeof data.reason === "string" && data.reason
+            ? data.reason
+            : "The photo was not legible enough to extract invoice lines.",
+          unreadable: true,
+        }), { status: 422, headers: { ...CORS, "content-type": "application/json" } });
+      }
+
+      // A reply with no line items is not a usable invoice either.
+      if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+        return new Response(JSON.stringify({
+          error: "No line items found",
+          detail: "Nothing readable was found on this image. Retake the photo with the "
+            + "whole invoice in frame and in focus.",
+          unreadable: true,
+        }), { status: 422, headers: { ...CORS, "content-type": "application/json" } });
+      }
+
       return new Response(JSON.stringify({ ok: true, provider: a.provider, data }), {
         headers: { ...CORS, "content-type": "application/json" },
       });

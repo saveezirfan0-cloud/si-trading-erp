@@ -11,7 +11,7 @@ import { Table, Btn, Badge, PageHeader, Card, Loader, StatCard } from '../ui';
 import toast from 'react-hot-toast';
 import {
   Plus, Edit2, Trash2, Download, Eye, FileText, Paperclip, AlertTriangle,
-  CheckCircle2, XCircle, FileDown, Wallet, Clock,
+  CheckCircle2, XCircle, FileDown, Wallet, Clock, Copy,
 } from 'lucide-react';
 import { exportCSV, exportTablePDF } from '../../lib/export';
 import InvoiceFilters from './InvoiceFilters';
@@ -19,6 +19,7 @@ import InvoiceQuickView from './InvoiceQuickView';
 import {
   EMPTY_FILTERS, SOURCES, invoiceSource, filterInvoices, sortInvoices,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
+  isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount,
 } from '../../lib/invoices';
 
@@ -74,6 +75,7 @@ export default function InvoiceListView({
   const [filters, setFilters] = useState(initial.filters);
   const [sort, setSort] = useState(initial.sort);
   const [panelOpen, setPanelOpen] = useState(initial.panelOpen);
+  const [bucket, setBucket] = useState('active'); // active | duplicates | all
   const [selectedIds, setSelectedIds] = useState([]);
   const [quickView, setQuickView] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -105,7 +107,17 @@ export default function InvoiceListView({
   }, []);
 
   // The fiscal-year picker in the header scopes everything below it.
-  const scoped = useMemo(() => filterByFiscalYear(allInvoices), [allInvoices, filterByFiscalYear]);
+  const inYear = useMemo(() => filterByFiscalYear(allInvoices), [allInvoices, filterByFiscalYear]);
+
+  // Duplicates are kept out of the working list by default. They are real rows
+  // — the scan is evidence — but they carry no money and no stock, so mixing
+  // them into the normal view would misrepresent every figure on the page.
+  const dupes = useMemo(() => duplicateInvoices(inYear), [inYear]);
+  const scoped = useMemo(() => {
+    if (bucket === 'duplicates') return dupes;
+    if (bucket === 'all') return inYear;
+    return activeInvoices(inYear);
+  }, [bucket, inYear, dupes]);
 
   const visible = useMemo(
     () => sortInvoices(filterInvoices(scoped, filters, partyField), sort, partyField),
@@ -241,6 +253,11 @@ export default function InvoiceListView({
             {issues.length > 0 && (
               <AlertTriangle size={12} color="var(--accent)" title={`Needs attention: ${issues.join(', ')}`} />
             )}
+            {isDuplicate(row) && (
+              <span title={row.duplicateOfNo ? `Duplicate of ${row.duplicateOfNo}` : 'Duplicate — excluded from totals'}>
+                <Badge color="warn">dup</Badge>
+              </span>
+            )}
           </span>
         );
       },
@@ -323,16 +340,57 @@ export default function InvoiceListView({
         ]}
       />
 
-      <div className="g-stats">
-        <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
-          sub={`${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
-        <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
-        <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
-        <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
-          sub={`${stats.overdueCount} past due date`} />
-        <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
-          sub={`${stats.count - stats.withAttachment} without`} />
-      </div>
+      {/* Duplicates get their own view rather than polluting the working list. */}
+      {dupes.length > 0 && (
+        <div className="bucket-tabs" role="tablist" aria-label="Invoice set">
+          {[
+            { key: 'active', label: 'Active', count: inYear.length - dupes.length },
+            { key: 'duplicates', label: 'Duplicates', count: dupes.length },
+            { key: 'all', label: 'All', count: inYear.length },
+          ].map((t) => (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={bucket === t.key}
+              onClick={() => setBucket(t.key)}
+              className={`bucket-tab${bucket === t.key ? ' is-active' : ''}`}
+            >
+              {t.label}
+              <span className="bucket-tab-count">{t.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {bucket === 'duplicates' ? (
+        <div style={{
+          display: 'flex', gap: 10, alignItems: 'flex-start',
+          background: 'var(--bg2)', border: '1px solid var(--border)',
+          borderLeft: '4px solid var(--yellow)',
+          borderRadius: 'var(--radius)', padding: '13px 15px',
+          fontSize: '0.86rem', lineHeight: 1.55,
+        }}>
+          <Copy size={17} style={{ color: 'var(--yellow)', flexShrink: 0, marginTop: 1 }} />
+          <div>
+            <strong>{dupes.length} duplicate {dupes.length === 1 ? 'invoice' : 'invoices'}</strong>
+            {' '}worth {formatCurrency(dupes.reduce((sum, d) => sum + invoiceTotal(d), 0))} are kept
+            here for reference. They are excluded from every total, balance and stock movement in
+            the app. If one of these is genuinely a separate document, open it and clear its
+            duplicate flag by editing the date or supplier reference.
+          </div>
+        </div>
+      ) : (
+        <div className="g-stats">
+          <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
+            sub={`${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
+          <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
+          <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
+          <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
+            sub={`${stats.overdueCount} past due date`} />
+          <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
+            sub={`${stats.count - stats.withAttachment} without`} />
+        </div>
+      )}
 
       <Card style={{ padding: 0, overflow: 'hidden' }}>
         <InvoiceFilters
