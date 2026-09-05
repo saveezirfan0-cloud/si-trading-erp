@@ -13,7 +13,7 @@
 // POST { image: <base64 without data: prefix>, mimeType: "image/jpeg" }
 // →    { ok: true, provider, data: { supplierName, documentNo, date, items:[
 //        { name, unit, qty, rate, amount } ], subtotal, discount, netTotal,
-//        previousBalance, totalDue, remarks } }
+//        totalQty, previousBalance, totalDue, remarks } }
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -22,6 +22,14 @@ const CORS = {
 };
 
 const PROMPT = `You are reading a photo of a supplier's sales invoice / delivery challan from a hardware-tools wholesale business in Pakistan (amounts in PKR).
+
+The photo is often taken at an angle, upside down or rotated 90°, and the paper may be creased. Work out the orientation first and read the table in its own reading direction.
+
+Read ONLY the machine-printed values. These invoices are usually marked up by hand afterwards — ticks, circles, strokes and small numbers written in pen (often red or blue) over the quantity, rate or total columns, and notes in the margin. Those are the warehouse's own carton counts and checkmarks, NOT invoice data. Never let a handwritten number replace a printed one; if handwriting covers a printed figure, read the printed figure underneath it.
+
+The line-item table has these columns, in this order:
+  Serial | Particulars | UOM | Quantity | Rate | Total Value
+Quantity is the printed number in the Quantity column (typically printed as "240.00" — that means 240). It is NOT the carton count, and NOT a number taken from the item description such as "( 36PCS/CTN )" or from the Remarks line such as "( 24 CTN )".
 
 Extract the data and reply with ONLY a JSON object (no markdown, no commentary) in exactly this shape:
 {
@@ -34,6 +42,7 @@ Extract the data and reply with ONLY a JSON object (no markdown, no commentary) 
   "subtotal": 0,
   "discount": 0,
   "netTotal": 0,
+  "totalQty": 0,
   "previousBalance": 0,
   "totalDue": 0,
   "remarks": "any remarks/transporter/bilty text"
@@ -41,10 +50,13 @@ Extract the data and reply with ONLY a JSON object (no markdown, no commentary) 
 
 Rules:
 - Numbers must be plain numbers without thousands separators.
-- Dates on these invoices are DD/MM/YYYY; convert to YYYY-MM-DD.
+- Dates on these invoices are DD/MM/YYYY; convert to YYYY-MM-DD. If two dates are printed (document date and delivery date), use the document date.
 - If a field is not present use "" for strings and 0 for numbers.
 - Copy item names exactly as printed, including size/spec text.
-- amount should be qty × rate as printed (use the printed total value column when available).`;
+- "amount" is the printed Total Value for that row.
+- Check your arithmetic before answering: for every row qty × rate must equal that row's printed Total Value. If it does not, you have misread a digit — re-read the row's Quantity and Rate against the printed Total Value and correct them. A row where qty × rate is thousands off from the printed total is always a misread.
+- The row totals must add up to the printed Net Total, and the quantities to the printed Total quantity ("totalQty"). Use those printed totals to check your work.
+- Output one entry per printed line item, in order. Never invent, pad or repeat rows: if the table has 7 lines, return exactly 7.`;
 
 function keys(envName: string): string[] {
   return (Deno.env.get(envName) || "")
@@ -60,7 +72,10 @@ function rotated<T>(arr: T[]): T[] {
 }
 
 async function callAnthropic(key: string, image: string, mimeType: string) {
-  const model = Deno.env.get("ANTHROPIC_MODEL") || "claude-haiku-4-5";
+  // Dense, hand-annotated tables photographed at an angle need a strong vision
+  // model — a cheaper one misreads the quantity column. Override with the
+  // ANTHROPIC_MODEL secret if a different cost/latency trade-off is wanted.
+  const model = Deno.env.get("ANTHROPIC_MODEL") || "claude-opus-5";
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -70,7 +85,8 @@ async function callAnthropic(key: string, image: string, mimeType: string) {
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4000,
+      // Thinking is on by default on this model family and shares the budget.
+      max_tokens: 8000,
       messages: [{
         role: "user",
         content: [
@@ -82,7 +98,12 @@ async function callAnthropic(key: string, image: string, mimeType: string) {
   });
   if (!res.ok) throw Object.assign(new Error(`anthropic ${res.status}: ${await res.text()}`), { status: res.status });
   const json = await res.json();
-  return json.content?.[0]?.text ?? "";
+  // With thinking on, the JSON answer is not necessarily the first block.
+  const text = (json.content || [])
+    .filter((b: { type?: string }) => b?.type === "text")
+    .map((b: { text?: string }) => b.text || "")
+    .join("");
+  return text;
 }
 
 async function callOpenAI(key: string, image: string, mimeType: string) {

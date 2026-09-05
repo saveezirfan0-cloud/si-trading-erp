@@ -158,6 +158,12 @@ input:focus, select:focus, textarea:focus {
 
 input::placeholder { color: var(--text3); }
 
+/* `appearance: none` above hides the native number field, but Chrome still
+   lays out the spin buttons, which clips values in narrow numeric cells. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
 select {
   cursor: pointer;
   /* Keep arrow on select */
