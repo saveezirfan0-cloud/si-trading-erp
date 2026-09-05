@@ -108,7 +108,7 @@ export default function ChartOfAccounts() {
               <Badge color={g.color}>{g.label}</Badge>
               <span style={{ fontSize: '0.78rem', color: 'var(--text3)' }}>{g.accounts.length} accounts</span>
             </div>
-            <Table columns={columns} data={g.accounts} />
+            <Table columns={columns} data={g.accounts} paginate={false} />
           </Card>
         ))}
       </div>

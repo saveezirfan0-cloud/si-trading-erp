@@ -220,7 +220,7 @@ export default function Import() {
                   </Btn>
                 </div>
                 <div style={{ maxHeight: 400, overflow: 'auto' }}>
-                  <Table columns={previewColumns.slice(0, 6)} data={preview.slice(0, 20)} />
+                  <Table columns={previewColumns.slice(0, 6)} data={preview.slice(0, 20)} paginate={false} />
                   {preview.length > 20 && (
                     <div style={{ padding: '10px 16px', color: 'var(--text3)', fontSize: '0.8rem', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
                       Showing first 20 of {preview.length} rows
