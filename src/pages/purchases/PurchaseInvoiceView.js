@@ -2,15 +2,16 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, Card, ScanAttachment, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
+import { Btn, Badge, Card, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
 import ApprovalBar from '../../components/invoices/ApprovalBar';
+import { useAuth } from '../../contexts/AuthContext';
 import { COLLECTIONS } from '../../lib/db';
 import { statusLabel, statusColor } from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
-import { attachmentMeta } from '../../lib/invoices';
 
 export default function PurchaseInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
+  const { can } = useAuth();
   if (!invoice) return null;
 
   const handlePrint = () => {
@@ -150,14 +151,12 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit, onChanged
         </Card>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
-          {/* The photo this invoice was scanned from, or the file attached to it. */}
-          <ScanAttachment {...(attachmentMeta(invoice) || {})} />
           <RecordMeta record={invoice} />
           <Attachments
             collection={COLLECTIONS.PURCHASE_INVOICES}
-            recordId={invoice.id}
-            attachments={invoice.attachments}
-            onChange={onChanged}
+            invoice={invoice}
+            canEdit={can('purchases', 'edit')}
+            onChanged={onChanged}
             hint="Attach the supplier’s own invoice, the goods-received note or a payment proof."
           />
           <ActivityFeed collection={COLLECTIONS.PURCHASE_INVOICES} recordId={invoice.id} />
