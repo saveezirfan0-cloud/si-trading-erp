@@ -18,6 +18,7 @@
   --red: #ef4444;
   --blue: #3b82f6;
   --purple: #8b5cf6;
+  --yellow: #eab308;
   --shadow: 0 4px 24px rgba(0,0,0,0.4);
   --input-bg: #1a1e27;
 }
@@ -39,6 +40,7 @@
   --red: #dc2626;
   --blue: #2563eb;
   --purple: #6d5bd0;
+  --yellow: #b45309;
   --shadow: 0 2px 12px rgba(28,37,48,0.08);
   --input-bg: #ffffff;
 }
@@ -378,3 +380,114 @@ button {
   .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
   .form-grid { gap: 12px; }
 }
+
+/* ── BUCKET TABS ─────────────────────────────────────────────────────────────
+   Splits a list into Active / Duplicates / All above the filter bar. */
+.bucket-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.bucket-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  min-height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--bg2);
+  color: var(--text2);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.bucket-tab:hover { border-color: var(--border2); color: var(--text); }
+.bucket-tab.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.bucket-tab-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: var(--bg3);
+  color: var(--text3);
+}
+.bucket-tab.is-active .bucket-tab-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--on-accent);
+}
+
+/* ── ROW CARDS (mobile tables) ───────────────────────────────────────────────
+   A wide table becomes a stack of cards on a phone, so a row can be read
+   without scrolling sideways. */
+.row-cards { display: flex; flex-direction: column; }
+
+.row-card {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  -webkit-tap-highlight-color: transparent;
+}
+.row-card:last-child { border-bottom: none; }
+.row-card:active { background: var(--bg3); }
+
+.row-card-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.row-card-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.row-card-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 0;
+}
+.row-card-pair { min-width: 0; }
+.row-card-pair dt {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text3);
+  font-family: var(--font-head);
+  margin-bottom: 1px;
+}
+.row-card-pair dd {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.row-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 3px;
+}
+.row-card-actions > * { flex: 1; }
+.row-card-actions button { justify-content: center; }

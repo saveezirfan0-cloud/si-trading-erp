@@ -7,6 +7,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { getAll, getOne, create, update, COLLECTIONS } from '../../lib/db';
+import { findDuplicate } from '../../lib/invoices';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Card, Input, Select, Loader, Badge, ItemPicker } from '../../components/ui';
@@ -101,6 +102,7 @@ export default function ScanInvoice() {
 
   const [suppliers, setSuppliers] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [existingInvoices, setExistingInvoices] = useState([]);
 
   // review state
   const [meta, setMeta] = useState({ supplierId: '', supplierName: '', newSupplier: false,
@@ -117,18 +119,24 @@ export default function ScanInvoice() {
     try {
       const compressed = await compressImage(file);
       setImg(compressed);
-      const [supps, items] = await Promise.all([
+      const [supps, items, purchases] = await Promise.all([
         getAll(COLLECTIONS.SUPPLIERS), getAll(COLLECTIONS.INVENTORY),
+        getAll(COLLECTIONS.PURCHASE_INVOICES),
       ]);
-      setSuppliers(supps); setInventory(items);
+      setSuppliers(supps); setInventory(items); setExistingInvoices(purchases);
 
       const { data: res, error: fnError } = await supabase.functions.invoke('ocr-invoice', {
         body: { image: compressed.base64, mimeType: compressed.mimeType },
       });
       if (fnError) {
-        // supabase-js wraps non-2xx into FunctionsHttpError; surface the body
+        // supabase-js wraps non-2xx into FunctionsHttpError; surface the body.
         let detail = fnError.message;
-        try { detail = (await fnError.context.json()).error || detail; } catch {}
+        try {
+          const body = await fnError.context.json();
+          detail = body.unreadable && body.detail
+            ? `${body.error}. ${body.detail}`
+            : (body.error || detail);
+        } catch {}
         throw new Error(detail);
       }
       if (!res?.ok) throw new Error(res?.error || 'OCR failed');
@@ -175,6 +183,17 @@ export default function ScanInvoice() {
 
   const setLine = (idx, changes) =>
     setLines(ls => ls.map((l, i) => i === idx ? { ...l, ...changes } : l));
+
+  // Recomputed as the reviewer corrects the date, supplier or reference, so the
+  // warning tracks what would actually be saved.
+  const duplicateOf = useMemo(() => findDuplicate(existingInvoices, {
+    date: meta.date,
+    supplierInvoiceNo: meta.documentNo,
+    supplierId: meta.supplierId,
+    supplierName: meta.supplierId
+      ? (suppliers.find(s => s.id === meta.supplierId)?.name || '')
+      : meta.supplierName,
+  }), [existingInvoices, meta.date, meta.documentNo, meta.supplierId, meta.supplierName, suppliers]);
 
   const activeLines = useMemo(() => lines.filter(l => l.action !== 'skip'), [lines]);
   const total = useMemo(() =>
@@ -231,8 +250,20 @@ export default function ScanInvoice() {
         resolvedLines.push({ ...l, itemId, itemDoc });
       }
 
-      // 3. purchase invoice
-      const { no } = await nextInvoiceNo();
+      // 3. purchase invoice.
+      //
+      // Before writing it, check whether this exact document (same date, same
+      // supplier, same printed reference) is already recorded. A repeat is
+      // still saved — the photo is evidence and quietly discarding someone's
+      // capture is worse — but it is marked, and steps 5 and 6 below are
+      // skipped so it moves no stock and owes no money.
+      const { no, existing } = await nextInvoiceNo();
+      const candidate = {
+        date: meta.date,
+        supplierInvoiceNo: meta.documentNo,
+        supplierId, supplierName,
+      };
+      const duplicateOf = findDuplicate(existing, candidate);
       const qtyOf = (l) => Number(l.qty) || 0;
       const rateOf = (l) => Number(l.rate) || 0;
       const items = resolvedLines.map(l => ({
@@ -256,6 +287,12 @@ export default function ScanInvoice() {
         total, paidAmount: paid ? total : 0, currency: 'PKR',
         source: 'ocr',
         supplierStatement: { previousBalance: meta.previousBalance, totalDue: meta.totalDue },
+        ...(duplicateOf ? {
+          isDuplicate: true,
+          duplicateOf: duplicateOf.id,
+          duplicateOfNo: duplicateOf.invoiceNo || '',
+          duplicateDetectedAt: new Date().toISOString(),
+        } : {}),
       });
 
       // 4. attach the scanned photo to the invoice it produced. The invoice is
@@ -277,8 +314,9 @@ export default function ScanInvoice() {
                     { duration: 7000 });
       }
 
-      // 5. inventory quantities + cost prices
-      for (const l of resolvedLines) {
+      // 5. inventory quantities + cost prices — never for a duplicate, or the
+      // same delivery would be counted into stock twice.
+      for (const l of (duplicateOf ? [] : resolvedLines)) {
         const current = await getOne(COLLECTIONS.INVENTORY, l.itemId);
         if (!current) continue;
         await update(COLLECTIONS.INVENTORY, l.itemId, {
@@ -288,14 +326,22 @@ export default function ScanInvoice() {
       }
 
       // 6. supplier balance (unpaid amount owed to supplier)
-      if (!paid) {
+      if (!paid && !duplicateOf) {
         const supp = await getOne(COLLECTIONS.SUPPLIERS, supplierId);
         await update(COLLECTIONS.SUPPLIERS, supplierId, {
           balance: (Number(supp?.balance) || 0) + total,
         });
       }
 
-      toast.success(`Purchase invoice ${no} created — stock & supplier balance updated`);
+      if (duplicateOf) {
+        toast(
+          `Saved as a duplicate of ${duplicateOf.invoiceNo || 'an existing invoice'} — ` +
+          'stock and supplier balance were left unchanged.',
+          { icon: '⚠️', duration: 8000 }
+        );
+      } else {
+        toast.success(`Purchase invoice ${no} created — stock & supplier balance updated`);
+      }
       navigate('/purchases');
     } catch (e) {
       console.error(e);
@@ -357,6 +403,28 @@ export default function ScanInvoice() {
               {step === 'processing' ? 'Reading invoice with AI…' : 'Saving invoice, updating stock & supplier balance…'}
             </div>
           </Card>
+        )}
+
+        {step === 'review' && duplicateOf && (
+          <div style={{
+            display: 'flex', gap: 10, alignItems: 'flex-start',
+            background: 'rgba(234,179,8,0.10)', border: '1px solid var(--yellow)',
+            borderLeft: '4px solid var(--yellow)',
+            borderRadius: 'var(--radius)', padding: '12px 14px', fontSize: '0.86rem',
+            lineHeight: 1.55,
+          }}>
+            <AlertTriangle size={17} style={{ color: 'var(--yellow)', flexShrink: 0, marginTop: 1 }} />
+            <div>
+              <strong>This looks like a duplicate.</strong>{' '}
+              {duplicateOf.invoiceNo || 'An existing invoice'} already records reference{' '}
+              <strong>{meta.documentNo}</strong> from{' '}
+              <strong>{duplicateOf.supplierName || 'this supplier'}</strong> dated{' '}
+              <strong>{meta.date}</strong>. You can still save it — the scan will be kept and
+              flagged as a duplicate, and it will not affect stock, totals or the supplier
+              balance. Correct the date or reference above if this is in fact a different
+              document.
+            </div>
+          </div>
         )}
 
         {step === 'review' && (
@@ -467,7 +535,7 @@ export default function ScanInvoice() {
                                   style={{ fontSize: '12.5px' }}
                                 />
                                 {l.action === 'match' && l.matchScore > 0 && (
-                                  <span style={{ fontSize: '10px', color: l.matchScore > 0.7 ? 'var(--green)' : 'var(--yellow, #eab308)' }}>
+                                  <span style={{ fontSize: '10px', color: l.matchScore > 0.7 ? 'var(--green)' : 'var(--yellow)' }}>
                                     {Math.round(l.matchScore * 100)}% match
                                   </span>
                                 )}
@@ -528,12 +596,15 @@ export default function ScanInvoice() {
                   )}
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <Btn icon={Check} onClick={handleConfirm} style={{ justifyContent: 'center' }}>
-                    Confirm & Create Invoice
+                  <Btn icon={Check} onClick={handleConfirm}
+                    variant={duplicateOf ? 'secondary' : 'primary'}
+                    style={{ justifyContent: 'center' }}>
+                    {duplicateOf ? 'Save as duplicate' : 'Confirm & Create Invoice'}
                   </Btn>
                   <div style={{ fontSize: '11px', color: 'var(--text3)', textAlign: 'center' }}>
-                    Creates the purchase invoice, adds quantities to stock, updates item cost
-                    prices{meta.status === 'unpaid' ? ' and adds the total to the supplier balance' : ''}.
+                    {duplicateOf
+                      ? 'Records the invoice and its scan for reference only — stock, totals and the supplier balance are left untouched.'
+                      : `Creates the purchase invoice, adds quantities to stock, updates item cost prices${meta.status === 'unpaid' ? ' and adds the total to the supplier balance' : ''}.`}
                   </div>
                 </div>
               </Card>

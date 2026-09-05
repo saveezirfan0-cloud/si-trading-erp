@@ -89,7 +89,25 @@ export const AuthProvider = ({ children }) => {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, [refreshRoles]);
 
-  const login = async (email, password) => {
+  // Staff sign in with whatever they remember: their email, their phone number,
+  // or a username. Supabase Auth keys on email, so an identifier that is not an
+  // address is resolved to the account's (possibly synthetic) email first.
+  const login = async (identifier, password) => {
+    const typed = (identifier || '').trim();
+    let email = typed;
+
+    if (!typed.includes('@')) {
+      const { data: resolved, error: rpcError } = await supabase
+        .rpc('erp_login_email', { p_identifier: typed });
+      if (rpcError) throw rpcError;
+      if (!resolved) {
+        const err = new Error('No account found with that phone number or username.');
+        err.code = 'identifier_not_found';
+        throw err;
+      }
+      email = resolved;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;

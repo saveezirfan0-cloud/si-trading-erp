@@ -20,7 +20,7 @@ import { Plus, Edit2, Shield, Key, RefreshCw, UserCheck, UserX, Trash2, Lock } f
 const BADGE_COLORS = ['default', 'green', 'red', 'blue', 'yellow', 'purple'];
 
 export default function Users() {
-  const { register, user: currentUser, isAdmin, refreshRoles, refreshProfile } = useAuth();
+  const { user: currentUser, isAdmin, refreshRoles, refreshProfile } = useAuth();
 
   const [tab, setTab] = useState('users');
   const [users, setUsers] = useState([]);
@@ -38,7 +38,9 @@ export default function Users() {
   const [editingRole, setEditingRole] = useState(null);
 
   // Forms
-  const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', role: 'staff' });
+  const [createForm, setCreateForm] = useState({
+    name: '', email: '', phone: '', username: '', password: '', role: 'staff',
+  });
   const [pwForm, setPwForm] = useState({ newPassword: '', confirmPassword: '' });
 
   const roles = useMemo(() => mergeRoles(roleRows), [roleRows]);
@@ -73,21 +75,41 @@ export default function Users() {
 
   // ── Users ─────────────────────────────────────────────────────────────────
 
+  // Users are created through the admin-users edge function, not signUp():
+  // signing up from the browser would replace the administrator's own session
+  // with the new user's.
   const handleCreate = async () => {
-    if (!createForm.name || !createForm.email || !createForm.password) return toast.error('All fields required');
-    if (createForm.password.length < 6) return toast.error('Password must be at least 6 characters');
+    const f = createForm;
+    if (!f.name.trim()) return toast.error('Name is required');
+    if (!f.email.trim() && !f.phone.trim() && !f.username.trim()) {
+      return toast.error('Give an email, phone number or username to sign in with');
+    }
+    if (f.password.length < 8) return toast.error('Password must be at least 8 characters');
     setSaving(true);
     try {
-      await register(createForm.email.trim(), createForm.password, createForm.name.trim(), createForm.role);
-      toast.success(`User "${createForm.name}" created`);
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: {
+          action: 'create',
+          name: f.name.trim(),
+          email: f.email.trim(),
+          phone: f.phone.trim(),
+          username: f.username.trim(),
+          password: f.password,
+          role: f.role,
+        },
+      });
+      if (error) {
+        let detail = error.message;
+        try { detail = (await error.context.json()).error || detail; } catch {}
+        throw new Error(detail);
+      }
+      if (!data?.ok) throw new Error(data?.error || 'Could not create the user');
+      toast.success(`User "${f.name.trim()}" created — they sign in with ${data.signInWith}`);
       setCreateModal(false);
-      setCreateForm({ name: '', email: '', password: '', role: 'staff' });
+      setCreateForm({ name: '', email: '', phone: '', username: '', password: '', role: 'staff' });
       load();
     } catch (e) {
-      const msg = e.message || '';
-      if (/already registered|already been registered/i.test(msg)) toast.error('This email is already registered');
-      else if (/invalid email/i.test(msg)) toast.error('Invalid email address');
-      else toast.error(msg || 'Failed to create user');
+      toast.error(e.message || 'Failed to create user');
     }
     setSaving(false);
   };
@@ -130,22 +152,57 @@ export default function Users() {
     setSaving(false);
   };
 
-  const handlePasswordReset = async () => {
-    if (!editing?.email) return;
+  // Accounts created against a phone number or username have a synthetic email
+  // that reaches no mailbox, so a reset link would go nowhere. Offer the link
+  // only where there is a real address to send it to.
+  const canEmailReset = (u) => Boolean(u?.contactEmail || (u?.email && !u?.synthetic));
+
+  // An admin setting another user's password outright — the only route that
+  // works for staff who sign in by phone or username.
+  const handleAdminSetPassword = async () => {
+    if (!editing?.id) return;
+    if (!pwForm.newPassword || pwForm.newPassword.length < 8) {
+      return toast.error('Password must be at least 8 characters');
+    }
+    if (pwForm.newPassword !== pwForm.confirmPassword) return toast.error('Passwords do not match');
     setSaving(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(editing.email, {
+      const { data, error } = await supabase.functions.invoke('admin-users', {
+        body: { action: 'set_password', id: editing.id, password: pwForm.newPassword },
+      });
+      if (error) {
+        let detail = error.message;
+        try { detail = (await error.context.json()).error || detail; } catch {}
+        throw new Error(detail);
+      }
+      if (!data?.ok) throw new Error(data?.error || 'Could not set the password');
+      toast.success(`New password set for ${editing.name || 'this user'}`);
+      setPwModal(false);
+      setPwForm({ newPassword: '', confirmPassword: '' });
+    } catch (e) { toast.error(e.message || 'Failed to set password'); }
+    setSaving(false);
+  };
+
+  const handlePasswordReset = async () => {
+    const target = editing?.contactEmail || editing?.email;
+    if (!target) return;
+    if (!canEmailReset(editing)) {
+      return toast.error('This account signs in by phone or username — set a password directly instead.');
+    }
+    setSaving(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(target, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast.success(`Password reset email sent to ${editing.email}`);
+      toast.success(`Password reset email sent to ${target}`);
       setPwModal(false);
     } catch (e) { toast.error('Failed: ' + e.message); }
     setSaving(false);
   };
 
   const handleChangeOwnPassword = async () => {
-    if (!pwForm.newPassword || pwForm.newPassword.length < 6) return toast.error('Password must be at least 6 characters');
+    if (!pwForm.newPassword || pwForm.newPassword.length < 8) return toast.error('Password must be at least 8 characters');
     if (pwForm.newPassword !== pwForm.confirmPassword) return toast.error('Passwords do not match');
     setSaving(true);
     try {
@@ -449,8 +506,15 @@ export default function Users() {
       <Modal open={createModal} onClose={() => setCreateModal(false)} title="Add User" width={480}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Input label="Full Name *" value={createForm.name} onChange={e => setCreateForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Ahmed Khan" />
-          <Input label="Email Address *" type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} placeholder="ahmed@sitrading.com" />
-          <Input label="Password *" type="password" value={createForm.password} onChange={e => setCreateForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 6 characters" />
+          <div style={{ gridColumn: '1 / -1', fontSize: '0.78rem', color: 'var(--text2)', lineHeight: 1.55 }}>
+            Fill in <strong>any one</strong> of email, phone or username — that is what this
+            person will type to sign in. No SMS or email is sent; you set their password here
+            and pass it to them.
+          </div>
+          <Input label="Email Address" type="email" value={createForm.email} onChange={e => setCreateForm(p => ({ ...p, email: e.target.value }))} placeholder="ahmed@sitrading.com" />
+          <Input label="Phone Number" value={createForm.phone} onChange={e => setCreateForm(p => ({ ...p, phone: e.target.value }))} placeholder="0300 1234567" />
+          <Input label="Username" value={createForm.username} onChange={e => setCreateForm(p => ({ ...p, username: e.target.value }))} placeholder="ahmed" />
+          <Input label="Password *" type="password" value={createForm.password} onChange={e => setCreateForm(p => ({ ...p, password: e.target.value }))} placeholder="Min 8 characters" />
           <Select label="Role" value={createForm.role} onChange={e => setCreateForm(p => ({ ...p, role: e.target.value }))} options={roleOptions} />
           <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', fontSize: '12px', color: 'var(--text3)', lineHeight: 1.6 }}>
             {roles.find(r => r.key === createForm.role)?.description}
@@ -547,7 +611,7 @@ export default function Users() {
                 <div style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', fontSize: '12px', color: 'var(--text2)' }}>
                   You are changing your own password.
                 </div>
-                <Input label="New Password" type="password" value={pwForm.newPassword} onChange={e => setPwForm(p => ({ ...p, newPassword: e.target.value }))} placeholder="Min 6 characters" />
+                <Input label="New Password" type="password" value={pwForm.newPassword} onChange={e => setPwForm(p => ({ ...p, newPassword: e.target.value }))} placeholder="Min 8 characters" />
                 <Input label="Confirm Password" type="password" value={pwForm.confirmPassword} onChange={e => setPwForm(p => ({ ...p, confirmPassword: e.target.value }))} placeholder="Repeat new password" />
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
                   <Btn variant="secondary" onClick={() => setPwModal(false)}>Cancel</Btn>
@@ -556,12 +620,30 @@ export default function Users() {
               </>
             ) : (
               <>
-                <div style={{ fontSize: '14px', color: 'var(--text2)', lineHeight: 1.6 }}>
-                  Send a password reset email to <strong style={{ color: 'var(--text)' }}>{editing.email}</strong>. They will receive a link to set a new password.
+                {/* Set a password directly. This is the only route that works for
+                    staff who sign in by phone or username, since their address
+                    reaches no mailbox. */}
+                <div style={{ fontSize: '0.85rem', color: 'var(--text2)', lineHeight: 1.6 }}>
+                  Set a new password for{' '}
+                  <strong style={{ color: 'var(--text)' }}>{editing.name || editing.email}</strong>
+                  {' '}and pass it to them yourself. Nothing is sent by email or SMS.
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                <Input label="New Password" type="password" value={pwForm.newPassword}
+                  onChange={e => setPwForm(p => ({ ...p, newPassword: e.target.value }))}
+                  placeholder="Min 8 characters" />
+                <Input label="Confirm Password" type="password" value={pwForm.confirmPassword}
+                  onChange={e => setPwForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                  placeholder="Repeat new password" />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
                   <Btn variant="secondary" onClick={() => setPwModal(false)}>Cancel</Btn>
-                  <Btn icon={Key} onClick={handlePasswordReset} disabled={saving}>{saving ? 'Sending...' : 'Send Reset Email'}</Btn>
+                  {canEmailReset(editing) && (
+                    <Btn variant="secondary" icon={Key} onClick={handlePasswordReset} disabled={saving}>
+                      Email a link instead
+                    </Btn>
+                  )}
+                  <Btn onClick={handleAdminSetPassword} disabled={saving}>
+                    {saving ? 'Saving…' : 'Set Password'}
+                  </Btn>
                 </div>
               </>
             )}
