@@ -1,8 +1,31 @@
 // src/contexts/AppContext.js
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
+
+// ── Fiscal-year helpers (module scope: needed before the provider mounts) ────
+const FY_CHOICE_KEY = 'si-fy-choice';
+
+// The fiscal year today falls in, labelled by the calendar year it ends in.
+const fyNow = (startMonth) => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  if (startMonth === 1) return y;
+  return m >= startMonth ? y + 1 : y;
+};
+
+// Defaults to the current fiscal year; an earlier choice is honoured only if it
+// was made inside the fiscal year we are still in.
+const storedFiscalYear = (startMonth) => {
+  const current = String(fyNow(startMonth));
+  try {
+    const saved = JSON.parse(localStorage.getItem(FY_CHOICE_KEY) || 'null');
+    if (saved && saved.value && String(saved.madeIn) === current) return String(saved.value);
+  } catch {}
+  return current;
+};
 
 export const AppProvider = ({ children }) => {
   // ── Mobile detection ────────────────────────────────────────────────────
@@ -70,17 +93,31 @@ export const AppProvider = ({ children }) => {
     const v = parseInt(localStorage.getItem('si-fy-start') || '', 10);
     return v >= 1 && v <= 12 ? v : 7;
   });
-  // 'all' or the fiscal year's ending calendar year (FY2026 = Jul 2025–Jun 2026)
-  const [fiscalYear, setFiscalYear] = useState(() => {
-    try { return localStorage.getItem('si-fy') || 'all'; } catch { return 'all'; }
-  });
 
+  // 'all' or the fiscal year's ending calendar year (FY2026 = Jul 2025–Jun 2026).
+  // Everything dated in the app is scoped to this, so it opens on the year the
+  // business is actually trading in rather than on all history.
+  const [fiscalYear, setFiscalYear] = useState(() => storedFiscalYear(fyStartMonth));
+
+  const currentFiscalYear = useMemo(() => String(fyNow(fyStartMonth)), [fyStartMonth]);
+
+  // A choice is remembered only for the fiscal year it was made in. Come July,
+  // a phone that was left on FY2025 opens on FY2026 instead of on stale totals.
   useEffect(() => {
     try {
-      localStorage.setItem('si-fy', fiscalYear);
+      localStorage.setItem(FY_CHOICE_KEY, JSON.stringify({ value: fiscalYear, madeIn: currentFiscalYear }));
       localStorage.setItem('si-fy-start', String(fyStartMonth));
     } catch {}
-  }, [fiscalYear, fyStartMonth]);
+  }, [fiscalYear, fyStartMonth, currentFiscalYear]);
+
+  // Changing the fiscal-year start in Settings renumbers every year, so the
+  // selection is re-pointed at whichever year we are now in.
+  const knownStart = useRef(fyStartMonth);
+  useEffect(() => {
+    if (knownStart.current === fyStartMonth) return;
+    knownStart.current = fyStartMonth;
+    setFiscalYear((prev) => (prev === 'all' ? prev : String(fyNow(fyStartMonth))));
+  }, [fyStartMonth]);
 
   // Inclusive start / exclusive end for a given fiscal year label.
   const fiscalYearRange = useCallback((year) => {
@@ -142,7 +179,7 @@ export const AppProvider = ({ children }) => {
       isMobile,
       currency, companyName, formatCurrency, formatDate,
       fiscalYear, setFiscalYear, fyStartMonth, setFyStartMonth,
-      fiscalYearRange, fiscalYearOf, filterByFiscalYear, fiscalYearLabel,
+      fiscalYearRange, fiscalYearOf, filterByFiscalYear, fiscalYearLabel, currentFiscalYear,
       theme, toggleTheme,
       installPrompt, showInstallBanner, triggerInstall, dismissInstall,
     }}>

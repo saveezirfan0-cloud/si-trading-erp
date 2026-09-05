@@ -241,7 +241,7 @@ button {
 
 /* ── CARD GRID ───────────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  /* Force single column stat cards on mobile */
+  /* Legacy inline stat grids (not using .g-stats) go two-up rather than wide. */
   [class*="stat-grid"],
   [class*="stats-grid"] {
     grid-template-columns: 1fr 1fr !important;
@@ -272,7 +272,7 @@ button {
 /* ── INSTALL BANNER ──────────────────────────────────────────────────────── */
 .pwa-install-banner {
   position: fixed;
-  bottom: calc(56px + env(safe-area-inset-bottom) + 8px);
+  bottom: calc(70px + env(safe-area-inset-bottom) + 8px);
   left: 16px;
   right: 16px;
   background: var(--bg2);
@@ -307,8 +307,27 @@ button {
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
 }
-@media (max-width: 520px) {
-  .g-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+/* On a phone six KPI tiles stacked two-up pushed the actual list two screens
+   down. They become one swipeable strip instead, with the next tile peeking so
+   it reads as scrollable. */
+@media (max-width: 767px) {
+  .g-stats {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: -14px;
+    padding: 2px 14px 6px;
+    scrollbar-width: none;
+  }
+  .g-stats::-webkit-scrollbar { display: none; }
+  .g-stats > * {
+    flex: 0 0 auto;
+    width: 47%;
+    min-width: 150px;
+    scroll-snap-align: start;
+  }
 }
 
 /* Two equal columns → single column on narrow screens. */
@@ -497,3 +516,39 @@ button {
 }
 .row-card-actions > * { flex: 1; }
 .row-card-actions button { justify-content: center; }
+
+/* ── PAGE HEADER ACTIONS ─────────────────────────────────────────────────────
+   Export/PDF/New wrapped onto two rows of half-width buttons on a phone. They
+   scroll as one row instead, with the primary action (reversed into first
+   place by PageHeader) always visible without scrolling. */
+@media (max-width: 767px) {
+  .page-actions {
+    width: 100%;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .page-actions::-webkit-scrollbar { display: none; }
+  .page-actions > * { flex: 0 0 auto; white-space: nowrap; }
+}
+
+/* ── LIST TOOLS ──────────────────────────────────────────────────────────────
+   Search takes the full width on a phone, the filter buttons sit under it, and
+   the status chips scroll sideways rather than wrapping onto three lines. */
+@media (max-width: 767px) {
+  .list-tools { padding: 12px 14px !important; gap: 8px !important; }
+
+  .chip-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    width: 100%;
+    margin-inline: -14px;
+    padding: 1px 14px;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip-row > * { flex: 0 0 auto; }
+}

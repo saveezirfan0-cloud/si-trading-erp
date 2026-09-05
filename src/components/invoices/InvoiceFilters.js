@@ -6,6 +6,7 @@ import React from 'react';
 import {
   SearchBar, Chip, Btn, FilterSelect, FilterInput, Badge,
 } from '../ui';
+import { useApp } from '../../contexts/AppContext';
 import { SlidersHorizontal, RotateCcw, X } from 'lucide-react';
 import {
   SOURCES, MONTHS, SORT_OPTIONS, EMPTY_FILTERS, activeFilterCount,
@@ -58,6 +59,7 @@ export default function InvoiceFilters({
   total = 0,
   searchRef,
 }) {
+  const { isMobile } = useApp();
   const set = (patch) => onChange({ ...filters, ...patch });
   const activeCount = activeFilterCount(filters);
   const activeKeys = Object.keys(EMPTY_FILTERS).filter(
@@ -67,7 +69,7 @@ export default function InvoiceFilters({
   return (
     <div style={{ borderBottom: '1px solid var(--border)' }}>
       {/* Search + status chips + panel toggle */}
-      <div style={{
+      <div className="list-tools" style={{
         padding: '12px 16px', display: 'flex', gap: 10,
         alignItems: 'center', flexWrap: 'wrap',
       }}>
@@ -75,11 +77,14 @@ export default function InvoiceFilters({
           value={filters.search}
           onChange={v => set({ search: v })}
           inputRef={searchRef}
-          placeholder="Search no., name, item, note…  (/)"
+          // The "/" shortcut hint means nothing without a keyboard.
+          placeholder={isMobile ? 'Search invoices…' : 'Search no., name, item, note…  (/)'}
           width={260}
         />
 
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {/* Seven status chips wrapped onto three lines on a phone; they scroll
+            as one row instead. */}
+        <div className="chip-row" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           <Chip active={filters.status === 'all'} count={statusCounts.all}
             onClick={() => set({ status: 'all' })}>All</Chip>
           {STATUSES.map(s => (

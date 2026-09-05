@@ -552,16 +552,19 @@ export function Badge({ children, color = 'default' }) {
 }
 
 // ─── SearchBar ────────────────────────────────────────────────────────────────
+// Fixed-width on desktop, full-width on a phone: a 260px box beside a wrapping
+// chip row left an awkward gap and a cramped field.
 export function SearchBar({ value, onChange, placeholder = 'Search...', inputRef, width = 240 }) {
+  const narrow = useIsNarrow(767);
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', flex: '1 1 200px', minWidth: 0, maxWidth: narrow ? '100%' : width }}>
       <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)' }} />
       <input
         ref={inputRef}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        style={{ padding: '8px 12px 8px 30px', width, maxWidth: '100%' }}
+        style={{ padding: '8px 12px 8px 30px', width: '100%' }}
       />
       {value ? (
         <button
@@ -664,14 +667,14 @@ export function FilterInput({ label, value, onChange, type = 'text', placeholder
 // `compact` shrinks the tile so a row of them still fits on a phone.
 export function StatCard({ label, value, icon: Icon, color = 'var(--accent)', trend, sub, compact }) {
   return (
-    <Card style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 12, padding: compact ? 12 : 20 }}>
+    <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: compact ? 5 : 12, padding: compact ? 12 : 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
         <span style={{ fontSize: compact ? '0.65rem' : '0.75rem', color: 'var(--text2)', fontFamily: 'var(--font-head)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
         {Icon && !compact && <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}><Icon size={16} /></div>}
         {Icon && compact && <Icon size={13} color={color} style={{ flexShrink: 0 }} />}
       </div>
-      <div style={{ fontFamily: 'var(--font-head)', fontSize: compact ? '1.05rem' : '1.6rem', fontWeight: 800, color: 'var(--text)' }}>{value}</div>
-      {sub && <div style={{ fontSize: compact ? '0.68rem' : '0.75rem', color: 'var(--text3)' }}>{sub}</div>}
+      <div style={{ fontFamily: 'var(--font-head)', fontSize: compact ? '1.02rem' : '1.6rem', fontWeight: 800, color: 'var(--text)', lineHeight: 1.2, overflowWrap: 'anywhere' }}>{value}</div>
+      {sub && <div style={{ fontSize: compact ? '0.66rem' : '0.75rem', color: 'var(--text3)', lineHeight: 1.35 }}>{sub}</div>}
     </Card>
   );
 }
@@ -687,14 +690,19 @@ export function Loader() {
 }
 
 // ─── PageHeader ───────────────────────────────────────────────────────────────
+// Callers pass actions least-important first (exports, then the primary "New").
+// On a phone the row scrolls instead of wrapping, so the order is flipped and
+// the primary action is the one you can always see.
 export function PageHeader({ title, subtitle, actions }) {
+  const narrow = useIsNarrow(767);
+  const list = narrow && Array.isArray(actions) ? [...actions].reverse() : actions;
   return (
-    <div className="actions-wrap" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-      <div>
-        <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.4rem', fontWeight: 800 }}>{title}</h2>
+    <div className="actions-wrap" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: narrow ? 14 : 24, flexWrap: 'wrap', gap: narrow ? 10 : 12 }}>
+      <div style={{ minWidth: 0 }}>
+        <h2 style={{ fontFamily: 'var(--font-head)', fontSize: narrow ? '1.2rem' : '1.4rem', fontWeight: 800 }}>{title}</h2>
         {subtitle && <p style={{ color: 'var(--text3)', fontSize: '0.82rem', marginTop: 2 }}>{subtitle}</p>}
       </div>
-      {actions && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{actions}</div>}
+      {actions && <div className="page-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{list}</div>}
     </div>
   );
 }
