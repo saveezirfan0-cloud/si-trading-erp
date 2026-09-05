@@ -750,3 +750,6 @@ export function Divider({ label }) {
 
 // ─── Scan attachment ──────────────────────────────────────────────────────────
 export { default as ScanAttachment } from './ScanAttachment';
+
+// ─── Searchable inventory picker ──────────────────────────────────────────────
+export { default as ItemPicker } from './ItemPicker';
