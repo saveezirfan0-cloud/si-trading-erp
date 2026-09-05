@@ -11,13 +11,15 @@ from environment variables. To bring up a working instance:
 1. **Create a Supabase project** (supabase.com → New project).
 2. **Apply the schema** — Dashboard → SQL Editor → paste and run
    [`supabase/migrations/0001_erp_schema.sql`](supabase/migrations/0001_erp_schema.sql),
-   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql)
-   and [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql).
+   then [`supabase/migrations/0002_user_permissions.sql`](supabase/migrations/0002_user_permissions.sql),
+   [`supabase/migrations/0003_activity_trash_attachments.sql`](supabase/migrations/0003_activity_trash_attachments.sql)
+   and [`supabase/migrations/0004_lock_down_permission_functions.sql`](supabase/migrations/0004_lock_down_permission_functions.sql).
    The first creates the `erp_*` tables with row-level security, realtime and the
    private `erp-scans` storage bucket; the second locks down the two tables that
    define access, so nobody can promote themselves through the API; the third
    adds the append-only `erp_activity` audit table, the trash indexes and the
-   private `erp-attachments` bucket. All three are safe to re-run.
+   private `erp-attachments` bucket; the fourth takes the access-control helper
+   functions off the public REST API. All four are safe to re-run.
 3. **Set the environment variables** in Vercel (Project → Settings →
    Environment Variables) and in `.env.local` for local development:
 
