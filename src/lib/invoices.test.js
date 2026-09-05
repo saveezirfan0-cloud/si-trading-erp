@@ -3,7 +3,7 @@
 import {
   invoiceSource, importBook, balanceDue, daysOverdue, isDueSoon, yearsOf,
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
-  activeFilterCount, EMPTY_FILTERS,
+  activeFilterCount, hasAttachment, attachmentCount, EMPTY_FILTERS,
 } from './invoices';
 
 const imported = {
@@ -103,4 +103,42 @@ test('export flattens line items away and adds derived columns', () => {
 test('the active-filter count ignores the search box', () => {
   expect(activeFilterCount(f({ search: 'x' }))).toBe(0);
   expect(activeFilterCount(f({ year: '2024', status: 'paid' }))).toBe(2);
+});
+
+// ── Approval flow ────────────────────────────────────────────────────────────
+//
+// Nothing is owed until an invoice has been signed off, so drafts and invoices
+// still in review stay out of the balances and the totals.
+
+const inReview = {
+  id: 'd', invoiceNo: 'SI-0009', date: '2024-01-01', dueDate: '2024-01-15',
+  status: 'pending_review', total: 400, paidAmount: 0, customerName: 'Bilal',
+  items: [{ itemName: 'Drill' }],
+};
+const approved = { ...inReview, id: 'e', invoiceNo: 'SI-0010', status: 'approved' };
+
+test('drafts and invoices in review owe nothing and cannot be late', () => {
+  expect(balanceDue(inReview)).toBe(0);
+  expect(balanceDue({ ...inReview, status: 'draft' })).toBe(0);
+  expect(daysOverdue(inReview, '2026-01-01')).toBe(0);
+  expect(isDueSoon(inReview, 7, '2024-01-10')).toBe(false);
+  // Once approved it is a real receivable again.
+  expect(balanceDue(approved)).toBe(400);
+  expect(daysOverdue(approved, '2024-01-20')).toBe(5);
+});
+
+test('the summary reports what is waiting for approval separately', () => {
+  const s = summarise([...rows, inReview, approved]);
+  // The two extra invoices do not change the money except for the approved one.
+  expect(s).toMatchObject({
+    count: 5, total: 2200, due: 1400,
+    provisionalCount: 1, awaitingCount: 1, awaitingAmount: 400,
+  });
+});
+
+test('paperwork counts the quick-view file and the invoice page attachments', () => {
+  expect(hasAttachment(imported)).toBe(false);
+  expect(attachmentCount(scanned)).toBe(1);
+  expect(attachmentCount({ ...imported, attachments: [{ path: 'a' }, { path: 'b' }] })).toBe(2);
+  expect(hasAttachment({ ...imported, attachments: [{ path: 'a' }] })).toBe(true);
 });

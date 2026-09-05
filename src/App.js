@@ -27,6 +27,8 @@ import Payments from './pages/accounting/Payments';
 import Expenses from './pages/accounting/Expenses';
 import Reports from './pages/reports/Reports';
 import Users from './pages/users/Users';
+import AuditLog from './pages/audit/AuditLog';
+import Trash from './pages/trash/Trash';
 import Import from './pages/import/Import';
 import WhatsApp from './pages/WhatsApp';
 import Settings from './pages/Settings';
@@ -105,6 +107,8 @@ function AppRoutes() {
               <Route path="/accounting/expenses" element={<Require module="expenses"><Expenses /></Require>} />
               <Route path="/reports" element={<Require module="reports"><Reports /></Require>} />
               <Route path="/users" element={<Require module="users"><Users /></Require>} />
+              <Route path="/audit" element={<Require module="audit"><AuditLog /></Require>} />
+              <Route path="/trash" element={<Require module="trash"><Trash /></Require>} />
               <Route path="/import" element={<Require module="import"><Import /></Require>} />
               <Route path="/whatsapp" element={<Require module="whatsapp"><WhatsApp /></Require>} />
               <Route path="/settings" element={<Require module="settings"><Settings /></Require>} />

@@ -3,6 +3,7 @@ import React, { createContext, useContext, useCallback, useEffect, useMemo, useS
 import { supabase, createIsolatedClient } from '../lib/supabase';
 import { getAll, getOne, createWithId, setPermissionGate, COLLECTIONS } from '../lib/db';
 import { can as canDo, mergeRoles, resolveUserPermissions } from '../lib/permissions';
+import { setCurrentActor } from '../lib/audit';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -42,12 +43,24 @@ export const AuthProvider = ({ children }) => {
 
     const loadProfile = async (authUser) => {
       if (!authUser) {
+        setCurrentActor(null);
         if (mounted) { setUser(null); setProfile(null); setStoredRoles([]); setLoading(false); }
         return;
       }
       if (mounted) setUser(authUser);
+      // Name the actor for the audit trail before any write can happen — the
+      // profile row below is itself created through the logged data layer.
+      setCurrentActor({
+        id: authUser.id,
+        name: authUser.user_metadata?.name || authUser.email,
+        email: authUser.email,
+      });
       try {
         let p = await getOne(COLLECTIONS.USERS, authUser.id);
+        // A profile in the trash is revoked access, not a live account: an
+        // admin removed it, and it stays restorable rather than being erased.
+        // getOne deliberately reads deleted rows, so rule it out here.
+        if (p?.deletedAt) p = { ...p, active: false, permissionMode: 'role', permissions: {} };
         if (!p) {
           // The very first sign-in bootstraps an admin so somebody can hand
           // out access. Anyone else who turns up without a profile — created
@@ -97,6 +110,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
+    setCurrentActor(null);
   };
 
   // Emails a recovery link that lands on /reset-password, where the user picks
@@ -147,6 +161,19 @@ export const AuthProvider = ({ children }) => {
   );
 
   const isAdmin = profile?.role === 'admin';
+
+  // Every write records who made it (src/lib/db.js stamps the record and
+  // appends to the activity log), so the trail follows the live profile —
+  // a rename or a role change shows up on the next save.
+  useEffect(() => {
+    if (!user) { setCurrentActor(null); return; }
+    setCurrentActor({
+      id: user.id,
+      name: profile?.name || user.user_metadata?.name || user.email,
+      email: profile?.email || user.email,
+      role: profile?.role || null,
+    });
+  }, [user, profile]);
 
   // Hand the data layer the current policy so every write in the app is
   // checked in one place (src/lib/db.js). Anyone may edit their own profile

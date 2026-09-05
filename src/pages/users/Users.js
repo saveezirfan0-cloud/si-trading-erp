@@ -176,8 +176,9 @@ export default function Users() {
     if (isLastAdmin(u)) return toast.error('This is the only active admin');
     if (!window.confirm(
       `Remove ERP access for ${u.name || u.email}?\n\n` +
-      'Their profile and permissions are deleted and they can no longer use the ERP. ' +
-      'The Supabase Auth login stays until it is deleted in the Supabase dashboard.'
+      'Their profile and permissions move to the Trash and they can no longer use the ERP. ' +
+      'An admin can restore them from there. The Supabase Auth login stays until it is ' +
+      'deleted in the Supabase dashboard.'
     )) return;
     try {
       await remove(COLLECTIONS.USERS, u.id);

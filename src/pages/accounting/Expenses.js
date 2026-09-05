@@ -63,9 +63,9 @@ export default function Expenses() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete?')) return;
+    if (!window.confirm('Move this expense to the trash? You can restore it from Trash.')) return;
     try {
-      await remove(COLLECTIONS.EXPENSES, id); toast.success('Deleted'); load();
+      await remove(COLLECTIONS.EXPENSES, id); toast.success('Moved to trash'); load();
     } catch (e) { toast.error('Delete failed: ' + e.message); }
   };
 

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribe, COLLECTIONS } from '../lib/db';
+import { INVOICE_STATUSES, countsToTotals } from '../lib/invoiceStatus';
 import { Card, Loader } from '../components/ui';
 import Header from '../components/layout/Header';
 import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
@@ -11,7 +12,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 
-const COLORS = ['#f0a500', '#22c55e', '#ef4444', '#3b82f6', '#8b5cf6'];
+const COLORS = ['#f0a500', '#22c55e', '#ef4444', '#3b82f6', '#8b5cf6', '#14b8a6', '#94a3b8'];
 
 function StatCard({ label, value, icon: Icon, color }) {
   return (
@@ -79,7 +80,10 @@ export default function Dashboard() {
     track(COLLECTIONS.EXPENSES, rows => { const r = filterByFiscalYear(rows); d = { ...d, totalExpenses: r.reduce((s, e) => s + (Number(e.amount) || 0), 0) }; setStats({ ...d }); done(); });
 
     track(COLLECTIONS.SALES_INVOICES, rows => {
-      const r = filterByFiscalYear(rows);
+      // Drafts and invoices still awaiting approval are not sales yet, so they
+      // stay out of the headline totals and the monthly chart — the same rule
+      // the Sales Invoices page uses.
+      const r = filterByFiscalYear(rows).filter(i => countsToTotals(i.status));
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
       setStats({ ...d });
 
@@ -93,20 +97,21 @@ export default function Dashboard() {
       });
       setSalesData(prev => mergeMonthly(prev, monthMap, 'sales'));
 
-      // Invoice status breakdown
-      const statuses = { paid: 0, unpaid: 0, partial: 0, draft: 0 };
-      r.forEach(i => { if (statuses[i.status] !== undefined) statuses[i.status] += i.total || 0; });
-      setInvoiceStatusData([
-        { name: 'Paid', value: statuses.paid },
-        { name: 'Unpaid', value: statuses.unpaid },
-        { name: 'Partial', value: statuses.partial },
-        { name: 'Draft', value: statuses.draft },
-      ].filter(x => x.value > 0));
+      // Invoice status breakdown, including the review states. Built from the
+      // full fiscal-year list so drafts and pending approvals still show here.
+      const all = filterByFiscalYear(rows);
+      const statuses = Object.fromEntries(INVOICE_STATUSES.map(st => [st.value, 0]));
+      all.forEach(i => { if (statuses[i.status] !== undefined) statuses[i.status] += i.total || 0; });
+      setInvoiceStatusData(
+        INVOICE_STATUSES
+          .map(st => ({ name: st.label, value: statuses[st.value] }))
+          .filter(x => x.value > 0)
+      );
       done();
     });
 
     track(COLLECTIONS.PURCHASE_INVOICES, rows => {
-      const r = filterByFiscalYear(rows);
+      const r = filterByFiscalYear(rows).filter(i => countsToTotals(i.status));
       d = { ...d, purchasesTotal: r.reduce((s, i) => s + (i.total || 0), 0), purchasesCount: r.length };
       setStats({ ...d });
       const monthMap = {};

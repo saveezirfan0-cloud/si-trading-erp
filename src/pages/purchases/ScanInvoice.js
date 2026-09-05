@@ -159,7 +159,9 @@ export default function ScanInvoice() {
     [activeLines]);
 
   const nextInvoiceNo = async () => {
-    const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES);
+    // Include trashed invoices so a restored one cannot collide with a number
+    // handed out while it sat in the trash.
+    const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES, [], { includeDeleted: true });
     const nums = existing.map(i => parseInt((i.invoiceNo || 'PI-0').split('-')[1])).filter(Boolean);
     return { no: `PI-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`, existing };
   };

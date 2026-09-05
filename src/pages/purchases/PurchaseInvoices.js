@@ -1,7 +1,7 @@
 // src/pages/purchases/PurchaseInvoices.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { COLLECTIONS } from '../../lib/db';
+import { COLLECTIONS, getOne } from '../../lib/db';
 import { useAuth } from '../../contexts/AuthContext';
 import Header from '../../components/layout/Header';
 import { Btn } from '../../components/ui';
@@ -16,6 +16,17 @@ export default function PurchaseInvoices() {
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
 
+  // An approval or an attachment saved from the detail view changes the record
+  // underneath it, so pull the row back rather than leaving the snapshot the
+  // list handed over.
+  const refreshSelected = async () => {
+    if (!selected?.id) return;
+    try {
+      const fresh = await getOne(COLLECTIONS.PURCHASE_INVOICES, selected.id);
+      if (fresh) setSelected(fresh);
+    } catch (e) { console.warn('could not refresh the invoice', e); }
+  };
+
   if (view === 'form') return (
     <PurchaseInvoiceForm
       invoice={selected}
@@ -28,6 +39,7 @@ export default function PurchaseInvoices() {
       invoice={selected}
       onBack={() => { setView('list'); setSelected(null); }}
       onEdit={() => setView('form')}
+      onChanged={refreshSelected}
     />
   );
 

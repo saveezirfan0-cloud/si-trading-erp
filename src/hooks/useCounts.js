@@ -18,7 +18,11 @@ export default function useCounts() {
 
     const fetchCounts = async () => {
       const entries = await Promise.all(TABLES.map(async (t) => {
-        const { count } = await supabase.from(t).select('id', { count: 'exact', head: true });
+        // Trashed records are hidden from the lists, so they must not be
+        // counted in the sidebar badges either.
+        const { count } = await supabase
+          .from(t).select('id', { count: 'exact', head: true })
+          .filter('doc->>deletedAt', 'is', null);
         return [t, count ?? 0];
       }));
       if (!cancelled) setCounts(Object.fromEntries(entries));

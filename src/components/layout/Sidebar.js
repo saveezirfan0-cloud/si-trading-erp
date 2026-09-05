@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Users, Truck, Package, Warehouse,
   BookOpen, FileText, BarChart3, UserCog, Upload,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
-  DollarSign, ShoppingCart, Receipt, Zap, Camera
+  DollarSign, ShoppingCart, Receipt, Zap, Camera, History, Trash2
 } from 'lucide-react';
 
 // `module` ties each link to a permission key from lib/permissions, so the nav
@@ -35,6 +35,8 @@ const NAV = [
   { label: 'Reports', to: '/reports', icon: BarChart3, module: 'reports' },
   { type: 'divider', label: 'SYSTEM' },
   { label: 'Users & Roles', to: '/users', icon: UserCog, module: 'users' },
+  { label: 'Audit Log', to: '/audit', icon: History, module: 'audit' },
+  { label: 'Trash', to: '/trash', icon: Trash2, module: 'trash' },
   { label: 'Data Import', to: '/import', icon: Upload, module: 'import' },
   { label: 'WhatsApp', to: '/whatsapp', icon: MessageSquare, module: 'whatsapp' },
   { label: 'Settings', to: '/settings', icon: Settings, module: 'settings' },

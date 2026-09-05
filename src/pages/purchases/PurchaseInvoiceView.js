@@ -2,15 +2,16 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, Card, ScanAttachment } from '../../components/ui';
+import { Btn, Badge, Card, ScanAttachment, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
+import ApprovalBar from '../../components/invoices/ApprovalBar';
+import { COLLECTIONS } from '../../lib/db';
+import { statusLabel, statusColor } from '../../lib/invoiceStatus';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
 import { attachmentMeta } from '../../lib/invoices';
 
-export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
+export default function PurchaseInvoiceView({ invoice, onBack, onEdit, onChanged }) {
   const { formatCurrency } = useApp();
   if (!invoice) return null;
-
-  const statusColor = (s) => ({ paid: 'green', unpaid: 'red', partial: 'yellow', draft: 'default', cancelled: 'red' }[s] || 'default');
 
   const handlePrint = () => {
     const printArea = document.getElementById('purchase-print');
@@ -43,6 +44,12 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
           </div>
         </div>
 
+        {/* Where this invoice sits in the review flow, and what can be done next */}
+        <div style={{ marginBottom: 16 }}>
+          <ApprovalBar collection={COLLECTIONS.PURCHASE_INVOICES} moduleKey="purchases"
+            invoice={invoice} onChanged={onChanged} />
+        </div>
+
         <Card>
           <div id="purchase-print">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 36 }}>
@@ -53,7 +60,7 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontFamily: 'var(--font-head)', fontSize: '1.8rem', fontWeight: 800 }}>{invoice.invoiceNo}</div>
                 {invoice.supplierInvoiceNo && <div style={{ color: 'var(--text3)', fontSize: '0.82rem' }}>Supplier Ref: {invoice.supplierInvoiceNo}</div>}
-                <Badge color={statusColor(invoice.status)} style={{ marginTop: 6 }}>{invoice.status?.toUpperCase()}</Badge>
+                <Badge color={statusColor(invoice.status)} style={{ marginTop: 6 }}>{statusLabel(invoice.status).toUpperCase()}</Badge>
               </div>
             </div>
 
@@ -142,8 +149,19 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
           </div>
         </Card>
 
-        {/* The photo this invoice was scanned from, or the file attached to it. */}
-        <ScanAttachment {...(attachmentMeta(invoice) || {})} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
+          {/* The photo this invoice was scanned from, or the file attached to it. */}
+          <ScanAttachment {...(attachmentMeta(invoice) || {})} />
+          <RecordMeta record={invoice} />
+          <Attachments
+            collection={COLLECTIONS.PURCHASE_INVOICES}
+            recordId={invoice.id}
+            attachments={invoice.attachments}
+            onChange={onChanged}
+            hint="Attach the supplier’s own invoice, the goods-received note or a payment proof."
+          />
+          <ActivityFeed collection={COLLECTIONS.PURCHASE_INVOICES} recordId={invoice.id} />
+        </div>
       </div>
     </>
   );

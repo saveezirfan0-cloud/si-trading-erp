@@ -47,11 +47,11 @@ export default function Settings() {
   };
 
   const handleDeleteBrand = async (id, name) => {
-    if (!window.confirm(`Delete brand "${name}"?`)) return;
+    if (!window.confirm(`Move brand "${name}" to the trash? You can restore it from Trash.`)) return;
     try {
       await remove(COLLECTIONS.BRANDS, id);
       loadBrands();
-      toast.success('Brand deleted');
+      toast.success('Brand moved to trash');
     } catch (e) { toast.error(e.message); }
   };
 

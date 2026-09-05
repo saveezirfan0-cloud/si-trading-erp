@@ -5,6 +5,8 @@
 // be filtered and ordered. Keeping that here means the two pages stay thin and
 // answer those questions identically.
 
+import { isProvisional, needsApproval } from './invoiceStatus';
+
 // ── Provenance ────────────────────────────────────────────────────────────────
 //
 // Manager.io rows are seeded by tools/manager-import with `importedFrom` and
@@ -34,7 +36,12 @@ export const importBook = (inv) => {
 
 // ── Attachments ───────────────────────────────────────────────────────────────
 export const attachmentPath = (inv) => inv?.attachmentPath || inv?.scanPath || '';
-export const hasAttachment = (inv) => Boolean(attachmentPath(inv));
+// The list's quick view attaches one file to `attachmentPath`; the invoice page
+// can hold any number in `attachments`. A row counts as having paperwork when
+// either is present.
+export const attachmentCount = (inv) =>
+  (attachmentPath(inv) ? 1 : 0) + (inv?.attachments?.length || 0);
+export const hasAttachment = (inv) => attachmentCount(inv) > 0;
 
 // Everything the viewers need to render the attachment: an invoice carries
 // either a hand-attached file or the photo its OCR scan came from.
@@ -58,17 +65,20 @@ export const invoiceTotal = (inv) => Number(inv?.total) || 0;
 export const paidAmount = (inv) => Number(inv?.paidAmount) || 0;
 
 // What is still owed. Settled and cancelled invoices owe nothing regardless of
-// the amount recorded against them.
+// the amount recorded against them, and neither do drafts or invoices still
+// waiting for approval — nothing is due until an invoice is signed off.
 export const balanceDue = (inv) => {
   if (!inv || inv.status === 'paid' || inv.status === 'cancelled') return 0;
+  if (isProvisional(inv.status)) return 0;
   return Math.max(0, invoiceTotal(inv) - paidAmount(inv));
 };
 
 export const todayISO = () => new Date().toISOString().slice(0, 10);
 
-// Drafts are not issued documents, so they cannot be late however old they are.
+// Drafts and invoices under review are not issued documents, so they cannot be
+// late however old they are.
 export const daysOverdue = (inv, today = todayISO()) => {
-  if (!inv?.dueDate || inv.status === 'draft' || balanceDue(inv) <= 0) return 0;
+  if (!inv?.dueDate || isProvisional(inv.status) || balanceDue(inv) <= 0) return 0;
   const due = String(inv.dueDate).slice(0, 10);
   if (due >= today) return 0;
   return Math.round((Date.parse(today) - Date.parse(due)) / 86400000);
@@ -78,7 +88,7 @@ export const isOverdue = (inv, today = todayISO()) => daysOverdue(inv, today) > 
 
 // Falls due inside the next `days` days (and is not already late).
 export const isDueSoon = (inv, days = 7, today = todayISO()) => {
-  if (!inv?.dueDate || inv.status === 'draft' || balanceDue(inv) <= 0) return false;
+  if (!inv?.dueDate || isProvisional(inv.status) || balanceDue(inv) <= 0) return false;
   const due = String(inv.dueDate).slice(0, 10);
   const horizon = new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
   return due >= today && due <= horizon;
@@ -185,6 +195,7 @@ export const SORT_OPTIONS = [
   { value: 'items',     label: 'Line items' },
   { value: 'status',    label: 'Status' },
   { value: 'createdAt', label: 'Date added' },
+  { value: 'updated',   label: 'Last updated' },
 ];
 
 const sortValue = (inv, key, partyField) => {
@@ -197,6 +208,7 @@ const sortValue = (inv, key, partyField) => {
     case 'items':     return (inv.items || []).length;
     case 'status':    return inv.status || '';
     case 'createdAt': return inv.createdAt || '';
+    case 'updated':   return inv.updatedAt || inv.createdAt || '';
     case 'date':
     default:          return inv.date || '';
   }
@@ -244,16 +256,28 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
   }));
 
 // ── Summary ───────────────────────────────────────────────────────────────────
+// Drafts and invoices still in review are left out of the money entirely — they
+// are not sales or purchases yet — and reported separately so the list can say
+// what is waiting on somebody.
 export const summarise = (rows = []) => {
   const today = todayISO();
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
+  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
   rows.forEach((inv) => {
+    if (hasAttachment(inv)) withAttachment += 1;
+    if (isProvisional(inv.status)) {
+      provisionalCount += 1;
+      if (needsApproval(inv.status)) { awaitingCount += 1; awaitingAmount += invoiceTotal(inv); }
+      return;
+    }
     total += invoiceTotal(inv);
     paid += inv.status === 'paid' ? invoiceTotal(inv) : paidAmount(inv);
     const bal = balanceDue(inv);
     due += bal;
     if (isOverdue(inv, today)) { overdueAmount += bal; overdueCount += 1; }
-    if (hasAttachment(inv)) withAttachment += 1;
   });
-  return { count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment };
+  return {
+    count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
+    provisionalCount, awaitingCount, awaitingAmount,
+  };
 };

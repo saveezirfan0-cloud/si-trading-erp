@@ -72,10 +72,10 @@ export default function Customers() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this customer?')) return;
+    if (!window.confirm('Move this customer to the trash? You can restore it from Trash.')) return;
     try {
       await remove(COLLECTIONS.CUSTOMERS, id);
-      toast.success('Deleted');
+      toast.success('Moved to trash');
     } catch (e) {
       toast.error('Delete failed: ' + e.message);
     }

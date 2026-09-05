@@ -15,6 +15,7 @@ export const ACTIONS = [
   { key: 'edit',   label: 'Edit',   desc: 'Change existing records' },
   { key: 'delete', label: 'Delete', desc: 'Remove records' },
   { key: 'export', label: 'Export', desc: 'Download CSV / PDF' },
+  { key: 'approve', label: 'Approve', desc: 'Sign off invoices that are pending review' },
 ];
 
 export const ACTION_KEYS = ACTIONS.map(a => a.key);
@@ -22,6 +23,10 @@ export const ACTION_KEYS = ACTIONS.map(a => a.key);
 const FULL = ['view', 'create', 'edit', 'delete', 'export'];
 const NO_DELETE = ['view', 'create', 'edit', 'export'];
 const READ = ['view'];
+// Invoices add a sign-off step on top of the usual verbs. `pick` intersects
+// with what each module actually supports, so handing this list to a group of
+// modules only grants 'approve' where it means something.
+const FULL_TRADE = [...FULL, 'approve'];
 
 // Every module the app can gate. `path` is the route the sidebar links to, so
 // navigation and route guards read from this single list.
@@ -31,8 +36,8 @@ export const MODULES = [
   { key: 'suppliers',  label: 'Suppliers',         group: 'Master Data', path: '/suppliers',           actions: FULL },
   { key: 'inventory',  label: 'Inventory Items',   group: 'Master Data', path: '/inventory',           actions: FULL },
   { key: 'warehouses', label: 'Warehouses',        group: 'Master Data', path: '/warehouses',          actions: FULL },
-  { key: 'sales',      label: 'Sales Invoices',    group: 'Trading',    path: '/sales',                actions: FULL },
-  { key: 'purchases',  label: 'Purchase Invoices', group: 'Trading',    path: '/purchases',            actions: FULL },
+  { key: 'sales',      label: 'Sales Invoices',    group: 'Trading',    path: '/sales',                actions: FULL_TRADE },
+  { key: 'purchases',  label: 'Purchase Invoices', group: 'Trading',    path: '/purchases',            actions: FULL_TRADE },
   { key: 'scan',       label: 'Scan Invoice (OCR)', group: 'Trading',   path: '/purchases/scan',       actions: ['view', 'create'] },
   { key: 'accounts',   label: 'Chart of Accounts', group: 'Accounting', path: '/accounting/accounts',  actions: FULL },
   { key: 'bank',       label: 'Bank & Cash',       group: 'Accounting', path: '/accounting/bank',      actions: FULL },
@@ -43,6 +48,11 @@ export const MODULES = [
   // View only by design: creating users and editing roles is the Admin role's
   // job, and the database enforces that (supabase/migrations/0002).
   { key: 'users',      label: 'Users & Roles',     group: 'System',     path: '/users',                actions: ['view'] },
+  // Reading the audit log is its own grant: it shows what everyone in the
+  // company has been doing, which is not something every role should see.
+  { key: 'audit',      label: 'Audit Log',         group: 'System',     path: '/audit',                actions: ['view', 'export'] },
+  // 'edit' restores a record out of the trash; 'delete' destroys it for good.
+  { key: 'trash',      label: 'Trash',             group: 'System',     path: '/trash',                actions: ['view', 'edit', 'delete'] },
   { key: 'import',     label: 'Data Import',       group: 'System',     path: '/import',               actions: ['view', 'create'] },
   { key: 'whatsapp',   label: 'WhatsApp',          group: 'System',     path: '/whatsapp',             actions: ['view', 'create'] },
   { key: 'settings',   label: 'Settings',          group: 'System',     path: '/settings',             actions: ['view', 'edit'] },
@@ -128,11 +138,15 @@ export const BUILT_IN_ROLES = [
     description: 'Runs day-to-day trading and accounting. Can see users but not change them.',
     permissions: {
       ...pick(['dashboard'], ['view', 'export']),
-      ...pick(OPERATIONS, FULL),
+      ...pick(OPERATIONS, FULL_TRADE),
       ...pick(ACCOUNTING, NO_DELETE),
       ...pick(['reports'], ['view', 'export']),
       ...pick(['import', 'whatsapp'], ['view', 'create']),
       ...pick(['users', 'settings'], READ),
+      // Sees the log and can pull records back out of the trash, but only an
+      // admin destroys anything permanently.
+      ...pick(['audit'], ['view', 'export']),
+      ...pick(['trash'], ['view', 'edit']),
     },
   },
   {
@@ -146,6 +160,7 @@ export const BUILT_IN_ROLES = [
       ...pick(['sales', 'purchases'], ['view', 'export']),
       ...pick(['customers', 'suppliers', 'inventory', 'warehouses'], READ),
       ...pick(['reports'], ['view', 'export']),
+      ...pick(['audit'], ['view', 'export']),
     },
   },
   {
