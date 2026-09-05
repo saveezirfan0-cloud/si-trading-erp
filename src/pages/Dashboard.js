@@ -8,7 +8,7 @@ import Header from '../components/layout/Header';
 import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, PieChart, Pie, Cell, Legend
+  BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 
 const COLORS = ['#f0a500', '#22c55e', '#ef4444', '#3b82f6', '#8b5cf6'];
@@ -161,7 +161,7 @@ export default function Dashboard() {
 
         {loading ? <Loader /> : (<>
           {/* Stats — 4 columns */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          <div className="g-stats" style={{ gap: 14 }}>
             <StatCard label="Customers" value={stats.customers} icon={Users} color="#3b82f6" />
             <StatCard label="Suppliers" value={stats.suppliers} icon={Truck} color="#8b5cf6" />
             <StatCard label="Inventory Items" value={stats.inventory} icon={Package} color="#22c55e" />
@@ -173,7 +173,7 @@ export default function Dashboard() {
           </div>
 
           {/* Charts row 1 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 16 }}>
+          <div className="g-chart" style={{ gap: 16 }}>
             <Card>
               <div style={{ marginBottom: 16 }}>
                 <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.95rem' }}>Sales vs Purchases</h3>
@@ -230,7 +230,7 @@ export default function Dashboard() {
           </div>
 
           {/* Charts row 2 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="g-2" style={{ gap: 16 }}>
             <Card>
               <div style={{ marginBottom: 16 }}>
                 <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.95rem' }}>Monthly Sales</h3>

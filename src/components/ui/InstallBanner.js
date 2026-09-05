@@ -31,7 +31,7 @@ export default function InstallBanner() {
         fontWeight: 800,
         fontFamily: 'var(--font-head)',
         fontSize: '1rem',
-        color: '#000',
+        color: 'var(--on-accent)',
       }}>
         SI
       </div>
@@ -49,7 +49,7 @@ export default function InstallBanner() {
         onClick={triggerInstall}
         style={{
           background: 'var(--accent)',
-          color: '#000',
+          color: 'var(--on-accent)',
           border: 'none',
           borderRadius: 8,
           padding: '8px 14px',

@@ -274,3 +274,58 @@ button {
 /* ── SPINNER ─────────────────────────────────────────────────────────────── */
 .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE GRIDS ─────────────────────────────────────────────────────────
+   Pages previously hardcoded column counts inline (repeat(3,1fr), 2fr 1fr …),
+   which never collapsed on a phone. These classes carry the desktop layout and
+   fold down at real breakpoints. */
+
+/* Stat/KPI rows: fit as many as will comfortably fit, no fixed count. */
+.g-stats {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+@media (max-width: 520px) {
+  .g-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+/* Two equal columns → single column on narrow screens. */
+.g-2 { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 700px) { .g-2 { grid-template-columns: 1fr; } }
+
+/* Main content + sidebar panel (forms, scan review) → stacked on tablet down. */
+.g-main { display: grid; gap: 20px; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
+@media (max-width: 950px) { .g-main { grid-template-columns: minmax(0, 1fr); } }
+
+/* Charts row. */
+.g-chart { display: grid; gap: 16px; grid-template-columns: 3fr 2fr; }
+@media (max-width: 950px) { .g-chart { grid-template-columns: minmax(0, 1fr); } }
+
+/* Wide inner grids (journal lines) scroll rather than crush on a phone. */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── MOBILE POLISH ───────────────────────────────────────────────────────────*/
+@media (max-width: 767px) {
+  /* Page bodies used a fixed 24px inline pad; tighten it and stop the
+     action rows from overflowing. */
+  .page-pad { padding: 14px !important; }
+
+  /* Header action buttons wrap instead of pushing the row off-screen. */
+  .actions-wrap { flex-wrap: wrap; gap: 8px !important; }
+
+  /* Invoice print/preview panels are desktop-width; let them scroll. */
+  .doc-sheet { min-width: 0 !important; }
+}
+
+/* Keep long table cells from forcing absurd widths on small screens. */
+@media (max-width: 767px) {
+  table td, table th { padding: 10px 10px; }
+}
+
+/* Elements that should never appear on a printed/exported document. */
+@media print { .no-print { display: none !important; } }
+
+/* Data Import: a fixed 300px sidebar plus content overflowed a phone. */
+.g-import { display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+@media (max-width: 767px) { .g-import { grid-template-columns: minmax(0, 1fr); } }

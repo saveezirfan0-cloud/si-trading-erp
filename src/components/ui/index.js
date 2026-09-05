@@ -1,7 +1,7 @@
 // src/components/ui/index.js
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, ChevronDown, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ─── Button ───────────────────────────────────────────────────────────────────
 export function Btn({ children, variant = 'primary', size = 'md', onClick, type = 'button', disabled, style, icon: Icon }) {
@@ -408,7 +408,7 @@ export function Loader() {
 // ─── PageHeader ───────────────────────────────────────────────────────────────
 export function PageHeader({ title, subtitle, actions }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+    <div className="actions-wrap" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
       <div>
         <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.4rem', fontWeight: 800 }}>{title}</h2>
         {subtitle && <p style={{ color: 'var(--text3)', fontSize: '0.82rem', marginTop: 2 }}>{subtitle}</p>}
@@ -467,3 +467,6 @@ export function Divider({ label }) {
     </div>
   );
 }
+
+// ─── Scan attachment ──────────────────────────────────────────────────────────
+export { default as ScanAttachment } from './ScanAttachment';

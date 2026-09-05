@@ -118,7 +118,7 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
   return (
     <>
       <Header title={invoice ? `Edit — ${form.invoiceNo}` : 'New Purchase Invoice'} />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200 }}>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
@@ -128,7 +128,7 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
           <Btn icon={Save} onClick={() => handleSave()} disabled={saving}>{saving ? 'Saving...' : invoice ? 'Update Invoice' : 'Save Invoice'}</Btn>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20 }}>
+        <div className="g-main" style={{ gap: 20 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             <Card>
@@ -270,7 +270,7 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
             <Card>
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quick Actions</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Btn icon={Save} onClick={() => handleSave()} disabled={saving} style={{ justifyContent: 'center', background: 'var(--accent)', color: '#000', borderRadius: 8, padding: '10px' }}>Save Invoice</Btn>
+                <Btn icon={Save} onClick={() => handleSave()} disabled={saving} style={{ justifyContent: 'center', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: 8, padding: '10px' }}>Save Invoice</Btn>
                 <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving} style={{ justifyContent: 'center' }}>Mark as Paid</Btn>
                 <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving} style={{ justifyContent: 'center' }}>Save as Draft</Btn>
                 {onPreview && <Btn variant="secondary" icon={Eye} onClick={() => onPreview(form)} style={{ justifyContent: 'center' }}>Preview & Print</Btn>}

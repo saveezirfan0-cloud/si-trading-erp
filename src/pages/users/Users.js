@@ -1,10 +1,10 @@
 // src/pages/users/Users.js
 import React, { useEffect, useState, useCallback } from 'react';
-import { getAll, create, update, createWithId, COLLECTIONS } from '../../lib/db';
+import { getAll, update, COLLECTIONS } from '../../lib/db';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import Header from '../../components/layout/Header';
-import { Table, Btn, Modal, Input, Select, Badge, PageHeader, FormGrid, Card, Loader } from '../../components/ui';
+import { Table, Btn, Modal, Input, Select, Badge, PageHeader, Card, Loader } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Shield, Key, RefreshCw, UserCheck, UserX } from 'lucide-react';
 
@@ -65,13 +65,6 @@ export default function Users() {
     setSaving(false);
   };
 
-  // If an auth user exists but has no profile row, create one
-  const handleSyncUser = async (uid, email) => {
-    const name = email.split('@')[0];
-    await createWithId(COLLECTIONS.USERS, uid, { name, email, role: 'viewer', active: true });
-    toast.success('User synced to ERP');
-    load();
-  };
 
   // Edit user profile + role
   const handleUpdateUser = async () => {
@@ -139,7 +132,7 @@ export default function Users() {
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
           background: r.role === 'admin' ? 'var(--red)' : 'var(--accent)',
-          color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0,
         }}>
           {(v || r.email)?.[0]?.toUpperCase()}
@@ -187,7 +180,7 @@ export default function Users() {
   return (
     <>
       <Header title="Users & Roles" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Users & Roles"
           subtitle={`${users.length} users in ERP`}

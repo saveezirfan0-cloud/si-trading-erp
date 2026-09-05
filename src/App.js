@@ -115,7 +115,7 @@ function SWUpdateListener() {
               }}
               style={{
                 background: 'var(--accent)',
-                color: '#000',
+                color: 'var(--on-accent)',
                 border: 'none',
                 borderRadius: 6,
                 padding: '4px 10px',
