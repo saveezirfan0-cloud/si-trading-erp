@@ -1,7 +1,8 @@
-// src/contexts/AuthContext.js — Supabase Auth
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { getOne, createWithId, COLLECTIONS } from '../lib/db';
+// src/contexts/AuthContext.js — Supabase Auth + ERP permissions
+import React, { createContext, useContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { supabase, createIsolatedClient } from '../lib/supabase';
+import { getAll, getOne, createWithId, setPermissionGate, COLLECTIONS } from '../lib/db';
+import { can as canDo, mergeRoles, resolveUserPermissions } from '../lib/permissions';
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -9,32 +10,64 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [storedRoles, setStoredRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   // Set when the database is reachable but the ERP schema is missing.
   const [schemaError, setSchemaError] = useState(null);
+
+  // Custom + overridden roles live in erp_roles; the built-ins come from code.
+  const refreshRoles = useCallback(async () => {
+    try {
+      const rows = await getAll(COLLECTIONS.ROLES);
+      setStoredRoles(rows);
+      return rows;
+    } catch (e) {
+      // A missing erp_roles table just means "no custom roles yet".
+      console.warn('roles load failed', e?.message);
+      setStoredRoles([]);
+      return [];
+    }
+  }, []);
+
+  const refreshProfile = useCallback(async (authUser) => {
+    const target = authUser || user;
+    if (!target) return null;
+    const p = await getOne(COLLECTIONS.USERS, target.id);
+    if (p) setProfile(p);
+    return p;
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;
 
     const loadProfile = async (authUser) => {
       if (!authUser) {
-        if (mounted) { setUser(null); setProfile(null); setLoading(false); }
+        if (mounted) { setUser(null); setProfile(null); setStoredRoles([]); setLoading(false); }
         return;
       }
       if (mounted) setUser(authUser);
       try {
         let p = await getOne(COLLECTIONS.USERS, authUser.id);
         if (!p) {
+          // The very first sign-in bootstraps an admin so somebody can hand
+          // out access. Anyone else who turns up without a profile — created
+          // straight in the Supabase dashboard, say — lands as an inactive
+          // viewer and waits for an admin to grant them access, rather than
+          // letting an unknown login walk into the ERP.
+          const existing = await getAll(COLLECTIONS.USERS);
+          const isFirstUser = existing.length === 0;
           const basicProfile = {
             name: authUser.user_metadata?.name || authUser.email.split('@')[0],
             email: authUser.email,
-            role: 'admin', // first login bootstraps as admin; manage roles in Users
-            active: true,
+            role: isFirstUser ? 'admin' : 'viewer',
+            permissionMode: 'role',
+            active: isFirstUser,
           };
           await createWithId(COLLECTIONS.USERS, authUser.id, basicProfile);
           p = { id: authUser.id, ...basicProfile };
         }
         if (mounted) setProfile(p);
+        await refreshRoles();
       } catch (e) {
         console.error('profile load failed', e);
         // 42P01 = undefined_table: the schema migration has not been run yet.
@@ -54,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => { mounted = false; subscription.unsubscribe(); };
-  }, []);
+  }, [refreshRoles]);
 
   const login = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -80,34 +113,80 @@ export const AuthProvider = ({ children }) => {
     if (error) throw error;
   };
 
-  const register = async (email, password, name, role = 'viewer') => {
-    const { data, error } = await supabase.auth.signUp({
+  /**
+   * Creates a login and its ERP profile.
+   *
+   * The sign-up runs on an isolated client so the admin doing the creating
+   * keeps their own session (see createIsolatedClient). `extra` carries the
+   * optional per-user permission override.
+   */
+  const register = async (email, password, name, role = 'viewer', extra = {}) => {
+    const client = createIsolatedClient();
+    const { data, error } = await client.auth.signUp({
       email, password,
       options: { data: { name } },
     });
     if (error) throw error;
     if (data.user) {
       await createWithId(COLLECTIONS.USERS, data.user.id, {
-        name, email, role, active: true,
+        name, email, role, active: true, permissionMode: 'role', ...extra,
       });
     }
+    // The isolated client may hold a session for the new user; drop it.
+    await client.auth.signOut().catch(() => {});
     return data;
   };
 
+  const roles = useMemo(() => mergeRoles(storedRoles), [storedRoles]);
+  const permissions = useMemo(() => resolveUserPermissions(profile, roles), [profile, roles]);
+
+  /** can('sales', 'create') — the check every page and route guard uses. */
+  const can = useCallback(
+    (moduleKey, action = 'view') => canDo(permissions, moduleKey, action),
+    [permissions]
+  );
+
+  const isAdmin = profile?.role === 'admin';
+
+  // Hand the data layer the current policy so every write in the app is
+  // checked in one place (src/lib/db.js). Anyone may edit their own profile
+  // row — name, phone, password — without holding the users permission.
+  useEffect(() => {
+    if (!profile) { setPermissionGate(null); return; }
+    setPermissionGate((moduleKey, action, ctx) => {
+      if (moduleKey === 'users' && action !== 'view') {
+        // Anyone may edit their own profile row; administering other people's
+        // access is the Admin role's, matching the database policy.
+        const ownRow = ctx?.collection === COLLECTIONS.USERS && ctx?.id === profile.id;
+        return (ownRow && action === 'edit') || profile.role === 'admin';
+      }
+      return canDo(permissions, moduleKey, action);
+    });
+    return () => setPermissionGate(null);
+  }, [profile, permissions]);
+
+  // Older call sites asked for coarse verbs; map them onto the module grid so
+  // nothing that already used hasPermission() breaks.
+  const LEGACY = {
+    read: ['dashboard', 'view'],
+    write: ['sales', 'create'],
+    delete: ['sales', 'delete'],
+    export: ['reports', 'export'],
+    import: ['import', 'create'],
+    manage_users: ['users', 'edit'],
+  };
   const hasPermission = (perm) => {
-    const rolePerms = {
-      admin: ['read', 'write', 'delete', 'export', 'import', 'manage_users'],
-      manager: ['read', 'write', 'export', 'import'],
-      accountant: ['read', 'write', 'export'],
-      staff: ['read', 'write'],
-      viewer: ['read'],
-    };
-    return rolePerms[profile?.role]?.includes(perm) ?? false;
+    const mapped = LEGACY[perm];
+    return mapped ? can(mapped[0], mapped[1]) : false;
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, schemaError, login, logout, register,
-                              sendPasswordReset, updatePassword, hasPermission }}>
+    <AuthContext.Provider value={{
+      user, profile, loading, schemaError,
+      login, logout, register, sendPasswordReset, updatePassword,
+      roles, storedRoles, permissions, can, isAdmin, hasPermission,
+      refreshRoles, refreshProfile,
+    }}>
       {!loading && children}
     </AuthContext.Provider>
   );
