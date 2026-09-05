@@ -123,7 +123,7 @@ export default function Inventory() {
   return (
     <>
       <Header title="Inventory" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Inventory Items"
           subtitle={`${items.length} total items`}
@@ -133,7 +133,7 @@ export default function Inventory() {
           ]}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Total Items" value={items.length} icon={Package} color="var(--blue)" />
           <StatCard label="Inventory Value" value={formatCurrency(totalValue)} icon={Package} color="var(--accent)" />
           <StatCard label="Low Stock" value={lowStock} icon={AlertTriangle} color="var(--accent)" />

@@ -104,13 +104,13 @@ export default function Import() {
   return (
     <>
       <Header title="Data Import" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Data Import"
           subtitle="Bulk import data from CSV files"
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
+        <div className="g-import" style={{ gap: 20 }}>
           {/* Left: Type selection */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <Card>
@@ -220,7 +220,7 @@ export default function Import() {
                   </Btn>
                 </div>
                 <div style={{ maxHeight: 400, overflow: 'auto' }}>
-                  <Table columns={previewColumns.slice(0, 6)} data={preview.slice(0, 20)} />
+                  <Table columns={previewColumns.slice(0, 6)} data={preview.slice(0, 20)} paginate={false} />
                   {preview.length > 20 && (
                     <div style={{ padding: '10px 16px', color: 'var(--text3)', fontSize: '0.8rem', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
                       Showing first 20 of {preview.length} rows

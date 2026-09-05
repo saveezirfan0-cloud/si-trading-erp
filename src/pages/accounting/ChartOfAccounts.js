@@ -91,7 +91,7 @@ export default function ChartOfAccounts() {
   return (
     <>
       <Header title="Chart of Accounts" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
         <PageHeader
           title="Chart of Accounts"
           subtitle={`${accounts.length} accounts configured`}
@@ -110,7 +110,7 @@ export default function ChartOfAccounts() {
               <Badge color={g.color}>{g.label}</Badge>
               <span style={{ fontSize: '0.78rem', color: 'var(--text3)' }}>{g.accounts.length} accounts</span>
             </div>
-            <Table columns={columns} data={g.accounts} />
+            <Table columns={columns} data={g.accounts} paginate={false} />
           </Card>
         ))}
       </div>

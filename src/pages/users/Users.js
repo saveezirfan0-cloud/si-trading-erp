@@ -251,7 +251,7 @@ export default function Users() {
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
           background: r.role === 'admin' ? 'var(--red)' : 'var(--accent)',
-          color: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'var(--on-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0,
         }}>
           {(v || r.email)?.[0]?.toUpperCase()}
@@ -339,7 +339,7 @@ export default function Users() {
   return (
     <>
       <Header title="Users & Roles" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Users & Roles"
           subtitle={tab === 'users'
