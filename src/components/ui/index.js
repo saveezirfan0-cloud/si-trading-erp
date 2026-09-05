@@ -591,13 +591,12 @@ export function PageHeader({ title, subtitle, actions }) {
 }
 
 // ─── FormGrid ─────────────────────────────────────────────────────────────────
+// Form fields laid out in columns on a wide screen, collapsing on narrow ones.
+// A fixed repeat(n, 1fr) squeezed inputs until their values were unreadable
+// ("SI-00…", "Unpa…") on a phone, so the column count is capped by width.
 export function FormGrid({ children, cols = 2 }) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: `repeat(${cols}, 1fr)`,
-      gap: 16,
-    }}>
+    <div className={`form-grid form-grid-${Math.min(cols, 4)}`}>
       {children}
     </div>
   );
