@@ -119,16 +119,20 @@ export default function QuickInvoice() {
       <div className="page-pad" style={{ padding: 24, maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Top */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div className="toolbar">
           <Btn variant="ghost" icon={ArrowLeft} onClick={() => navigate('/sales')}>Back</Btn>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Zap size={18} color="var(--accent)" />
-            <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.1rem' }}>Quick Sales Invoice</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <Zap size={18} color="var(--accent)" style={{ flexShrink: 0 }} />
+            <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '1.1rem', whiteSpace: 'nowrap' }}>
+              Quick Sales Invoice
+            </span>
           </div>
-          <div style={{ flex: 1 }} />
-          <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving}>Save Draft</Btn>
-          <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving}>Mark Paid & Save</Btn>
-          <Btn icon={Save} onClick={() => handleSave('unpaid')} disabled={saving}>{saving ? 'Saving...' : 'Save Invoice'}</Btn>
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
+            <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving}>Draft</Btn>
+            <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving}>Paid &amp; Save</Btn>
+            <Btn icon={Save} onClick={() => handleSave('unpaid')} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Btn>
+          </div>
         </div>
 
         {/* Invoice meta */}

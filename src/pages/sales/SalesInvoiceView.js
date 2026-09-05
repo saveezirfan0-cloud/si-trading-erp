@@ -170,11 +170,13 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
     <>
       <Header title={`Invoice — ${invoice.invoiceNo}`} />
       <div className="page-pad" style={{ padding: 24, maxWidth: 860 }}>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+        <div className="toolbar" style={{ marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
-          <div style={{ flex: 1 }} />
-          <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
-          <Btn icon={Printer} onClick={handlePrint}>Print / Save PDF</Btn>
+          <div className="toolbar-spacer" />
+          <div className="toolbar-actions">
+            <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
+            <Btn icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
+          </div>
         </div>
 
         {/* Preview card */}
@@ -220,7 +222,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
           </div>
 
           {/* Items table */}
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
+          <div className="doc-table-wrap" style={{ marginBottom: 24 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--bg3)' }}>
                 {['#', 'Item', 'Description', 'Qty', 'Unit', 'Unit Price', 'Disc%', 'Tax%', 'Total'].map((h, i) => (
@@ -247,6 +250,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
               ))}
             </tbody>
           </table>
+          </div>
 
           {/* Totals */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 32 }}>
