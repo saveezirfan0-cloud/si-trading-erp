@@ -1,7 +1,7 @@
 // src/components/ui/index.js
 
-import React, { useState } from 'react';
-import { X, ChevronDown, Search, Loader2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { X, ChevronDown, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ─── Button ───────────────────────────────────────────────────────────────────
 export function Btn({ children, variant = 'primary', size = 'md', onClick, type = 'button', disabled, style, icon: Icon }) {
@@ -158,66 +158,188 @@ export function Modal({ open, onClose, title, children, width = 520 }) {
 }
 
 // ─── Table ────────────────────────────────────────────────────────────────────
-export function Table({ columns, data, onRowClick, emptyMsg = 'No records found.' }) {
+//
+// Paginated by default. The ERP's lists run to hundreds of rows (699 inventory
+// items, 770 sales invoices), and rendering them all at once made the pages
+// crawl. Pass `paginate={false}` for short, fixed lists where paging is noise.
+
+const PAGE_SIZES = [25, 50, 100, 200];
+
+// Page numbers to render: always first and last, plus a window around current,
+// with gaps collapsed into an ellipsis.
+function pageWindow(current, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const pages = new Set([1, totalPages, current, current - 1, current + 1]);
+  const sorted = [...pages].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+  const out = [];
+  sorted.forEach((n, i) => {
+    if (i > 0 && n - sorted[i - 1] > 1) out.push('gap-' + n);
+    out.push(n);
+  });
+  return out;
+}
+
+export function Table({
+  columns,
+  data,
+  onRowClick,
+  emptyMsg = 'No records found.',
+  pageSize: initialPageSize = 50,
+  paginate = true,
+}) {
+  const rows = useMemo(() => data || [], [data]);
+  const total = rows.length;
+  const [pageSize, setPageSize] = useState(initialPageSize);
+  const [page, setPage] = useState(1);
+
+  const enabled = paginate && total > pageSize;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Searching or switching fiscal year changes the row count — go back to the
+  // first page rather than stranding the user on a page that no longer exists.
+  useEffect(() => { setPage(1); }, [total, pageSize]);
+  useEffect(() => { setPage((p) => Math.min(p, totalPages)); }, [totalPages]);
+
+  const startIdx = enabled ? (page - 1) * pageSize : 0;
+  const visible = enabled ? rows.slice(startIdx, startIdx + pageSize) : rows;
+
+  const navBtn = (disabled) => ({
+    display: 'flex', alignItems: 'center', gap: 4,
+    background: 'var(--bg2)', border: '1px solid var(--border)',
+    borderRadius: 7, color: disabled ? 'var(--text3)' : 'var(--text2)',
+    padding: '5px 9px', fontSize: '0.8rem', fontWeight: 600,
+    cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
+  });
+
+  const pageBtn = (active) => ({
+    minWidth: 30, padding: '5px 8px',
+    background: active ? 'var(--accent)' : 'var(--bg2)',
+    border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+    borderRadius: 7, color: active ? 'var(--on-accent)' : 'var(--text2)',
+    fontSize: '0.8rem', fontWeight: active ? 700 : 500,
+    fontVariantNumeric: 'tabular-nums', cursor: 'pointer',
+  });
+
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            {columns.map(col => (
-              <th key={col.key} style={{
-                textAlign: col.align || 'left',
-                padding: '10px 14px',
-                fontSize: '0.72rem',
-                fontFamily: 'var(--font-head)',
-                fontWeight: 700,
-                color: 'var(--text3)',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-              }}>
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
-                {emptyMsg}
-              </td>
+    <>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              {columns.map(col => (
+                <th key={col.key} style={{
+                  textAlign: col.align || 'left',
+                  padding: '10px 14px',
+                  fontSize: '0.72rem',
+                  fontFamily: 'var(--font-head)',
+                  fontWeight: 700,
+                  color: 'var(--text3)',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {col.label}
+                </th>
+              ))}
             </tr>
-          ) : (
-            data.map((row, i) => (
-              <tr
-                key={row.id || i}
-                onClick={() => onRowClick && onRowClick(row)}
-                style={{
-                  borderBottom: '1px solid var(--border)',
-                  cursor: onRowClick ? 'pointer' : 'default',
-                  transition: 'background 0.1s',
-                }}
-                onMouseEnter={e => onRowClick && (e.currentTarget.style.background = 'var(--bg3)')}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                {columns.map(col => (
-                  <td key={col.key} style={{
-                    padding: '10px 14px',
-                    fontSize: '0.85rem',
-                    color: 'var(--text)',
-                    textAlign: col.align || 'left',
-                    whiteSpace: col.wrap ? 'normal' : 'nowrap',
-                  }}>
-                    {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
-                  </td>
-                ))}
+          </thead>
+          <tbody>
+            {visible.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
+                  {emptyMsg}
+                </td>
               </tr>
-            ))
+            ) : (
+              visible.map((row, i) => (
+                <tr
+                  key={row.id || startIdx + i}
+                  onClick={() => onRowClick && onRowClick(row)}
+                  style={{
+                    borderBottom: '1px solid var(--border)',
+                    cursor: onRowClick ? 'pointer' : 'default',
+                    transition: 'background 0.1s',
+                  }}
+                  onMouseEnter={e => onRowClick && (e.currentTarget.style.background = 'var(--bg3)')}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  {columns.map(col => (
+                    <td key={col.key} style={{
+                      padding: '10px 14px',
+                      fontSize: '0.85rem',
+                      color: 'var(--text)',
+                      textAlign: col.align || 'left',
+                      whiteSpace: col.wrap ? 'normal' : 'nowrap',
+                    }}>
+                      {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {paginate && total > PAGE_SIZES[0] && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          gap: 12, flexWrap: 'wrap',
+          padding: '11px 14px', borderTop: '1px solid var(--border)',
+          background: 'var(--bg3)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text2)' }}>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {total === 0
+                ? 'No records'
+                : `${startIdx + 1}–${Math.min(startIdx + pageSize, total)} of ${total}`}
+            </span>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              aria-label="Rows per page"
+              style={{
+                background: 'var(--bg2)', border: '1px solid var(--border)',
+                borderRadius: 7, color: 'var(--text2)', fontSize: '0.78rem',
+                fontFamily: 'var(--font-body)', padding: '4px 22px 4px 8px',
+                minHeight: 30, cursor: 'pointer',
+              }}
+            >
+              {PAGE_SIZES.map((n) => (
+                <option key={n} value={n}>{n} per page</option>
+              ))}
+            </select>
+          </div>
+
+          {enabled && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1} style={navBtn(page === 1)} aria-label="Previous page">
+                <ChevronLeft size={14} /> Prev
+              </button>
+
+              {pageWindow(page, totalPages).map((n) =>
+                typeof n === 'string' ? (
+                  <span key={n} style={{ color: 'var(--text3)', padding: '0 2px' }}>…</span>
+                ) : (
+                  <button key={n} onClick={() => setPage(n)} style={pageBtn(n === page)}
+                    aria-current={n === page ? 'page' : undefined}>
+                    {n}
+                  </button>
+                )
+              )}
+
+              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages} style={navBtn(page === totalPages)} aria-label="Next page">
+                Next <ChevronRight size={14} />
+              </button>
+            </div>
           )}
-        </tbody>
-      </table>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
 
