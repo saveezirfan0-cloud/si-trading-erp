@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase';
 import { getAll, getOne, create, update, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Card, Input, Select, Loader, Badge } from '../../components/ui';
+import { Btn, Card, Input, Select, Loader, Badge, ItemPicker } from '../../components/ui';
 import toast from 'react-hot-toast';
 import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X } from 'lucide-react';
 
@@ -391,16 +391,22 @@ export default function ScanInvoice() {
                           <td style={{ padding: '7px 8px', minWidth: 220 }}>
                             {l.action === 'skip' ? <span style={{ color: 'var(--text3)', fontSize: '12px' }}>skipped</span> : (
                               <>
-                                <select value={l.action === 'create' ? '__new__' : l.itemId}
-                                  onChange={e => {
-                                    const v = e.target.value;
-                                    if (v === '__new__') setLine(idx, { action: 'create', itemId: '' });
-                                    else setLine(idx, { action: 'match', itemId: v });
+                                <ItemPicker
+                                  items={inventory}
+                                  value={l.action === 'create' ? '__new__' : l.itemId}
+                                  onChange={(v) => {
+                                    if (v === '__new__') setLine(idx, { action: 'create', itemId: '', matchScore: 0 });
+                                    else setLine(idx, { action: 'match', itemId: v, matchScore: 0 });
                                   }}
-                                  style={{ width: '100%', padding: '5px 7px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text)', fontSize: '12.5px' }}>
-                                  <option value="__new__">➕ New item: {l.ocrName.slice(0, 34)}</option>
-                                  {inventory.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-                                </select>
+                                  extraOptions={[{
+                                    value: '__new__',
+                                    label: `➕ New item: ${l.ocrName.slice(0, 34)}`,
+                                    hint: 'Creates this item in inventory',
+                                  }]}
+                                  emptyLabel="Search inventory…"
+                                  placeholder="Search by name, code, SKU, barcode…"
+                                  style={{ fontSize: '12.5px' }}
+                                />
                                 {l.action === 'match' && l.matchScore > 0 && (
                                   <span style={{ fontSize: '10px', color: l.matchScore > 0.7 ? 'var(--green)' : 'var(--yellow, #eab308)' }}>
                                     {Math.round(l.matchScore * 100)}% match

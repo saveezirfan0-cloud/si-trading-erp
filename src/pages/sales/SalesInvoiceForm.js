@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { create, update, getAll, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Input, Select, Textarea, Card, FormGrid } from '../../components/ui';
+import { Btn, Input, Select, Textarea, Card, FormGrid, ItemPicker } from '../../components/ui';
 import { QuickAddCustomer } from '../../components/ui/QuickAddModal';
 import toast from 'react-hot-toast';
 import { Plus, ArrowLeft, Save, Eye, UserPlus } from 'lucide-react';
@@ -190,11 +190,15 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
                             </div>
                           ) : (
                             <div style={{ display: 'flex', gap: 3 }}>
-                              <select value={line.itemId} onChange={e => setItemFromInventory(idx, e.target.value)}
-                                style={{ flex: 1, padding: '5px 7px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text)', fontSize: '13px' }}>
-                                <option value="">Select item</option>
-                                {inventory.map(i => <option key={i.id} value={i.id}>{i.code ? `${i.code} — ` : ''}{i.name}</option>)}
-                              </select>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <ItemPicker
+                                  items={inventory}
+                                  value={line.itemId}
+                                  onChange={(v) => setItemFromInventory(idx, v)}
+                                  emptyLabel="Select item"
+                                  placeholder="Search by name, code, SKU, barcode…"
+                                />
+                              </div>
                               <button onClick={() => toggleCustomLine(idx)} title="Enter custom item" style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 5, color: 'var(--text3)', padding: '3px 6px', fontSize: '12px', cursor: 'pointer' }}>✏️</button>
                             </div>
                           )}

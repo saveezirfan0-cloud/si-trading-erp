@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { create, getAll, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Input, Select, Card, FormGrid } from '../../components/ui';
+import { Btn, Input, Select, Card, FormGrid, ItemPicker } from '../../components/ui';
 import { QuickAddCustomer } from '../../components/ui/QuickAddModal';
 import toast from 'react-hot-toast';
 import { Plus, Save, UserPlus, ArrowLeft, Zap } from 'lucide-react';
@@ -190,11 +190,15 @@ export default function QuickInvoice() {
                         </div>
                       ) : (
                         <div style={{ display: 'flex', gap: 4 }}>
-                          <select value={line.itemId} onChange={e => updateLine(idx, 'itemId', e.target.value)}
-                            style={{ flex: 1, padding: '5px 7px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text)', fontSize: '13px' }}>
-                            <option value="">Select item...</option>
-                            {inventory.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-                          </select>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <ItemPicker
+                              items={inventory}
+                              value={line.itemId}
+                              onChange={(v) => updateLine(idx, 'itemId', v)}
+                              emptyLabel="Select item..."
+                              placeholder="Search by name, code, SKU, barcode…"
+                            />
+                          </div>
                           <button onClick={() => toggleCustom(idx)} title="Enter custom item" style={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 5, color: 'var(--text3)', padding: '3px 6px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                             ✏️
                           </button>
