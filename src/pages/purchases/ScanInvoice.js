@@ -7,15 +7,15 @@
 // Everything the OCR reads is editable in the review step, and anything it
 // failed to read (or read suspiciously) is highlighted so it gets checked
 // before the invoice is saved.
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { getAll, getOne, create, update, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Card, Loader, Badge } from '../../components/ui';
+import { Btn, Card, Loader, Badge, ItemPicker } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle, Search, ChevronDown, Copy } from 'lucide-react';
+import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, Plus, AlertTriangle, Copy } from 'lucide-react';
 
 // Amber isn't a theme variable — warnings use this in both themes.
 const WARN = '#e0a01a';
@@ -23,32 +23,44 @@ const WARN_BG = 'rgba(224,160,26,0.12)';
 const ERR_BG = 'rgba(239,68,68,0.10)';
 
 // ── Image compression ────────────────────────────────────────────────────────
-const compressImage = (file, maxDim = 1800, quality = 0.87) =>
-  new Promise((resolve, reject) => {
+// Decode with the photo's EXIF orientation applied. These challans are shot
+// sideways on a phone, and a sideways table is read noticeably worse — rows
+// slide into each other and descriptions land on the wrong quantity.
+const decodeImage = async (file) => {
+  if (typeof createImageBitmap === 'function') {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch { /* older browsers ignore the option or reject it — fall through */ }
+  }
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({
-          base64: reader.result.split(',')[1],
-          mimeType: 'image/jpeg',
-          blob,
-          previewUrl: canvas.toDataURL('image/jpeg', 0.6),
-        });
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg', quality);
-    };
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
     img.src = url;
   });
+};
+
+// 2000px keeps the rate/quantity columns of a dense 7–20 row table legible;
+// below that the digits start to blur together on a phone photo.
+const compressImage = async (file, maxDim = 2000, quality = 0.9) => {
+  const src = await decodeImage(file);
+  const scale = Math.min(1, maxDim / Math.max(src.width, src.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(src.width * scale);
+  canvas.height = Math.round(src.height * scale);
+  canvas.getContext('2d').drawImage(src, 0, 0, canvas.width, canvas.height);
+  if (typeof src.close === 'function') src.close();
+
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Could not encode image')), 'image/jpeg', quality));
+  const base64 = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  return { base64, mimeType: 'image/jpeg', blob, previewUrl: canvas.toDataURL('image/jpeg', 0.6) };
+};
 
 // ── Fuzzy matching ───────────────────────────────────────────────────────────
 // Normalizes common local/OCR spellings so "PIPE RAINCH" matches "Pipe Wrench",
@@ -243,145 +255,6 @@ const SelectField = ({ label, flag, value, onChange, children }) => (
   </Field>
 );
 
-// ── Inventory item picker ────────────────────────────────────────────────────
-// A native <select> over ~700 items is a wall of alphabetical text on a phone,
-// so this is a search box over name, code, brand and category, with the lines'
-// best matches offered first.
-function ItemPicker({ value, ocrName, inventory, rank, flag, onChange, isMobile }) {
-  const [open, setOpen] = useState(false);
-  const [q, setQ] = useState('');
-  const searchRef = useRef(null);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    setQ('');
-    const t = setTimeout(() => searchRef.current?.focus(), 40);
-    const onKey = (e) => e.key === 'Escape' && setOpen(false);
-    document.addEventListener('keydown', onKey);
-    return () => { clearTimeout(t); document.removeEventListener('keydown', onKey); };
-  }, [open]);
-
-  const selected = value ? inventory.find((i) => i.id === value) : null;
-
-  const { suggestions, rest, filtered } = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    if (!query) {
-      const sugg = rank(ocrName, 6).filter((x) => x.score > 0.15);
-      const seen = new Set(sugg.map((x) => x.id));
-      return { suggestions: sugg, rest: inventory.filter((i) => !seen.has(i.id)), filtered: false };
-    }
-    const terms = query.split(/\s+/);
-    const hit = (i) => {
-      const hay = `${i.name || ''} ${i.code || ''} ${i.brand || ''} ${i.category || ''}`.toLowerCase();
-      return terms.every((t) => hay.includes(t));
-    };
-    return { suggestions: [], rest: inventory.filter(hit), filtered: true };
-  }, [q, ocrName, inventory, rank]);
-
-  const CAP = 60;
-  const shown = rest.slice(0, CAP);
-
-  const row = (label, sub, onClick, key, extra) => (
-    <button key={key} onClick={onClick} style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-      width: '100%', textAlign: 'left', background: 'none', border: 'none',
-      borderBottom: '1px solid var(--border)', padding: '11px 14px', color: 'var(--text)',
-      fontSize: '0.88rem',
-    }}>
-      <span style={{ minWidth: 0 }}>
-        <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
-        {sub && <span style={{ display: 'block', fontSize: '0.74rem', color: 'var(--text3)' }}>{sub}</span>}
-      </span>
-      {extra}
-    </button>
-  );
-
-  return (
-    <>
-      <button onClick={() => setOpen(true)} title={selected ? selected.name : 'Choose an inventory item'}
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
-          width: '100%', minWidth: 0, textAlign: 'left',
-          background: 'var(--input-bg)', border: '1px solid var(--border2)',
-          borderRadius: 'var(--radius)', color: 'var(--text)',
-          padding: isMobile ? '10px 12px' : '6px 8px', fontSize: isMobile ? '0.95rem' : '12.5px',
-          ...flagStyle(flag),
-        }}>
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {selected ? selected.name : `➕ New item${ocrName ? `: ${ocrName}` : ''}`}
-        </span>
-        <ChevronDown size={14} style={{ flexShrink: 0, color: 'var(--text3)' }} />
-      </button>
-
-      {open && (
-        <>
-          <div onClick={() => setOpen(false)}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 900 }} />
-          <div style={{
-            position: 'fixed', zIndex: 901, background: 'var(--bg2)',
-            border: '1px solid var(--border2)', boxShadow: 'var(--shadow)',
-            display: 'flex', flexDirection: 'column',
-            ...(isMobile
-              ? { left: 0, right: 0, bottom: 0, top: '12%', borderRadius: '16px 16px 0 0' }
-              : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 520, maxHeight: '72vh', borderRadius: 'var(--radius-lg)' }),
-          }}>
-            <div style={{ padding: 12, borderBottom: '1px solid var(--border)', display: 'flex', gap: 8, alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)' }} />
-                <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search name, code or brand…"
-                  style={{ padding: '9px 12px 9px 30px', width: '100%' }} />
-              </div>
-              <button data-compact onClick={() => setOpen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text2)', padding: 6 }}>
-                <X size={18} />
-              </button>
-            </div>
-
-            <div style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              {row(`➕ New item${ocrName ? `: ${ocrName}` : ''}`,
-                'Adds it to inventory when the invoice is confirmed',
-                () => { onChange(null); setOpen(false); }, '__new__')}
-
-              {suggestions.length > 0 && (
-                <>
-                  <div style={{ padding: '8px 14px', fontSize: '0.7rem', fontFamily: 'var(--font-head)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text3)', background: 'var(--bg3)' }}>
-                    Closest to what was scanned
-                  </div>
-                  {suggestions.map((i) => row(i.name, i.code || undefined,
-                    () => { onChange(i.id); setOpen(false); }, `s-${i.id}`,
-                    <span style={{ flexShrink: 0, fontSize: '0.72rem', color: i.score > 0.7 ? 'var(--green)' : WARN }}>
-                      {Math.round(i.score * 100)}%
-                    </span>))}
-                </>
-              )}
-
-              {!filtered && shown.length > 0 && (
-                <div style={{ padding: '8px 14px', fontSize: '0.7rem', fontFamily: 'var(--font-head)', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--text3)', background: 'var(--bg3)' }}>
-                  All items ({rest.length})
-                </div>
-              )}
-              {shown.map((i) => row(i.name, i.code || undefined,
-                () => { onChange(i.id); setOpen(false); }, i.id))}
-
-              {rest.length > CAP && (
-                <div style={{ padding: '12px 14px', fontSize: '0.78rem', color: 'var(--text3)' }}>
-                  Showing {CAP} of {rest.length} — keep typing to narrow it down.
-                </div>
-              )}
-              {filtered && rest.length === 0 && (
-                <div style={{ padding: '18px 14px', fontSize: '0.85rem', color: 'var(--text2)' }}>
-                  Nothing matches “{q}”. Pick “New item” to add it to inventory.
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </>
-  );
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 export default function ScanInvoice() {
   const navigate = useNavigate();
@@ -405,6 +278,8 @@ export default function ScanInvoice() {
     documentNo: '', date: '', status: 'unpaid', remarks: '', previousBalance: 0, totalDue: 0 });
   const [printed, setPrinted] = useState({ subtotal: 0, discount: 0, netTotal: 0, totalQty: 0 });
   const [lines, setLines] = useState([]);
+  // What the reader itself found wrong against the invoice's printed totals.
+  const [serverWarnings, setServerWarnings] = useState([]);
 
   const setMetaField = (changes) => setMeta(m => ({ ...m, ...changes }));
 
@@ -437,6 +312,7 @@ export default function ScanInvoice() {
 
       const d = res.data || {};
       setProvider(res.provider || '');
+      setServerWarnings(res.warnings || []);
       const suppMatch = bestMatch(d.supplierName || '', supps, 0.35);
       setMeta({
         supplierId: suppMatch?.id || '',
@@ -449,18 +325,31 @@ export default function ScanInvoice() {
         previousBalance: num(d.previousBalance),
         totalDue: num(d.totalDue),
       });
-      setPrinted({ subtotal: num(d.subtotal), discount: num(d.discount),
-        netTotal: num(d.netTotal), totalQty: num(d.totalQty) });
+      setPrinted({
+        subtotal: num(d.subtotal), discount: num(d.discount),
+        netTotal: num(d.netTotal) || num(d.subtotal),
+        totalQty: num(d.printedTotalQty) || num(d.totalQty),
+      });
       setLines((d.items || [])
         .map((it) => ({
           ocrName: (it.name || '').trim(),
           unit: (it.unit || 'pcs').toLowerCase(),
           qty: num(it.qty), rate: num(it.rate), printedAmount: num(it.amount),
+          serial: it.serial ?? null,
+          // A row the reader flagged as the same printed row read twice starts
+          // skipped, so a phantom line can never be confirmed into stock by
+          // someone who trusted the count — it stays visible and restorable.
+          duplicateOf: it.duplicateOf ?? null,
         }))
         // Models sometimes pad the table with an empty trailing row.
         .filter((l) => l.ocrName || l.qty > 0 || l.rate > 0)
         .map(reconcileQty)
-        .map((l) => ({ ...l, ...pickMatch(ranker, l.ocrName), manual: false })));
+        .map((l) => ({
+          ...l,
+          ...pickMatch(ranker, l.ocrName),
+          ...(l.duplicateOf !== null ? { action: 'skip' } : {}),
+          manual: false,
+        })));
       setStep('review');
     } catch (e) {
       console.error(e);
@@ -495,6 +384,8 @@ export default function ScanInvoice() {
 
   const lineFlags = useMemo(() => lines.map((l) => {
     if (l.action === 'skip') return {};
+    if (l.duplicateOf) return { name: { level: 'warn', short: 'read twice?',
+      msg: `Looks like row ${l.duplicateOf} read twice — skip it unless the invoice really lists it again` } };
     const f = {};
     if (!String(l.ocrName || '').trim()) f.name = { level: 'error', msg: "Name wasn't read", short: 'not read' };
     if (!(num(l.qty) > 0)) f.qty = { level: 'error', msg: "Qty wasn't read", short: 'not read' };
@@ -553,10 +444,12 @@ export default function ScanInvoice() {
     lineFlags.forEach((flags, idx) => {
       Object.values(flags).forEach(f => push(f, `Line ${idx + 1}: ${f.msg}`));
     });
+    serverWarnings.forEach((w) => warnings.push(w));
     if (qtyFlag) warnings.push(`Quantity ${qtyTotal} — ${qtyFlag.msg}`);
     if (totalFlag) warnings.push(`Total ${formatCurrency(total)} — ${totalFlag.msg}`);
     return { errors, warnings };
-  }, [metaFlags, lineFlags, activeLines.length, duplicate, dupAccepted, qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
+  }, [metaFlags, lineFlags, activeLines.length, duplicate, dupAccepted, serverWarnings,
+      qtyFlag, qtyTotal, totalFlag, total, formatCurrency]);
 
   const nextInvoiceNo = async () => {
     const existing = await getAll(COLLECTIONS.PURCHASE_INVOICES);
@@ -566,6 +459,13 @@ export default function ScanInvoice() {
 
   const handleConfirm = async () => {
     if (problems.errors.length) return toast.error(problems.errors[0]);
+    // Confirming posts stock and a supplier balance, so a reading that still
+    // disagrees with the invoice's own printed net total is worth stopping on.
+    if (printed.netTotal > 0 && differs(total, printed.netTotal) && !window.confirm(
+      `These lines add up to ${formatCurrency(total)}, but the invoice's printed net total is ` +
+      `${formatCurrency(printed.netTotal)}.\n\nA line may have been read twice, missed, or read ` +
+      `with the wrong quantity. Save anyway?`
+    )) return;
     setStep('saving');
     try {
       // 1. supplier
@@ -679,8 +579,19 @@ export default function ScanInvoice() {
       style={{ width: '100%', minWidth: 0, padding: '6px 6px', borderRadius: 6, fontSize: '13px', ...flagStyle(flag) }} />
   );
 
+  // Pinned above the search results: create-new, then what this line looks
+  // closest to, so the common case is one tap and never a scroll.
+  const pickerOptions = (l) => [
+    { value: '__new__', label: `➕ New item${l.ocrName ? `: ${l.ocrName}` : ''}`,
+      hint: 'Adds it to inventory when the invoice is confirmed' },
+    ...rank(l.ocrName, 5)
+      .filter((x) => x.score > 0.15 && x.id !== l.itemId)
+      .map((x) => ({ value: x.id, label: x.name,
+        hint: `${Math.round(x.score * 100)}% match to what was scanned${x.code ? ` · ${x.code}` : ''}` })),
+  ];
+
   const onItemPick = (idx) => (id) =>
-    setLine(idx, id
+    setLine(idx, id && id !== '__new__'
       ? { action: 'match', itemId: id, matchScore: 1, userPicked: true, nearMiss: null }
       : { action: 'create', itemId: '', matchScore: 0, userPicked: true, nearMiss: null });
   const toggleSkip = (idx, l) =>
@@ -699,7 +610,8 @@ export default function ScanInvoice() {
           </Btn>
           <div style={{ flex: 1 }} />
           {step === 'review' && (
-            <Btn variant="secondary" icon={RefreshCw} onClick={() => { setStep('capture'); setImg(null); }}>Rescan</Btn>
+            <Btn variant="secondary" icon={RefreshCw}
+              onClick={() => { setStep('capture'); setImg(null); setServerWarnings([]); }}>Rescan</Btn>
           )}
         </div>
 
@@ -862,7 +774,10 @@ export default function ScanInvoice() {
               {/* Extracted items */}
               <Card style={{ padding: 0, overflow: 'hidden' }}>
                 <div style={{ padding: '13px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={cardTitle}>Extracted Items ({activeLines.length})</span>
+                  <span style={cardTitle}>
+                    Extracted Items ({activeLines.length}
+                    {lines.length !== activeLines.length ? ` of ${lines.length} read` : ''})
+                  </span>
                   <Btn size="sm" variant="secondary" icon={Plus}
                     onClick={() => setLines(ls => [...ls, emptyLine()])}>Add line</Btn>
                 </div>
@@ -890,7 +805,7 @@ export default function ScanInvoice() {
                         }}>
                           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <Field label={`Line ${idx + 1} — read from invoice`} flag={f.name}>
+                              <Field label={`${l.serial ? `Row ${l.serial}` : `Line ${idx + 1}`} — read from invoice`} flag={f.name}>
                                 <input value={l.ocrName} placeholder="Item name"
                                   onChange={e => setLine(idx, { ocrName: e.target.value })}
                                   style={{ padding: '8px 12px', width: '100%', ...flagStyle(f.name) }} />
@@ -915,9 +830,13 @@ export default function ScanInvoice() {
                               </div>
                               <div style={{ marginTop: 10 }}>
                                 <Field label="Inventory item" flag={f.item}>
-                                  <ItemPicker value={l.itemId} ocrName={l.ocrName}
-                                    inventory={inventory} rank={rank} flag={f.item}
-                                    onChange={onItemPick(idx)} isMobile />
+                                  <ItemPicker
+                                    items={inventory}
+                                    value={l.action === 'create' ? '__new__' : l.itemId}
+                                    extraOptions={pickerOptions(l)}
+                                    onChange={onItemPick(idx)}
+                                    emptyLabel="Choose an inventory item"
+                                    style={{ padding: '9px 11px', fontSize: '0.95rem', ...flagStyle(f.item) }} />
                                 </Field>
                               </div>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: '0.85rem' }}>
@@ -936,11 +855,11 @@ export default function ScanInvoice() {
                   </div>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720 }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 720, tableLayout: 'fixed' }}>
                       <thead>
                         <tr style={{ background: 'var(--bg3)', borderBottom: '1px solid var(--border)' }}>
-                          <th style={{ ...th, minWidth: 150 }}>Read from invoice</th>
-                          <th style={{ ...th, minWidth: 160 }}>Inventory item</th>
+                          <th style={{ ...th, width: '27%' }}>Read from invoice</th>
+                          <th style={{ ...th, width: '30%' }}>Inventory item</th>
                           <th style={{ ...th, width: 66 }}>Qty</th>
                           <th style={{ ...th, width: 58 }}>Unit</th>
                           <th style={{ ...th, width: 84 }}>Rate</th>
@@ -961,9 +880,13 @@ export default function ScanInvoice() {
                               <td style={{ padding: '7px 8px' }}>
                                 {skipped ? <span style={{ color: 'var(--text3)', fontSize: '12px' }}>skipped</span> : (
                                   <>
-                                    <ItemPicker value={l.itemId} ocrName={l.ocrName}
-                                      inventory={inventory} rank={rank} flag={f.item}
-                                      onChange={onItemPick(idx)} isMobile={false} />
+                                    <ItemPicker
+                                      items={inventory}
+                                      value={l.action === 'create' ? '__new__' : l.itemId}
+                                      extraOptions={pickerOptions(l)}
+                                      onChange={onItemPick(idx)}
+                                      emptyLabel="Choose an inventory item"
+                                      style={flagStyle(f.item)} />
                                     {f.item
                                       ? <Hint flag={f.item} short />
                                       : l.action === 'match' && l.matchScore > 0 && !l.userPicked && (
