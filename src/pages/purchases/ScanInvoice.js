@@ -11,35 +11,47 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Card, Input, Select, Loader, Badge, ItemPicker } from '../../components/ui';
 import toast from 'react-hot-toast';
-import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X } from 'lucide-react';
+import { Camera, Upload, ArrowLeft, Check, RefreshCw, Sparkles, X, AlertTriangle } from 'lucide-react';
 
 // ── Image compression ────────────────────────────────────────────────────────
-const compressImage = (file, maxDim = 1800, quality = 0.87) =>
-  new Promise((resolve, reject) => {
+// Decode with the photo's EXIF orientation applied. These challans are shot
+// sideways on a phone, and a sideways table is read noticeably worse — rows
+// slide into each other and descriptions land on the wrong quantity.
+const decodeImage = async (file) => {
+  if (typeof createImageBitmap === 'function') {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch { /* older browsers ignore the option or reject it — fall through */ }
+  }
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({
-          base64: reader.result.split(',')[1],
-          mimeType: 'image/jpeg',
-          blob,
-          previewUrl: canvas.toDataURL('image/jpeg', 0.6),
-        });
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg', quality);
-    };
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
     img.src = url;
   });
+};
+
+// 2000px keeps the rate/quantity columns of a dense 7–20 row table legible;
+// below that the digits start to blur together on a phone photo.
+const compressImage = async (file, maxDim = 2000, quality = 0.9) => {
+  const src = await decodeImage(file);
+  const scale = Math.min(1, maxDim / Math.max(src.width, src.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(src.width * scale);
+  canvas.height = Math.round(src.height * scale);
+  canvas.getContext('2d').drawImage(src, 0, 0, canvas.width, canvas.height);
+  if (typeof src.close === 'function') src.close();
+
+  const blob = await new Promise((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Could not encode image')), 'image/jpeg', quality));
+  const base64 = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  return { base64, mimeType: 'image/jpeg', blob, previewUrl: canvas.toDataURL('image/jpeg', 0.6) };
+};
 
 // ── Fuzzy matching ───────────────────────────────────────────────────────────
 // Normalizes common local/OCR spellings so "PIPE RAINCH" matches "Pipe Wrench",
@@ -92,8 +104,11 @@ export default function ScanInvoice() {
 
   // review state
   const [meta, setMeta] = useState({ supplierId: '', supplierName: '', newSupplier: false,
-    documentNo: '', date: '', status: 'unpaid', remarks: '', previousBalance: 0, totalDue: 0 });
+    documentNo: '', date: '', status: 'unpaid', remarks: '', previousBalance: 0, totalDue: 0,
+    netTotal: 0 });
   const [lines, setLines] = useState([]);
+  // Everything the reading disagreed with the invoice's own printed totals on.
+  const [warnings, setWarnings] = useState([]);
 
   const handleFile = async (file) => {
     if (!file) return;
@@ -120,6 +135,7 @@ export default function ScanInvoice() {
 
       const d = res.data || {};
       setProvider(res.provider || '');
+      setWarnings(res.warnings || []);
       const suppMatch = bestMatch(d.supplierName || '', supps, 0.35);
       setMeta({
         supplierId: suppMatch?.id || '',
@@ -131,13 +147,20 @@ export default function ScanInvoice() {
         remarks: d.remarks || '',
         previousBalance: Number(d.previousBalance) || 0,
         totalDue: Number(d.totalDue) || 0,
+        netTotal: Number(d.netTotal) || Number(d.subtotal) || 0,
       });
       setLines((d.items || []).map((it) => {
+        // A line the reader flagged as the same printed row read twice starts
+        // skipped, so a phantom row can never be confirmed into stock by
+        // someone who trusted the count — it stays visible and restorable.
+        const dupOf = it.duplicateOf ?? null;
         const m = bestMatch(it.name || '', items);
         return {
           ocrName: it.name || '', unit: (it.unit || 'pcs').toLowerCase(),
           qty: Number(it.qty) || 0, rate: Number(it.rate) || 0,
-          action: m ? 'match' : 'create',
+          serial: it.serial ?? null,
+          duplicateOf: dupOf,
+          action: dupOf !== null ? 'skip' : (m ? 'match' : 'create'),
           itemId: m?.id || '',
           matchScore: m?._score || 0,
         };
@@ -168,6 +191,13 @@ export default function ScanInvoice() {
     if (!meta.supplierId && !meta.supplierName.trim()) return toast.error('Select or name a supplier');
     if (!activeLines.length) return toast.error('No line items to save');
     if (activeLines.some(l => l.action === 'match' && !l.itemId)) return toast.error('Pick an inventory item for every matched line (or set it to New/Skip)');
+    // Confirming posts stock and a supplier balance, so a reading that still
+    // disagrees with the invoice's own printed net total is worth stopping on.
+    if (meta.netTotal > 0 && Math.abs(total - meta.netTotal) > 1 && !window.confirm(
+      `These lines add up to ${formatCurrency(total)}, but the invoice's printed net total is ` +
+      `${formatCurrency(meta.netTotal)}.\n\nA line may have been read twice, missed, or read with ` +
+      `the wrong quantity. Save anyway?`
+    )) return;
     setStep('saving');
     try {
       // 1. supplier
@@ -288,7 +318,8 @@ export default function ScanInvoice() {
           <Btn variant="ghost" icon={ArrowLeft} onClick={() => navigate('/purchases')}>Back to Purchases</Btn>
           <div style={{ flex: 1 }} />
           {step === 'review' && (
-            <Btn variant="secondary" icon={RefreshCw} onClick={() => { setStep('capture'); setImg(null); }}>Rescan</Btn>
+            <Btn variant="secondary" icon={RefreshCw}
+              onClick={() => { setStep('capture'); setImg(null); setWarnings([]); }}>Rescan</Btn>
           )}
         </div>
 
@@ -362,10 +393,30 @@ export default function ScanInvoice() {
                 </div>
               </Card>
 
+              {warnings.length > 0 && (
+                <Card style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid var(--yellow, #eab308)' }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <AlertTriangle size={17} style={{ color: 'var(--yellow, #eab308)', flexShrink: 0, marginTop: 1 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.85rem', marginBottom: 6 }}>
+                        The reading doesn’t match the invoice’s own totals
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--text2)', fontSize: '0.82rem', lineHeight: 1.55 }}>
+                        {warnings.map((w, i) => <li key={i}>{w}</li>)}
+                      </ul>
+                      <div style={{ marginTop: 7, fontSize: '0.78rem', color: 'var(--text3)' }}>
+                        Fix the lines below before confirming, or rescan with the invoice flat and fully in frame.
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
               <Card style={{ padding: 0, overflow: 'hidden' }}>
                 <div style={{ padding: '13px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Extracted Items ({activeLines.length})
+                    Extracted Items ({activeLines.length}
+                    {lines.length !== activeLines.length ? ` of ${lines.length} read` : ''})
                   </span>
                   <span style={{ fontSize: '11px', color: 'var(--text3)' }}>Check every match before confirming</span>
                 </div>
@@ -385,8 +436,16 @@ export default function ScanInvoice() {
                       {lines.map((l, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid var(--border)', opacity: l.action === 'skip' ? 0.4 : 1 }}>
                           <td style={{ padding: '7px 8px', fontSize: '13px', maxWidth: 220 }}>
-                            <div style={{ fontWeight: 600 }}>{l.ocrName}</div>
+                            <div style={{ fontWeight: 600 }}>
+                              {l.serial ? <span style={{ color: 'var(--text3)', fontWeight: 500 }}>{l.serial}. </span> : null}
+                              {l.ocrName}
+                            </div>
                             <div style={{ fontSize: '11px', color: 'var(--text3)' }}>{l.unit}</div>
+                            {l.duplicateOf !== null && l.duplicateOf !== undefined && (
+                              <div style={{ fontSize: '10.5px', fontWeight: 600, color: 'var(--yellow, #eab308)' }}>
+                                Same row as line {l.duplicateOf} — skipped
+                              </div>
+                            )}
                           </td>
                           <td style={{ padding: '7px 8px', minWidth: 220 }}>
                             {l.action === 'skip' ? <span style={{ color: 'var(--text3)', fontSize: '12px' }}>skipped</span> : (
@@ -450,6 +509,13 @@ export default function ScanInvoice() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.1rem' }}>
                     <span>Total</span><span style={{ color: 'var(--purple)' }}>{formatCurrency(total)}</span>
                   </div>
+                  {meta.netTotal > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem',
+                                  color: Math.abs(total - meta.netTotal) > 1 ? 'var(--yellow, #eab308)' : 'var(--text2)',
+                                  fontWeight: Math.abs(total - meta.netTotal) > 1 ? 700 : 400 }}>
+                      <span>Printed net total on invoice</span><span>{formatCurrency(meta.netTotal)}</span>
+                    </div>
+                  )}
                   {meta.previousBalance > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text2)', fontSize: '0.8rem' }}>
                       <span>Prev. balance on invoice</span><span>{formatCurrency(meta.previousBalance)}</span>
