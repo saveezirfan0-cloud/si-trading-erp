@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { getAll, COLLECTIONS } from '../lib/db';
 import Header from '../components/layout/Header';
-import { Card, Btn, Input, Select, Textarea, PageHeader, Badge, FormGrid } from '../components/ui';
+import { Card, Btn, Input, Select, Textarea, PageHeader, FormGrid } from '../components/ui';
 import toast from 'react-hot-toast';
-import { MessageSquare, Send, Copy, ExternalLink, Phone } from 'lucide-react';
+import { MessageSquare, Send, Copy, Phone } from 'lucide-react';
 
 const TEMPLATES = [
   {
@@ -102,13 +102,13 @@ export default function WhatsApp() {
   return (
     <>
       <Header title="WhatsApp" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="WhatsApp Notifications"
           subtitle="Send messages to customers and suppliers via WhatsApp"
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div className="g-2" style={{ gap: 20 }}>
           {/* Compose */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <Card>

@@ -4,9 +4,9 @@ import { getAll, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Card, Btn, Tabs, Loader, PageHeader } from '../../components/ui';
-import { Download, FileText } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { exportPDF } from '../../lib/export';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = ['#f0a500', '#3b82f6', '#22c55e', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -94,7 +94,7 @@ export default function Reports() {
   return (
     <>
       <Header title="Reports" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Financial Reports"
           subtitle={`Period: ${periodLabel}`}
@@ -127,7 +127,7 @@ export default function Reports() {
             {tab === 'pl' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {/* Summary */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+                <div className="g-stats" style={{ gap: 16 }}>
                   {[
                     { label: 'Total Revenue', value: formatCurrency(totalIncome), color: 'var(--green)' },
                     { label: 'Total Expenses', value: formatCurrency(totalExpenses), color: 'var(--red)' },
@@ -185,7 +185,7 @@ export default function Reports() {
 
             {/* Balance Sheet */}
             {tab === 'balance' && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="g-2" style={{ gap: 16 }}>
                 <Card>
                   <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, color: 'var(--green)', marginBottom: 16 }}>ASSETS</h3>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>

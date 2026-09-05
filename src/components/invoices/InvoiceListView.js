@@ -313,11 +313,7 @@ export default function InvoiceListView({
         ]}
       />
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(auto-fit, minmax(190px, 1fr))',
-        gap: isMobile ? 10 : 16,
-      }}>
+      <div className="g-stats">
         <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
           sub={`${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
         <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />

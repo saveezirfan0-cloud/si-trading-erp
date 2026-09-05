@@ -228,12 +228,24 @@ export default function ScanInvoice() {
         supplierStatement: { previousBalance: meta.previousBalance, totalDue: meta.totalDue },
       });
 
-      // 4. attach the scan image (best-effort)
+      // 4. attach the scanned photo to the invoice it produced. The invoice is
+      // already saved, so a storage failure must not lose it — but it must not
+      // pass silently either, or the user believes they have an attachment.
+      const scanPath = `scans/${invoiceId}.jpg`;
       try {
-        await supabase.storage.from('erp-scans')
-          .upload(`scans/${invoiceId}.jpg`, img.blob, { contentType: 'image/jpeg', upsert: true });
-        await update(COLLECTIONS.PURCHASE_INVOICES, invoiceId, { scanPath: `scans/${invoiceId}.jpg` });
-      } catch (e) { console.warn('scan upload failed', e); }
+        const { error: upErr } = await supabase.storage.from('erp-scans')
+          .upload(scanPath, img.blob, { contentType: 'image/jpeg', upsert: true });
+        if (upErr) throw upErr;
+        await update(COLLECTIONS.PURCHASE_INVOICES, invoiceId, {
+          scanPath,
+          scanUploadedAt: new Date().toISOString(),
+          scanSize: img.blob.size,
+        });
+      } catch (e) {
+        console.warn('scan upload failed', e);
+        toast.error(`Invoice saved, but the scan image could not be attached: ${e.message || e}`,
+                    { duration: 7000 });
+      }
 
       // 5. inventory quantities + cost prices
       for (const l of resolvedLines) {
@@ -271,7 +283,7 @@ export default function ScanInvoice() {
   return (
     <>
       <Header title="Scan Purchase Invoice" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1250 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1250 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={() => navigate('/purchases')}>Back to Purchases</Btn>
           <div style={{ flex: 1 }} />
@@ -317,14 +329,14 @@ export default function ScanInvoice() {
         )}
 
         {step === 'review' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2.2fr) minmax(260px, 1fr)', gap: 20 }}>
+          <div className="g-main" style={{ gap: 20 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
               <Card>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                   <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invoice Details</span>
                   {provider && <Badge color="purple">read by {provider}</Badge>}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="g-2" style={{ gap: 12 }}>
                   <div>
                     <Select label="Supplier" value={meta.supplierId}
                       onChange={e => setMeta(m => ({ ...m, supplierId: e.target.value, newSupplier: !e.target.value }))}

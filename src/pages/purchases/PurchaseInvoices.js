@@ -32,7 +32,7 @@ export default function PurchaseInvoices() {
   return (
     <>
       <Header title="Purchase Invoices" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <InvoiceListView
           kind="purchase"
           collection={COLLECTIONS.PURCHASE_INVOICES}

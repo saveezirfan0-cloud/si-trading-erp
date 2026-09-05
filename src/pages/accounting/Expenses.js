@@ -99,7 +99,7 @@ export default function Expenses() {
   return (
     <>
       <Header title="Expenses" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Expenses"
           subtitle="Track all business expenses"
@@ -109,13 +109,13 @@ export default function Expenses() {
           ]}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Total Expenses" value={formatCurrency(totalAll)} icon={TrendingDown} color="var(--red)" />
           <StatCard label="This Month" value={formatCurrency(totalThisMonth)} icon={TrendingDown} color="var(--accent)" />
           <StatCard label="Entries" value={expenses.length} icon={TrendingDown} color="var(--blue)" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+        <div className="g-main" style={{ gap: 16 }}>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
             {loading ? <Loader /> : <Table columns={columns} data={expenses} />}
           </Card>

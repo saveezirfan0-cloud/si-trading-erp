@@ -1,31 +1,38 @@
 // src/components/layout/BottomNav.js
+//
+// Mobile bottom bar. The two actions the business does on a phone — scanning a
+// supplier invoice and writing a quick sale — get first-class slots; the centre
+// FAB is the scanner, since that is the camera-driven flow.
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Receipt, Zap, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Package, Receipt, Zap, Camera } from 'lucide-react';
 
 const BOTTOM_NAV = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard, end: true },
-  { label: 'Inventory', to: '/inventory', icon: Package },
-  { label: 'Invoice', to: '/sales/quick', icon: Zap, accent: true },
+  { label: 'Summary', to: '/', icon: LayoutDashboard, end: true },
+  { label: 'Stock', to: '/inventory', icon: Package },
+  { label: 'Scan', to: '/purchases/scan', icon: Camera, fab: true },
+  { label: 'Quick Sale', to: '/sales/quick', icon: Zap },
   { label: 'Sales', to: '/sales', icon: Receipt },
-  { label: 'Reports', to: '/reports', icon: BarChart3 },
 ];
 
 export default function BottomNav() {
   return (
-    <nav style={{
-      position: 'fixed',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 200,
-      background: 'var(--bg2)',
-      borderTop: '1px solid var(--border)',
-      display: 'flex',
-      alignItems: 'stretch',
-      height: 'calc(56px + env(safe-area-inset-bottom))',
-      paddingBottom: 'env(safe-area-inset-bottom)',
-    }}>
+    <nav
+      aria-label="Primary"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        background: 'var(--bg2)',
+        borderTop: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'stretch',
+        height: 'calc(58px + env(safe-area-inset-bottom))',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
+    >
       {BOTTOM_NAV.map((item) => {
         const Icon = item.icon;
         return (
@@ -35,42 +42,54 @@ export default function BottomNav() {
             end={item.end}
             style={({ isActive }) => ({
               flex: 1,
+              minWidth: 0,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
               gap: 3,
-              color: isActive ? 'var(--accent)' : item.accent ? 'var(--accent)' : 'var(--text3)',
+              color: isActive ? 'var(--accent)' : 'var(--text3)',
               textDecoration: 'none',
               fontSize: '0.6rem',
               fontWeight: isActive ? 700 : 500,
               fontFamily: 'var(--font-body)',
               WebkitTapHighlightColor: 'transparent',
               transition: 'color 0.15s',
-              position: 'relative',
+              padding: '0 2px',
             })}
           >
             {({ isActive }) => (
               <>
-                {item.accent ? (
-                  <div style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    background: isActive ? 'var(--accent2)' : 'var(--accent)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 4px 16px rgba(240,165,0,0.4)',
-                    marginTop: -10,
-                  }}>
-                    <Icon size={20} color="#000" strokeWidth={2.5} />
-                  </div>
+                {item.fab ? (
+                  <>
+                    <div style={{
+                      width: 46,
+                      height: 46,
+                      borderRadius: '50%',
+                      background: isActive ? 'var(--accent2)' : 'var(--accent)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 14px var(--accent-glow)',
+                      border: '3px solid var(--bg2)',
+                      marginTop: -18,
+                      marginBottom: 1,
+                    }}>
+                      <Icon size={21} color="var(--on-accent)" strokeWidth={2.4} />
+                    </div>
+                    <span style={{
+                      letterSpacing: '0.01em',
+                      color: isActive ? 'var(--accent)' : 'var(--text2)',
+                      fontWeight: 600,
+                    }}>
+                      {item.label}
+                    </span>
+                  </>
                 ) : (
                   <>
                     <div style={{
-                      width: 32,
-                      height: 28,
+                      width: 34,
+                      height: 26,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -78,9 +97,17 @@ export default function BottomNav() {
                       background: isActive ? 'var(--accent-glow)' : 'transparent',
                       transition: 'background 0.15s',
                     }}>
-                      <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+                      <Icon size={18} strokeWidth={isActive ? 2.4 : 1.8} />
                     </div>
-                    <span style={{ letterSpacing: '0.01em' }}>{item.label}</span>
+                    <span style={{
+                      letterSpacing: '0.01em',
+                      maxWidth: '100%',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {item.label}
+                    </span>
                   </>
                 )}
               </>

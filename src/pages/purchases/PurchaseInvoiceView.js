@@ -2,8 +2,9 @@
 import React from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
-import { Btn, Badge, Card } from '../../components/ui';
+import { Btn, Badge, Card, ScanAttachment } from '../../components/ui';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
+import { attachmentMeta } from '../../lib/invoices';
 
 export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
   const { formatCurrency } = useApp();
@@ -32,7 +33,7 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
   return (
     <>
       <Header title={`Purchase — ${invoice.invoiceNo}`} />
-      <div style={{ padding: 24, maxWidth: 900 }}>
+      <div className="page-pad" style={{ padding: 24, maxWidth: 900 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
           <div style={{ flex: 1 }} />
@@ -54,7 +55,7 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, marginBottom: 30 }}>
+            <div className="g-2" style={{ gap: 30, marginBottom: 30 }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Supplier</div>
                 <div style={{ fontWeight: 700, fontSize: '1rem' }}>{invoice.supplierName}</div>
@@ -136,6 +137,9 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
             )}
           </div>
         </Card>
+
+        {/* The photo this invoice was scanned from, or the file attached to it. */}
+        <ScanAttachment {...(attachmentMeta(invoice) || {})} />
       </div>
     </>
   );

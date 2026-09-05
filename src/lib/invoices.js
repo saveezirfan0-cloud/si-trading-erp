@@ -36,6 +36,23 @@ export const importBook = (inv) => {
 export const attachmentPath = (inv) => inv?.attachmentPath || inv?.scanPath || '';
 export const hasAttachment = (inv) => Boolean(attachmentPath(inv));
 
+// Everything the viewers need to render the attachment: an invoice carries
+// either a hand-attached file or the photo its OCR scan came from.
+export const attachmentMeta = (inv) => {
+  if (inv?.attachmentPath) {
+    return {
+      path: inv.attachmentPath,
+      uploadedAt: inv.attachmentUploadedAt,
+      size: inv.attachmentSize,
+      label: inv.attachmentName || 'Attachment',
+    };
+  }
+  if (inv?.scanPath) {
+    return { path: inv.scanPath, uploadedAt: inv.scanUploadedAt, size: inv.scanSize, label: 'Scanned invoice' };
+  }
+  return null;
+};
+
 // ── Money ─────────────────────────────────────────────────────────────────────
 export const invoiceTotal = (inv) => Number(inv?.total) || 0;
 export const paidAmount = (inv) => Number(inv?.paidAmount) || 0;

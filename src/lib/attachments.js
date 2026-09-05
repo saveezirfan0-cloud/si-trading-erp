@@ -32,14 +32,21 @@ export const uploadAttachment = async (collection, invoiceId, file) => {
     .from(SCAN_BUCKET)
     .upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: true });
   if (error) throw error;
-  await update(collection, invoiceId, { attachmentPath: path, attachmentName: file.name });
+  await update(collection, invoiceId, {
+    attachmentPath: path,
+    attachmentName: file.name,
+    attachmentUploadedAt: new Date().toISOString(),
+    attachmentSize: file.size,
+  });
   return path;
 };
 
 // Clears the reference first: an invoice pointing at a missing object is worse
 // than an orphaned object, and the delete is best-effort either way.
 export const removeAttachment = async (collection, invoiceId, path) => {
-  await update(collection, invoiceId, { attachmentPath: '', attachmentName: '' });
+  await update(collection, invoiceId, {
+    attachmentPath: '', attachmentName: '', attachmentUploadedAt: '', attachmentSize: 0,
+  });
   try {
     await supabase.storage.from(SCAN_BUCKET).remove([path]);
   } catch (e) {

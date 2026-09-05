@@ -28,7 +28,7 @@ export default function SalesInvoices() {
   return (
     <>
       <Header title="Sales Invoices" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <InvoiceListView
           kind="sales"
           collection={COLLECTIONS.SALES_INVOICES}
