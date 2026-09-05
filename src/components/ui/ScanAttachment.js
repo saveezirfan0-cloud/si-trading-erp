@@ -1,15 +1,16 @@
 // src/components/ui/ScanAttachment.js
 //
-// Shows the scanned photo attached to a purchase invoice. The erp-scans bucket
-// is private, so the image is fetched through a short-lived signed URL rather
-// than a public link.
+// Shows the file attached to an invoice — the photo an OCR scan came from, or
+// anything attached by hand from the list's quick view. The erp-scans bucket is
+// private, so the file is fetched through a short-lived signed URL rather than
+// a public link.
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import { Paperclip, ExternalLink, ImageOff, Loader2 } from 'lucide-react';
+import { signedUrl, isPdf } from '../../lib/attachments';
+import { Paperclip, ExternalLink, ImageOff, Loader2, FileText } from 'lucide-react';
 
 const SIGNED_URL_TTL = 60 * 60; // 1 hour
 
-export default function ScanAttachment({ path, uploadedAt, size }) {
+export default function ScanAttachment({ path, uploadedAt, size, label = 'Scanned invoice' }) {
   const [url, setUrl] = useState(null);
   const [state, setState] = useState('loading'); // loading | ready | error
   const [expanded, setExpanded] = useState(false);
@@ -17,11 +18,11 @@ export default function ScanAttachment({ path, uploadedAt, size }) {
   useEffect(() => {
     let alive = true;
     if (!path) { setState('error'); return; }
-    supabase.storage.from('erp-scans').createSignedUrl(path, SIGNED_URL_TTL)
-      .then(({ data, error }) => {
+    signedUrl(path, SIGNED_URL_TTL)
+      .then((link) => {
         if (!alive) return;
-        if (error || !data?.signedUrl) { setState('error'); return; }
-        setUrl(data.signedUrl);
+        if (!link) { setState('error'); return; }
+        setUrl(link);
         setState('ready');
       })
       .catch(() => alive && setState('error'));
@@ -37,7 +38,7 @@ export default function ScanAttachment({ path, uploadedAt, size }) {
       color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em',
     }}>
       <Paperclip size={14} />
-      <span style={{ flex: 1 }}>Scanned invoice</span>
+      <span style={{ flex: 1 }}>{label}</span>
       {url && (
         <a href={url} target="_blank" rel="noreferrer"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -65,11 +66,18 @@ export default function ScanAttachment({ path, uploadedAt, size }) {
       {state === 'error' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text3)',
                       fontSize: '0.84rem', padding: '18px 0' }}>
-          <ImageOff size={15} /> The attached scan could not be loaded.
+          <ImageOff size={15} /> The attached file could not be loaded.
         </div>
       )}
 
-      {state === 'ready' && (
+      {state === 'ready' && isPdf(path) && (
+        <a href={url} target="_blank" rel="noreferrer"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.84rem', padding: '18px 0' }}>
+          <FileText size={16} /> Open the attached PDF
+        </a>
+      )}
+
+      {state === 'ready' && !isPdf(path) && (
         <>
           <button
             onClick={() => setExpanded((v) => !v)}
