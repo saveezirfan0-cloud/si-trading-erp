@@ -1,59 +1,18 @@
 // src/pages/purchases/PurchaseInvoices.js
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { subscribe, remove, COLLECTIONS } from '../../lib/db';
-import { useApp } from '../../contexts/AppContext';
+import { COLLECTIONS } from '../../lib/db';
 import Header from '../../components/layout/Header';
-import { Table, Btn, Badge, PageHeader, Card, Loader, SearchBar, StatCard } from '../../components/ui';
-import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Download, Eye, FileText, TrendingDown, Camera, Paperclip } from 'lucide-react';
-import { exportCSV } from '../../lib/export';
+import { Btn } from '../../components/ui';
+import { Camera } from 'lucide-react';
+import InvoiceListView from '../../components/invoices/InvoiceListView';
 import PurchaseInvoiceForm from './PurchaseInvoiceForm';
 import PurchaseInvoiceView from './PurchaseInvoiceView';
 
 export default function PurchaseInvoices() {
-  const { formatCurrency, filterByFiscalYear, fiscalYear, fiscalYearLabel } = useApp();
   const navigate = useNavigate();
-  const [allInvoices, setAllInvoices] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
-
-  useEffect(() => {
-    const unsub = subscribe(COLLECTIONS.PURCHASE_INVOICES, (data) => {
-      const sorted = data.sort((a, b) => (b.invoiceNo || '').localeCompare(a.invoiceNo || ''));
-      setAllInvoices(sorted); setLoading(false);
-    });
-    return () => unsub();
-  }, []);
-
-  // Everything below works on the fiscal-year-scoped list.
-  const invoices = useMemo(
-    () => filterByFiscalYear(allInvoices),
-    [allInvoices, filterByFiscalYear]
-  );
-
-  useEffect(() => {
-    const q = search.toLowerCase();
-    setFiltered(invoices.filter(i =>
-      i.invoiceNo?.toLowerCase().includes(q) ||
-      i.supplierName?.toLowerCase().includes(q) ||
-      i.status?.toLowerCase().includes(q)
-    ));
-  }, [search, invoices]);
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this purchase invoice?')) return;
-    try { await remove(COLLECTIONS.PURCHASE_INVOICES, id); toast.success('Deleted'); }
-    catch (e) { toast.error(e.message); }
-  };
-
-  const totalPurchases = invoices.reduce((s, i) => s + (i.total || 0), 0);
-  const totalPaid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.total || 0), 0);
-  const totalDue = invoices.filter(i => i.status !== 'paid' && i.status !== 'cancelled').reduce((s, i) => s + (i.total || 0), 0);
-  const statusColor = s => ({ paid: 'green', unpaid: 'red', partial: 'yellow', draft: 'default', cancelled: 'red' }[s] || 'default');
 
   if (view === 'form') return (
     <PurchaseInvoiceForm
@@ -70,56 +29,28 @@ export default function PurchaseInvoices() {
     />
   );
 
-  const columns = [
-    { key: 'invoiceNo', label: 'Invoice #', render: v => <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--purple)', fontWeight: 700 }}>{v}</span> },
-    { key: 'supplierName', label: 'Supplier' },
-    { key: 'supplierInvoiceNo', label: 'Supplier Ref' },
-    { key: 'date', label: 'Date' },
-    { key: 'items', label: 'Items', render: (v, r) => (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Badge color="purple">{v?.length || 0} items</Badge>
-        {r.scanPath && (
-          <span title="Scanned invoice attached" style={{ display: 'inline-flex', color: 'var(--text3)' }}>
-            <Paperclip size={13} />
-          </span>
-        )}
-      </div>
-    )},
-    { key: 'total', label: 'Total', align: 'right', render: v => <span style={{ fontWeight: 700 }}>{formatCurrency(v || 0)}</span> },
-    { key: 'status', label: 'Status', render: v => <Badge color={statusColor(v)}>{v}</Badge> },
-    { key: '_actions', label: '', render: (_, row) => (
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-        <Btn size="sm" variant="secondary" icon={Eye} onClick={e => { e.stopPropagation(); setSelected(row); setView('preview'); }}>View</Btn>
-        <Btn size="sm" variant="secondary" icon={Edit2} onClick={e => { e.stopPropagation(); setSelected(row); setView('form'); }}>Edit</Btn>
-        <Btn size="sm" variant="danger" icon={Trash2} onClick={e => { e.stopPropagation(); handleDelete(row.id); }} />
-      </div>
-    )},
-  ];
-
   return (
     <>
       <Header title="Purchase Invoices" />
       <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <PageHeader
+        <InvoiceListView
+          kind="purchase"
+          collection={COLLECTIONS.PURCHASE_INVOICES}
           title="Purchase Invoices"
-          subtitle={`${invoices.length} ${invoices.length === 1 ? 'invoice' : 'invoices'}` + (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')}
-          actions={[
-            <Btn key="exp" variant="secondary" icon={Download} onClick={() => exportCSV(invoices, 'purchase_invoices')}>Export</Btn>,
+          partyField="supplierName"
+          partyLabel="Supplier"
+          accent="var(--purple)"
+          badgeColor="purple"
+          totalLabel="Total Purchases"
+          newLabel="New Purchase"
+          exportName="purchase_invoices"
+          extraActions={[
             <Btn key="scan" variant="secondary" icon={Camera} onClick={() => navigate('/purchases/scan')}>Scan Invoice</Btn>,
-            <Btn key="add" icon={Plus} onClick={() => { setSelected(null); setView('form'); }}>New Purchase</Btn>,
           ]}
+          onNew={() => { setSelected(null); setView('form'); }}
+          onEditRow={(row) => { setSelected(row); setView('form'); }}
+          onOpenRow={(row) => { setSelected(row); setView('preview'); }}
         />
-        <div className="g-stats" style={{ gap: 16 }}>
-          <StatCard label="Total Purchases" value={formatCurrency(totalPurchases)} icon={TrendingDown} color="var(--purple)" />
-          <StatCard label="Total Paid" value={formatCurrency(totalPaid)} icon={TrendingDown} color="var(--green)" />
-          <StatCard label="Outstanding" value={formatCurrency(totalDue)} icon={FileText} color="var(--red)" />
-        </div>
-        <Card style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 12 }}>
-            <SearchBar value={search} onChange={setSearch} placeholder="Search purchases..." />
-          </div>
-          {loading ? <Loader /> : <Table columns={columns} data={filtered} onRowClick={row => { setSelected(row); setView('preview'); }} />}
-        </Card>
       </div>
     </>
   );

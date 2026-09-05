@@ -1,7 +1,10 @@
 // src/components/ui/index.js
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  X, Search, Loader2, ChevronLeft, ChevronRight,
+  ArrowUp, ArrowDown, ArrowUpDown,
+} from 'lucide-react';
 
 // ─── Button ───────────────────────────────────────────────────────────────────
 export function Btn({ children, variant = 'primary', size = 'md', onClick, type = 'button', disabled, style, icon: Icon }) {
@@ -188,6 +191,15 @@ export function Table({
   emptyMsg = 'No records found.',
   pageSize: initialPageSize = 50,
   paginate = true,
+  // Sorting is owned by the caller: it already has to sort the full list for
+  // export, so the table only renders the affordance and reports clicks.
+  sort,
+  onSort,
+  // Selection works on the whole (filtered) list, not just the visible page —
+  // bulk actions are the reason to select at all.
+  selectable = false,
+  selectedIds = [],
+  onSelectionChange,
 }) {
   const rows = useMemo(() => data || [], [data]);
   const total = rows.length;
@@ -204,6 +216,21 @@ export function Table({
 
   const startIdx = enabled ? (page - 1) * pageSize : 0;
   const visible = enabled ? rows.slice(startIdx, startIdx + pageSize) : rows;
+
+  const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const allSelected = total > 0 && rows.every((r) => selected.has(r.id));
+
+  const toggleRow = (id) => {
+    if (!onSelectionChange) return;
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    onSelectionChange([...next]);
+  };
+
+  const toggleAll = () => {
+    if (!onSelectionChange) return;
+    onSelectionChange(allSelected ? [] : rows.map((r) => r.id));
+  };
 
   const navBtn = (disabled) => ({
     display: 'flex', alignItems: 'center', gap: 4,
@@ -222,62 +249,111 @@ export function Table({
     fontVariantNumeric: 'tabular-nums', cursor: 'pointer',
   });
 
+  const headStyle = (col) => ({
+    textAlign: col.align || 'left',
+    padding: '10px 14px',
+    fontSize: '0.72rem',
+    fontFamily: 'var(--font-head)',
+    fontWeight: 700,
+    color: 'var(--text3)',
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+    whiteSpace: 'nowrap',
+  });
+
+  const renderHead = (col) => {
+    const key = col.sortKey || col.key;
+    if (!col.sortable || !onSort) return col.label;
+    const active = sort?.key === key;
+    const Arrow = active && sort?.dir === 'asc' ? ArrowUp : ArrowDown;
+    return (
+      <button
+        onClick={() => onSort(key)}
+        title={`Sort by ${col.label}`}
+        style={{
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          font: 'inherit', letterSpacing: 'inherit', textTransform: 'inherit',
+          color: active ? 'var(--accent)' : 'var(--text3)',
+        }}
+      >
+        {col.label}
+        {active
+          ? <Arrow size={12} />
+          : <ArrowUpDown size={12} style={{ opacity: 0.45 }} />}
+      </button>
+    );
+  };
+
+  const checkbox = (checked, onChange, label) => (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      onClick={(e) => e.stopPropagation()}
+      aria-label={label}
+      style={{ width: 15, height: 15, accentColor: 'var(--accent)', cursor: 'pointer' }}
+    />
+  );
+
   return (
     <>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {columns.map(col => (
-                <th key={col.key} style={{
-                  textAlign: col.align || 'left',
-                  padding: '10px 14px',
-                  fontSize: '0.72rem',
-                  fontFamily: 'var(--font-head)',
-                  fontWeight: 700,
-                  color: 'var(--text3)',
-                  letterSpacing: '0.05em',
-                  textTransform: 'uppercase',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {col.label}
+              {selectable && (
+                <th style={{ ...headStyle({}), width: 36, paddingRight: 0 }}>
+                  {checkbox(allSelected, toggleAll, 'Select all rows')}
                 </th>
+              )}
+              {columns.map(col => (
+                <th key={col.key} style={headStyle(col)}>{renderHead(col)}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {visible.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
+                <td colSpan={columns.length + (selectable ? 1 : 0)} style={{ padding: 40, textAlign: 'center', color: 'var(--text3)' }}>
                   {emptyMsg}
                 </td>
               </tr>
             ) : (
-              visible.map((row, i) => (
-                <tr
-                  key={row.id || startIdx + i}
-                  onClick={() => onRowClick && onRowClick(row)}
-                  style={{
-                    borderBottom: '1px solid var(--border)',
-                    cursor: onRowClick ? 'pointer' : 'default',
-                    transition: 'background 0.1s',
-                  }}
-                  onMouseEnter={e => onRowClick && (e.currentTarget.style.background = 'var(--bg3)')}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  {columns.map(col => (
-                    <td key={col.key} style={{
-                      padding: '10px 14px',
-                      fontSize: '0.85rem',
-                      color: 'var(--text)',
-                      textAlign: col.align || 'left',
-                      whiteSpace: col.wrap ? 'normal' : 'nowrap',
-                    }}>
-                      {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              visible.map((row, i) => {
+                const isSelected = selectable && selected.has(row.id);
+                return (
+                  <tr
+                    key={row.id || startIdx + i}
+                    onClick={() => onRowClick && onRowClick(row)}
+                    style={{
+                      borderBottom: '1px solid var(--border)',
+                      cursor: onRowClick ? 'pointer' : 'default',
+                      background: isSelected ? 'var(--accent-glow)' : 'transparent',
+                      transition: 'background 0.1s',
+                    }}
+                    onMouseEnter={e => onRowClick && !isSelected && (e.currentTarget.style.background = 'var(--bg3)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = isSelected ? 'var(--accent-glow)' : 'transparent')}
+                  >
+                    {selectable && (
+                      <td style={{ padding: '10px 0 10px 14px', width: 36 }}>
+                        {checkbox(isSelected, () => toggleRow(row.id), `Select row ${row.id}`)}
+                      </td>
+                    )}
+                    {columns.map(col => (
+                      <td key={col.key} style={{
+                        padding: '10px 14px',
+                        fontSize: '0.85rem',
+                        color: 'var(--text)',
+                        textAlign: col.align || 'left',
+                        whiteSpace: col.wrap ? 'normal' : 'nowrap',
+                      }}>
+                        {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -367,30 +443,126 @@ export function Badge({ children, color = 'default' }) {
 }
 
 // ─── SearchBar ────────────────────────────────────────────────────────────────
-export function SearchBar({ value, onChange, placeholder = 'Search...' }) {
+export function SearchBar({ value, onChange, placeholder = 'Search...', inputRef, width = 240 }) {
   return (
     <div style={{ position: 'relative' }}>
       <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)' }} />
       <input
+        ref={inputRef}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        style={{ padding: '8px 12px 8px 30px', width: 240 }}
+        style={{ padding: '8px 12px 8px 30px', width, maxWidth: '100%' }}
       />
+      {value ? (
+        <button
+          onClick={() => onChange('')}
+          aria-label="Clear search"
+          style={{
+            position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
+            background: 'none', border: 'none', color: 'var(--text3)',
+            cursor: 'pointer', padding: 4, display: 'flex',
+          }}
+        >
+          <X size={13} />
+        </button>
+      ) : null}
     </div>
   );
 }
 
-// ─── StatCard ─────────────────────────────────────────────────────────────────
-export function StatCard({ label, value, icon: Icon, color = 'var(--accent)', trend, sub }) {
+// ─── Chip ─────────────────────────────────────────────────────────────────────
+// A toggleable filter pill, optionally carrying the number of rows it matches.
+export function Chip({ children, active, onClick, count, color = 'var(--accent)', title }) {
   return (
-    <Card style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '0.75rem', color: 'var(--text2)', fontFamily: 'var(--font-head)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
-        {Icon && <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}><Icon size={16} /></div>}
+    <button
+      onClick={onClick}
+      title={title}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '5px 11px', borderRadius: 99,
+        background: active ? 'var(--accent-glow)' : 'var(--bg2)',
+        border: `1px solid ${active ? color : 'var(--border)'}`,
+        color: active ? color : 'var(--text2)',
+        fontFamily: 'var(--font-head)',
+        fontSize: '0.75rem', fontWeight: active ? 700 : 500,
+        cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
+      }}
+    >
+      {children}
+      {count != null && (
+        <span style={{
+          fontVariantNumeric: 'tabular-nums', fontSize: '0.7rem',
+          color: active ? color : 'var(--text3)',
+        }}>
+          {count}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// ─── FilterField ──────────────────────────────────────────────────────────────
+// Compact labelled control for filter bars — narrower and denser than the form
+// Input/Select, so a dozen of them still fit on one screen.
+const filterControlStyle = {
+  padding: '6px 9px', width: '100%', fontSize: '0.8rem',
+  borderRadius: 8, minHeight: 32,
+};
+
+export function FilterField({ label, children }) {
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
+      <span style={{
+        fontSize: '0.68rem', color: 'var(--text3)', fontFamily: 'var(--font-head)',
+        fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
+      }}>
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+export function FilterSelect({ label, value, onChange, options = [] }) {
+  return (
+    <FilterField label={label}>
+      <select value={value ?? ''} onChange={e => onChange(e.target.value)} style={filterControlStyle}>
+        {options.map(o => (
+          <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>
+        ))}
+      </select>
+    </FilterField>
+  );
+}
+
+export function FilterInput({ label, value, onChange, type = 'text', placeholder, min }) {
+  return (
+    <FilterField label={label}>
+      <input
+        type={type}
+        value={value ?? ''}
+        min={min}
+        placeholder={placeholder}
+        onChange={e => onChange(e.target.value)}
+        style={filterControlStyle}
+      />
+    </FilterField>
+  );
+}
+
+// ─── StatCard ─────────────────────────────────────────────────────────────────
+// `compact` shrinks the tile so a row of them still fits on a phone.
+export function StatCard({ label, value, icon: Icon, color = 'var(--accent)', trend, sub, compact }) {
+  return (
+    <Card style={{ display: 'flex', flexDirection: 'column', gap: compact ? 6 : 12, padding: compact ? 12 : 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+        <span style={{ fontSize: compact ? '0.65rem' : '0.75rem', color: 'var(--text2)', fontFamily: 'var(--font-head)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
+        {Icon && !compact && <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}><Icon size={16} /></div>}
+        {Icon && compact && <Icon size={13} color={color} style={{ flexShrink: 0 }} />}
       </div>
-      <div style={{ fontFamily: 'var(--font-head)', fontSize: '1.6rem', fontWeight: 800, color: 'var(--text)' }}>{value}</div>
-      {sub && <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>{sub}</div>}
+      <div style={{ fontFamily: 'var(--font-head)', fontSize: compact ? '1.05rem' : '1.6rem', fontWeight: 800, color: 'var(--text)' }}>{value}</div>
+      {sub && <div style={{ fontSize: compact ? '0.68rem' : '0.75rem', color: 'var(--text3)' }}>{sub}</div>}
     </Card>
   );
 }

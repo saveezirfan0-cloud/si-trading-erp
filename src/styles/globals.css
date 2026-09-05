@@ -138,6 +138,19 @@ input, select, textarea {
   appearance: none;
 }
 
+/* Checkboxes and radios need their native painting back: the appearance reset
+   above leaves an empty rounded box that never looks ticked. */
+input[type="checkbox"], input[type="radio"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+  accent-color: var(--accent);
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);

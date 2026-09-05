@@ -4,6 +4,7 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Badge, Card, ScanAttachment } from '../../components/ui';
 import { ArrowLeft, Edit2, Printer } from 'lucide-react';
+import { attachmentMeta } from '../../lib/invoices';
 
 export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
   const { formatCurrency } = useApp();
@@ -137,12 +138,8 @@ export default function PurchaseInvoiceView({ invoice, onBack, onEdit }) {
           </div>
         </Card>
 
-        {/* The photo this invoice was scanned from, when it came via OCR. */}
-        <ScanAttachment
-          path={invoice.scanPath}
-          uploadedAt={invoice.scanUploadedAt}
-          size={invoice.scanSize}
-        />
+        {/* The photo this invoice was scanned from, or the file attached to it. */}
+        <ScanAttachment {...(attachmentMeta(invoice) || {})} />
       </div>
     </>
   );
