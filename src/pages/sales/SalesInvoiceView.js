@@ -15,7 +15,6 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
   const statusClr = s => ({ paid: '#166534', unpaid: '#991b1b', partial: '#854d0e', draft: '#374151', cancelled: '#991b1b' }[s] || '#374151');
 
   const handlePrint = () => {
-    const content = document.getElementById('invoice-print-area').innerHTML;
     const win = window.open('', '_blank', 'width=900,height=700');
     win.document.write(`<!DOCTYPE html>
 <html>
@@ -170,7 +169,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
   return (
     <>
       <Header title={`Invoice — ${invoice.invoiceNo}`} />
-      <div style={{ padding: 24, maxWidth: 860 }}>
+      <div className="page-pad" style={{ padding: 24, maxWidth: 860 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
           <div style={{ flex: 1 }} />
@@ -199,7 +198,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
           </div>
 
           {/* Meta */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 32 }}>
+          <div className="g-2" style={{ gap: 32, marginBottom: 32 }}>
             <div>
               <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Bill To</div>
               <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{invoice.customerName}</div>
@@ -279,7 +278,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit }) {
 
           {/* Footer */}
           {(invoice.notes || invoice.terms) && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+            <div className="g-2" style={{ gap: 24, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
               {invoice.notes && <div>
                 <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Notes</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text2)', lineHeight: 1.6 }}>{invoice.notes}</div>

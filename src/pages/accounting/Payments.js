@@ -96,7 +96,7 @@ export default function Payments() {
   return (
     <>
       <Header title="Payments" />
-      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <PageHeader
           title="Payments"
           subtitle="Customer receipts & supplier payments"
@@ -106,7 +106,7 @@ export default function Payments() {
           ]}
         />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="g-stats" style={{ gap: 16 }}>
           <StatCard label="Received" value={formatCurrency(totalIn)} icon={ArrowDownLeft} color="var(--green)" />
           <StatCard label="Paid Out" value={formatCurrency(totalOut)} icon={ArrowUpRight} color="var(--red)" />
           <StatCard label="Net" value={formatCurrency(totalIn - totalOut)} icon={ArrowDownLeft} color="var(--accent)" />
