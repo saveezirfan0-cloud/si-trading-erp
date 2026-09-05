@@ -1,27 +1,21 @@
 // src/components/invoices/InvoiceQuickView.js
 //
 // Peek at an invoice without leaving the list: header facts, the line items,
-// the money, and the scan or file attached to it. The full print view is one
-// click away for when the whole document is wanted.
-import React, { useCallback, useEffect, useState } from 'react';
+// the money, and its paperwork — the same attachment panel the invoice page
+// shows, so a file added here appears there and the other way round. The full
+// print view is one click away for when the whole document is wanted.
+import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
-import { Modal, Btn, Badge, Loader } from '../ui';
-import {
-  Paperclip, ExternalLink, Upload, Trash2, FileText, Edit2, Eye,
-  AlertTriangle, CheckCircle2, Download, ShieldCheck,
-} from 'lucide-react';
+import { Modal, Btn, Badge, Attachments } from '../ui';
+import { Edit2, Eye, CheckCircle2, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { update } from '../../lib/db';
 import {
-  SOURCES, invoiceSource, importBook, attachmentPath, balanceDue,
+  SOURCES, invoiceSource, importBook, hasAttachment, balanceDue,
   daysOverdue, invoiceIssues, invoiceTotal, paidAmount,
 } from '../../lib/invoices';
-import {
-  signedUrl, uploadAttachment, removeAttachment, isPdf, ACCEPTED_ATTACHMENTS,
-} from '../../lib/attachments';
 import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
 import { getCurrentActor } from '../../lib/audit';
-
 
 function Row({ label, value, color }) {
   return (
@@ -45,26 +39,7 @@ export default function InvoiceQuickView({
   onEdit,
 }) {
   const { formatCurrency, formatDate } = useApp();
-  const [url, setUrl] = useState(null);
-  const [loadingFile, setLoadingFile] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const path = attachmentPath(invoice);
-
-  const loadFile = useCallback(async () => {
-    if (!path) { setUrl(null); return; }
-    setLoadingFile(true);
-    try {
-      setUrl(await signedUrl(path));
-    } catch (e) {
-      console.warn('attachment link failed', e);
-      setUrl(null);
-      toast.error('Could not open the attachment');
-    }
-    setLoadingFile(false);
-  }, [path]);
-
-  useEffect(() => { loadFile(); }, [loadFile]);
 
   if (!invoice) return null;
 
@@ -73,33 +48,6 @@ export default function InvoiceQuickView({
   const issues = invoiceIssues(invoice, partyField);
   const late = daysOverdue(invoice);
   const balance = balanceDue(invoice);
-  const isManualFile = Boolean(invoice.attachmentPath);
-
-  const handleUpload = async (file) => {
-    if (!file) return;
-    setBusy(true);
-    try {
-      await uploadAttachment(collection, invoice.id, file);
-      toast.success('Attachment saved');
-      onClose();
-    } catch (e) {
-      toast.error(e.message || 'Upload failed');
-    }
-    setBusy(false);
-  };
-
-  const handleRemove = async () => {
-    if (!window.confirm('Remove this attachment?')) return;
-    setBusy(true);
-    try {
-      await removeAttachment(collection, invoice.id, invoice.attachmentPath);
-      toast.success('Attachment removed');
-      onClose();
-    } catch (e) {
-      toast.error(e.message || 'Could not remove the attachment');
-    }
-    setBusy(false);
-  };
 
   // Sign-off, with the approval stamped onto the invoice and into its history.
   const approve = async () => {
@@ -142,7 +90,7 @@ export default function InvoiceQuickView({
           <Badge color={SOURCES[source].color}>{SOURCES[source].label}</Badge>
           {book && <Badge>{book}</Badge>}
           {invoice.date && <Badge color="blue">{String(invoice.date).slice(0, 4)}</Badge>}
-          {path && <Badge color="green">Attachment</Badge>}
+          {hasAttachment(invoice) && <Badge color="green">Attachment</Badge>}
           {late > 0 && <Badge color="red">{late} days overdue</Badge>}
           {issues.map(i => <Badge key={i} color="yellow">{i}</Badge>)}
         </div>
@@ -203,76 +151,17 @@ export default function InvoiceQuickView({
           </div>
         </div>
 
-        {/* Attachment */}
+        {/* The invoice's paperwork — the same list the invoice page shows. */}
         <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: path ? 12 : 0, flexWrap: 'wrap' }}>
-            <Paperclip size={14} color="var(--text2)" />
-            <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.85rem' }}>Attachment</span>
-            <div style={{ flex: 1 }} />
-            {path && url && (
-              <>
-                <Btn size="sm" variant="secondary" icon={ExternalLink}
-                  onClick={() => window.open(url, '_blank', 'noopener')}>Open</Btn>
-                <a href={url} download style={{ textDecoration: 'none' }}>
-                  <Btn size="sm" variant="secondary" icon={Download}>Download</Btn>
-                </a>
-              </>
-            )}
-            {canEdit && isManualFile && (
-              <Btn size="sm" variant="danger" icon={Trash2} onClick={handleRemove} disabled={busy}>Remove</Btn>
-            )}
-            {canEdit && (
-              <label style={{ display: 'inline-flex' }}>
-                <input
-                  type="file"
-                  accept={ACCEPTED_ATTACHMENTS}
-                  hidden
-                  disabled={busy}
-                  onChange={e => handleUpload(e.target.files?.[0])}
-                />
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'var(--bg3)', border: '1px solid var(--border2)',
-                  color: 'var(--text)', borderRadius: 7, padding: '5px 12px',
-                  fontSize: '0.78rem', cursor: busy ? 'wait' : 'pointer',
-                }}>
-                  <Upload size={14} />{path ? 'Replace' : 'Attach file'}
-                </span>
-              </label>
-            )}
-          </div>
-
-          {!path && (
-            <p style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>
-              No file attached. {canEdit ? 'Attach a photo or PDF of the original document.' : ''}
-            </p>
-          )}
-          {path && loadingFile && <Loader />}
-          {path && !loadingFile && url && (
-            isPdf(path)
-              ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text2)', fontSize: '0.82rem' }}>
-                  <FileText size={16} /> {invoice.attachmentName || path.split('/').pop()} — open to view the PDF.
-                </div>
-              )
-              : (
-                <img
-                  src={url}
-                  alt="Invoice attachment"
-                  style={{
-                    width: '100%', maxHeight: 340, objectFit: 'contain',
-                    borderRadius: 'var(--radius)', background: 'var(--bg)',
-                    border: '1px solid var(--border)',
-                  }}
-                />
-              )
-          )}
-          {path && !loadingFile && !url && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--red)', fontSize: '0.82rem' }}>
-              <AlertTriangle size={15} /> The stored file could not be loaded.
-            </div>
-          )}
+          <Attachments
+            collection={collection}
+            invoice={invoice}
+            canEdit={canEdit}
+            variant="plain"
+            hint="No file attached yet."
+          />
         </div>
+
 
         {invoice.notes && (
           <div>

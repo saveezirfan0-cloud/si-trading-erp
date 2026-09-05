@@ -3,7 +3,7 @@
 import {
   invoiceSource, importBook, balanceDue, daysOverdue, isDueSoon, yearsOf,
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
-  activeFilterCount, hasAttachment, attachmentCount, EMPTY_FILTERS,
+  activeFilterCount, hasAttachment, attachmentCount, attachmentEntries, EMPTY_FILTERS,
   duplicateKey, findDuplicate, activeInvoices, duplicateInvoices,
 } from './invoices';
 
@@ -137,13 +137,6 @@ test('the summary reports what is waiting for approval separately', () => {
   });
 });
 
-test('paperwork counts the quick-view file and the invoice page attachments', () => {
-  expect(hasAttachment(imported)).toBe(false);
-  expect(attachmentCount(scanned)).toBe(1);
-  expect(attachmentCount({ ...imported, attachments: [{ path: 'a' }, { path: 'b' }] })).toBe(2);
-  expect(hasAttachment({ ...imported, attachments: [{ path: 'a' }] })).toBe(true);
-});
-
 // ── Duplicates ────────────────────────────────────────────────────────────────
 describe('duplicate detection', () => {
   const original = {
@@ -194,4 +187,39 @@ describe('duplicate detection', () => {
     expect(activeInvoices([original, repeat]).map(r => r.id)).toEqual(['d1']);
     expect(duplicateInvoices([original, repeat]).map(r => r.id)).toEqual(['d2']);
   });
+});
+
+// ── Attachments ───────────────────────────────────────────────────────────────
+//
+// Three shapes exist in the data — the OCR scan, the single file the quick view
+// used to write, and the list everything writes now. All three have to show up
+// as one set of paperwork.
+
+test('paperwork is read from all three shapes at once', () => {
+  expect(hasAttachment(imported)).toBe(false);
+  expect(attachmentCount(imported)).toBe(0);
+
+  // the OCR photo alone
+  expect(attachmentCount(scanned)).toBe(1);
+  expect(attachmentEntries(scanned)[0]).toMatchObject({
+    path: 'scans/c.jpg', bucket: 'erp-scans', legacy: 'scan', name: 'Scanned invoice',
+  });
+
+  // the legacy single file alone, named from the stored name
+  const single = { ...imported, attachmentPath: 'attachments/x.pdf', attachmentName: 'Bill.pdf' };
+  expect(attachmentEntries(single)[0]).toMatchObject({
+    bucket: 'erp-scans', legacy: 'attachment', name: 'Bill.pdf',
+  });
+
+  // all three together, scan first, and entries from the list are not legacy
+  const everything = {
+    ...single,
+    scanPath: 'scans/a.jpg',
+    attachments: [{ path: 'erp_sales_invoices/a/1-note.jpg', name: 'note.jpg' }],
+  };
+  const entries = attachmentEntries(everything);
+  expect(entries.map(e => e.legacy)).toEqual(['scan', 'attachment', null]);
+  expect(entries[2]).toMatchObject({ bucket: 'erp-attachments', name: 'note.jpg' });
+  expect(attachmentCount(everything)).toBe(3);
+  expect(hasAttachment(everything)).toBe(true);
 });

@@ -6,6 +6,7 @@
 // answer those questions identically.
 
 import { isProvisional, needsApproval } from './invoiceStatus';
+import { attachmentEntries, attachmentCount, hasAttachment } from './attachments';
 
 // ── Provenance ────────────────────────────────────────────────────────────────
 //
@@ -35,30 +36,12 @@ export const importBook = (inv) => {
 };
 
 // ── Attachments ───────────────────────────────────────────────────────────────
-export const attachmentPath = (inv) => inv?.attachmentPath || inv?.scanPath || '';
-// The list's quick view attaches one file to `attachmentPath`; the invoice page
-// can hold any number in `attachments`. A row counts as having paperwork when
-// either is present.
-export const attachmentCount = (inv) =>
-  (attachmentPath(inv) ? 1 : 0) + (inv?.attachments?.length || 0);
-export const hasAttachment = (inv) => attachmentCount(inv) > 0;
-
-// Everything the viewers need to render the attachment: an invoice carries
-// either a hand-attached file or the photo its OCR scan came from.
-export const attachmentMeta = (inv) => {
-  if (inv?.attachmentPath) {
-    return {
-      path: inv.attachmentPath,
-      uploadedAt: inv.attachmentUploadedAt,
-      size: inv.attachmentSize,
-      label: inv.attachmentName || 'Attachment',
-    };
-  }
-  if (inv?.scanPath) {
-    return { path: inv.scanPath, uploadedAt: inv.scanUploadedAt, size: inv.scanSize, label: 'Scanned invoice' };
-  }
-  return null;
-};
+//
+// An invoice's documents — the OCR photo, the supplier's PDF, a delivery note —
+// are described in one place (src/lib/attachments.js). These are re-exported
+// here because the list, its filters and the exports all ask the same question:
+// does this row have paperwork, and how much.
+export { attachmentEntries, attachmentCount, hasAttachment };
 
 // ── Money ─────────────────────────────────────────────────────────────────────
 export const invoiceTotal = (inv) => Number(inv?.total) || 0;
