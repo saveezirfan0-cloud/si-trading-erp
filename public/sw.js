@@ -5,22 +5,25 @@
      • Firebase/API calls          → Network-Only (never cache live data)
    ───────────────────────────────────────────────────────────────────────── */
 
-const CACHE_NAME = 'si-erp-v1';
+const CACHE_NAME = 'si-erp-v2';
 const OFFLINE_URL = '/offline.html';
 
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
   '/manifest.json',
+  '/logo192.png',
+  '/logo512.png',
 ];
 
 // ── Install: pre-cache shell ────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Silently ignore if offline.html doesn't exist yet during dev
-      });
+      // Per-asset so one missing file can't fail the whole install.
+      return Promise.all(
+        STATIC_ASSETS.map((url) => cache.add(url).catch(() => {}))
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -64,7 +67,10 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cached = await caches.match(request);
-          return cached || caches.match(OFFLINE_URL) || new Response(
+          if (cached) return cached;
+          const offline = await caches.match(OFFLINE_URL);
+          if (offline) return offline;
+          return new Response(
             '<h1>You are offline</h1><p>Please reconnect to use SI ERP.</p>',
             { headers: { 'Content-Type': 'text/html' } }
           );

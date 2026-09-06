@@ -336,11 +336,48 @@ ITM001,Samsung,Galaxy A15,Electronics,pcs,45000,52000,10,3
 
 ## PWA — Install on Mobile
 
-1. Open the deployed URL in Chrome (Android) or Safari (iOS)
-2. **Android:** Tap the browser menu → "Add to Home Screen"
-3. **iOS:** Tap Share → "Add to Home Screen"
+The app is a full progressive web app: installed it gets its own home-screen
+icon, opens full screen with no address bar, and still opens cached pages when
+the phone loses signal. Settings → **App** shows these same steps in-product.
 
-The app works fully offline for viewing cached data.
+### Android (Chrome)
+
+1. Open the deployed **https://** URL in Chrome and sign in.
+2. Tap the **⋮** menu (top right).
+3. Tap **Install app** — on older Chrome builds it reads **Add to Home screen**.
+4. Confirm with **Install**. The gold *SI* icon appears in your app drawer and
+   home screen, and launches without browser chrome.
+
+The app also offers a one-tap **Install** banner ~30 seconds into a session.
+Dismissing it snoozes the banner for 14 days.
+
+If **Install app** doesn't appear in the menu, Chrome has judged the app not
+installable. It requires, all at once: an HTTPS origin (`localhost` also
+counts), a reachable `manifest.json` with `name`, `short_name`, `start_url`,
+`display: standalone` and 192 px + 512 px PNG icons, and a registered service
+worker with a `fetch` handler. Check DevTools → *Application → Manifest* over
+`chrome://inspect` remote debugging, which names whichever one is missing.
+
+### iOS (Safari)
+
+1. Open the URL in **Safari** — Chrome and Firefox on iOS cannot install PWAs.
+2. Tap the **Share** button.
+3. Scroll down, tap **Add to Home Screen**, then **Add**.
+
+### Icons and splash screens
+
+Every icon (`logo192.png`, `logo512.png`, their `-maskable` variants,
+`apple-touch-icon.png`, `favicon.ico`) and the iOS splash screens are generated
+from code — no design tool or dependency needed:
+
+```bash
+python3 tools/icons/generate_icons.py
+```
+
+Edit the brand colours or the monogram geometry at the top of that script and
+re-run it to regenerate the whole set. The `-maskable` variants keep the logo
+inside the 80% safe zone so Android can crop them to the launcher's shape
+(circle, squircle, rounded square) without clipping.
 
 ---
 
@@ -350,7 +387,10 @@ The app works fully offline for viewing cached data.
 si-trading-erp/
 ├── public/
 │   ├── index.html
-│   └── manifest.json          ← PWA manifest
+│   ├── manifest.json          ← PWA manifest
+│   ├── sw.js                  ← Service worker (offline shell + caching)
+│   ├── logo*.png              ← Generated PWA icons (any + maskable)
+│   └── splash/                ← Generated iOS launch screens
 ├── src/
 │   ├── App.js                 ← Routes
 │   ├── index.js               ← Entry point + SW registration
