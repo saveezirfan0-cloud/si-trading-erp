@@ -4,6 +4,12 @@ import { supabase, createIsolatedClient } from '../lib/supabase';
 import { getAll, getOne, createWithId, setPermissionGate, COLLECTIONS } from '../lib/db';
 import { can as canDo, mergeRoles, resolveUserPermissions } from '../lib/permissions';
 import { setCurrentActor } from '../lib/audit';
+import { Splash, ConnectionError } from '../components/Startup';
+
+// How long to wait for the stored session before giving up on it. A request
+// that never answers — a phone that has dropped off the network mid-flight —
+// otherwise leaves the app hanging with nothing on screen.
+const SESSION_TIMEOUT_MS = 15000;
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -15,6 +21,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   // Set when the database is reachable but the ERP schema is missing.
   const [schemaError, setSchemaError] = useState(null);
+  // Set when the session could not be established at all, so the app has
+  // nothing to render and must say so instead of showing an empty page.
+  const [startupError, setStartupError] = useState(null);
+  // Bumped by retry() to run the bootstrap effect again.
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = useCallback(() => {
+    setStartupError(null);
+    setLoading(true);
+    setAttempt(a => a + 1);
+  }, []);
 
   // Custom + overridden roles live in erp_roles; the built-ins come from code.
   const refreshRoles = useCallback(async () => {
@@ -41,10 +58,21 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
+    // Nothing renders until `loading` clears, so every way out of this
+    // bootstrap has to reach `ready()` — including the ones that fail. The
+    // deadline below covers the whole of it, not just getSession(): the
+    // profile read that follows stalls on a bad connection just as easily.
+    let timer = null;
+    const ready = () => {
+      clearTimeout(timer);
+      if (mounted) { setStartupError(null); setLoading(false); }
+    };
+
     const loadProfile = async (authUser) => {
       if (!authUser) {
         setCurrentActor(null);
-        if (mounted) { setUser(null); setProfile(null); setStoredRoles([]); setLoading(false); }
+        if (mounted) { setUser(null); setProfile(null); setStoredRoles([]); }
+        ready();
         return;
       }
       if (mounted) setUser(authUser);
@@ -88,19 +116,42 @@ export const AuthProvider = ({ children }) => {
           e?.code === '42P01' || /relation .*erp_users.* does not exist/i.test(e?.message || '');
         if (mounted) setSchemaError(missingSchema ? 'missing-schema' : (e?.message || 'unknown'));
       }
-      if (mounted) setLoading(false);
+      ready();
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      loadProfile(session?.user ?? null);
-    });
+    const fail = (e) => {
+      clearTimeout(timer);
+      // Offline, DNS failure, an unreachable project, or a stored token the
+      // browser will not give back. None of them are recoverable here, but all
+      // of them beat an empty page that never resolves.
+      console.error('session load failed', e);
+      if (mounted) {
+        setStartupError(e?.message || 'The server could not be reached.');
+        setLoading(false);
+      }
+    };
 
+    timer = setTimeout(
+      () => fail(new Error('The connection timed out.')),
+      SESSION_TIMEOUT_MS,
+    );
+
+    supabase.auth.getSession()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        return loadProfile(data?.session?.user ?? null);
+      })
+      .catch(fail);
+
+    // A sign-in, a token refresh or a late session all arrive here. Each one
+    // re-runs the bootstrap, so a screen left on the reconnect message heals
+    // itself the moment the connection comes back.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      loadProfile(session?.user ?? null);
+      loadProfile(session?.user ?? null).catch(fail);
     });
 
-    return () => { mounted = false; subscription.unsubscribe(); };
-  }, [refreshRoles]);
+    return () => { mounted = false; clearTimeout(timer); subscription.unsubscribe(); };
+  }, [refreshRoles, attempt]);
 
   // Staff sign in with whatever they remember: their email, their phone number,
   // or a username. Supabase Auth keys on email, so an identifier that is not an
@@ -227,12 +278,16 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{
-      user, profile, loading, schemaError,
+      user, profile, loading, schemaError, startupError, retry,
       login, logout, register, sendPasswordReset, updatePassword,
       roles, storedRoles, permissions, can, isAdmin, hasPermission,
       refreshRoles, refreshProfile,
     }}>
-      {!loading && children}
+      {loading
+        ? <Splash />
+        : startupError
+          ? <ConnectionError message={startupError} onRetry={retry} />
+          : children}
     </AuthContext.Provider>
   );
 };
