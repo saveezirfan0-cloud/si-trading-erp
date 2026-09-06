@@ -25,10 +25,11 @@ import {
 import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
 import { getCurrentActor } from '../../lib/audit';
 import { timeAgo } from '../../lib/datetime';
+import safeStorage from '../../lib/safeStorage';
 
 const loadPrefs = (key) => {
   try {
-    const saved = JSON.parse(localStorage.getItem(key) || '{}');
+    const saved = JSON.parse(safeStorage.getItem(key) || '{}');
     return {
       filters: { ...EMPTY_FILTERS, ...(saved.filters || {}) },
       sort: { key: 'date', dir: 'desc', ...(saved.sort || {}) },
@@ -90,7 +91,7 @@ export default function InvoiceListView({
   // Filters, sort and the panel state survive navigation and reloads.
   useEffect(() => {
     try {
-      localStorage.setItem(prefsKey, JSON.stringify({ filters, sort, panelOpen }));
+      safeStorage.setItem(prefsKey, JSON.stringify({ filters, sort, panelOpen }));
     } catch {}
   }, [prefsKey, filters, sort, panelOpen]);
 

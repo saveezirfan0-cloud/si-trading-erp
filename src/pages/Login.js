@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Loader2, Eye, EyeOff, ArrowLeft, MailCheck } from 'lucide-react';
+import { storageIsPersistent } from '../lib/safeStorage';
 
 const shell = {
   minHeight: '100dvh',
@@ -220,6 +221,17 @@ export default function Login() {
               {loading && <Loader2 size={16} className="spin" />}
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
+
+            {/* Signing in works, but nothing is kept: the session is gone on
+                the next reload. Better said here than discovered later. */}
+            {!storageIsPersistent && (
+              <p style={{ color: 'var(--text3)', fontSize: '0.75rem', marginTop: 14, lineHeight: 1.5 }}>
+                This browser is blocking site data, so you will be asked to sign
+                in again after every reload. Allowing cookies and site data for
+                this site — or opening it in Chrome or Safari rather than inside
+                another app — keeps you signed in.
+              </p>
+            )}
           </form>
         )}
 

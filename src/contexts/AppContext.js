@@ -1,5 +1,6 @@
 // src/contexts/AppContext.js
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import safeStorage from '../lib/safeStorage';
 
 // ── PWA install helpers ─────────────────────────────────────────────────────
 const INSTALL_SNOOZE_KEY = 'si-install-dismissed';
@@ -16,7 +17,7 @@ const isIOS = () =>
 
 const installSnoozed = () => {
   try {
-    const at = Number(localStorage.getItem(INSTALL_SNOOZE_KEY));
+    const at = Number(safeStorage.getItem(INSTALL_SNOOZE_KEY));
     return Boolean(at) && Date.now() - at < INSTALL_SNOOZE_MS;
   } catch { return false; }
 };
@@ -41,7 +42,7 @@ const fyNow = (startMonth) => {
 const storedFiscalYear = (startMonth) => {
   const current = String(fyNow(startMonth));
   try {
-    const saved = JSON.parse(localStorage.getItem(FY_CHOICE_KEY) || 'null');
+    const saved = JSON.parse(safeStorage.getItem(FY_CHOICE_KEY) || 'null');
     if (saved && saved.value && String(saved.madeIn) === current) return String(saved.value);
   } catch {}
   return current;
@@ -72,11 +73,11 @@ export const AppProvider = ({ children }) => {
   const [currency] = useState('PKR');
   const [companyName] = useState('S.I Trading & Co.');
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('si-theme') || 'light'; } catch { return 'light'; }
+    try { return safeStorage.getItem('si-theme') || 'light'; } catch { return 'light'; }
   });
 
   useEffect(() => {
-    try { localStorage.setItem('si-theme', theme); } catch {}
+    try { safeStorage.setItem('si-theme', theme); } catch {}
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
@@ -92,7 +93,7 @@ export const AppProvider = ({ children }) => {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   const snoozeInstall = () => {
-    try { localStorage.setItem(INSTALL_SNOOZE_KEY, String(Date.now())); } catch {}
+    try { safeStorage.setItem(INSTALL_SNOOZE_KEY, String(Date.now())); } catch {}
   };
 
   useEffect(() => {
@@ -113,7 +114,7 @@ export const AppProvider = ({ children }) => {
       setIsInstalled(true);
       setInstallPrompt(null);
       setShowInstallBanner(false);
-      try { localStorage.removeItem(INSTALL_SNOOZE_KEY); } catch {}
+      try { safeStorage.removeItem(INSTALL_SNOOZE_KEY); } catch {}
     };
 
     window.addEventListener('beforeinstallprompt', onPrompt);
@@ -151,7 +152,7 @@ export const AppProvider = ({ children }) => {
   // ── Fiscal year ─────────────────────────────────────────────────────────
   // Pakistan's fiscal year runs July–June by default; configurable in Settings.
   const [fyStartMonth, setFyStartMonth] = useState(() => {
-    const v = parseInt(localStorage.getItem('si-fy-start') || '', 10);
+    const v = parseInt(safeStorage.getItem('si-fy-start') || '', 10);
     return v >= 1 && v <= 12 ? v : 7;
   });
 
@@ -166,8 +167,8 @@ export const AppProvider = ({ children }) => {
   // a phone that was left on FY2025 opens on FY2026 instead of on stale totals.
   useEffect(() => {
     try {
-      localStorage.setItem(FY_CHOICE_KEY, JSON.stringify({ value: fiscalYear, madeIn: currentFiscalYear }));
-      localStorage.setItem('si-fy-start', String(fyStartMonth));
+      safeStorage.setItem(FY_CHOICE_KEY, JSON.stringify({ value: fiscalYear, madeIn: currentFiscalYear }));
+      safeStorage.setItem('si-fy-start', String(fyStartMonth));
     } catch {}
   }, [fiscalYear, fyStartMonth, currentFiscalYear]);
 
