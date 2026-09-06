@@ -5,11 +5,17 @@
      • Firebase/API calls          → Network-Only (never cache live data)
    ───────────────────────────────────────────────────────────────────────── */
 
+// Bump on any change to the caching rules below. `activate` deletes every
+// cache that is not the current name, so a new version starts clean — a stale
+// shell pointing at bundles that no longer exist is a blank page nobody can
+// reload their way out of.
 const CACHE_NAME = 'si-erp-v2';
 const OFFLINE_URL = '/offline.html';
 
+// Deliberately no '/': the app shell is not precached under a fixed key. It is
+// stored only after a navigation genuinely succeeds (see below), so a bad
+// response can never be pinned here as the permanent offline page.
 const STATIC_ASSETS = [
-  '/',
   '/offline.html',
   '/manifest.json',
   '/logo192.png',
@@ -61,11 +67,21 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+          // Only cache a real, same-origin 200. Caching whatever came back
+          // would store a 404 or a 500 error page and then serve it as the
+          // offline shell on every later failure.
+          if (response.ok && response.type === 'basic' && !response.redirected) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME)
+              .then((c) => c.put(request, clone))
+              .catch(() => {});
+          }
           return response;
         })
         .catch(async () => {
+          // Each branch is awaited on its own: caches.match() returns a
+          // promise, truthy even when it resolves to nothing, so chaining
+          // these with || would make the last two fallbacks unreachable.
           const cached = await caches.match(request);
           if (cached) return cached;
           const offline = await caches.match(OFFLINE_URL);
@@ -93,7 +109,9 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((c) => c.put(request, clone));
+          caches.open(CACHE_NAME)
+            .then((c) => c.put(request, clone))
+            .catch(() => {});
           return response;
         });
       })

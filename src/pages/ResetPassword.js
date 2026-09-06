@@ -24,10 +24,14 @@ export default function ResetPassword() {
     let alive = true;
     // The recovery token in the URL is exchanged for a session by supabase-js
     // (detectSessionInUrl); it may land just after mount, so listen too.
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (alive && session) { setValid(true); }
-      if (alive) setReady(true);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (alive && session) { setValid(true); }
+      })
+      // An unreachable server is not a valid recovery link, but it is not an
+      // endless spinner either — fall through to the "link expired" screen.
+      .catch((e) => console.error('recovery session load failed', e))
+      .finally(() => { if (alive) setReady(true); });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!alive) return;
       if (event === 'PASSWORD_RECOVERY' || session) { setValid(true); setReady(true); }
