@@ -748,9 +748,6 @@ export function Divider({ label }) {
   );
 }
 
-// ─── Scan attachment ──────────────────────────────────────────────────────────
-export { default as ScanAttachment } from './ScanAttachment';
-
 // ─── Searchable inventory picker ──────────────────────────────────────────────
 export { default as ItemPicker } from './ItemPicker';
 
@@ -758,4 +755,4 @@ export { default as ItemPicker } from './ItemPicker';
 export { default as RecordMeta } from './RecordMeta';
 export { default as ActivityFeed, ChangeList, ActionPill } from './ActivityFeed';
 export { default as HistoryModal, HistoryButton } from './HistoryModal';
-export { default as Attachments, ATTACHMENT_BUCKET } from './Attachments';
+export { default as Attachments } from './Attachments';
