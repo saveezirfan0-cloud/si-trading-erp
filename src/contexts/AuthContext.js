@@ -1,5 +1,5 @@
 // src/contexts/AuthContext.js — Supabase Auth + ERP permissions
-import React, { createContext, useContext, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase, createIsolatedClient } from '../lib/supabase';
 import { getAll, getOne, createWithId, setPermissionGate, COLLECTIONS } from '../lib/db';
 import { can as canDo, mergeRoles, resolveUserPermissions } from '../lib/permissions';
@@ -15,6 +15,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   // Set when the database is reachable but the ERP schema is missing.
   const [schemaError, setSchemaError] = useState(null);
+  // The profile carries the permissions, so the app must not render routes for
+  // a signed-in user until it has resolved: a moment with a session but no
+  // profile looks exactly like an account that was granted nothing, and the
+  // route guards would bounce the user to "No access" (see src/App.js).
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState(null);
+  // Whose profile the app is currently showing. A load that finishes after the
+  // user changed (a fast sign-out, a second sign-in) must not overwrite it.
+  const authUserRef = useRef(null);
 
   // Custom + overridden roles live in erp_roles; the built-ins come from code.
   const refreshRoles = useCallback(async () => {
@@ -38,69 +47,105 @@ export const AuthProvider = ({ children }) => {
     return p;
   }, [user]);
 
+  /**
+   * Loads — or, on a first sign-in, bootstraps — the ERP profile behind a
+   * Supabase session. Kept out of the effect so a failed load can be retried
+   * from the UI instead of leaving the user in the app with no permissions.
+   */
+  const loadProfile = useCallback(async (authUser) => {
+    if (!authUser) return null;
+    const isCurrent = () => authUserRef.current?.id === authUser.id;
+    setProfileLoading(true);
+    setProfileError(null);
+    // Name the actor for the audit trail before any write can happen — the
+    // profile row below is itself created through the logged data layer.
+    setCurrentActor({
+      id: authUser.id,
+      name: authUser.user_metadata?.name || authUser.email,
+      email: authUser.email,
+    });
+    try {
+      let p = await getOne(COLLECTIONS.USERS, authUser.id);
+      // A profile in the trash is revoked access, not a live account: an
+      // admin removed it, and it stays restorable rather than being erased.
+      // getOne deliberately reads deleted rows, so rule it out here.
+      if (p?.deletedAt) p = { ...p, active: false, permissionMode: 'role', permissions: {} };
+      if (!p) {
+        // The very first sign-in bootstraps an admin so somebody can hand
+        // out access. Anyone else who turns up without a profile — created
+        // straight in the Supabase dashboard, say — lands as an inactive
+        // viewer and waits for an admin to grant them access, rather than
+        // letting an unknown login walk into the ERP.
+        const existing = await getAll(COLLECTIONS.USERS);
+        const isFirstUser = existing.length === 0;
+        const basicProfile = {
+          name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+          email: authUser.email,
+          role: isFirstUser ? 'admin' : 'viewer',
+          permissionMode: 'role',
+          active: isFirstUser,
+        };
+        await createWithId(COLLECTIONS.USERS, authUser.id, basicProfile);
+        p = { id: authUser.id, ...basicProfile };
+      }
+      if (!isCurrent()) return null;
+      setProfile(p);
+      await refreshRoles();
+      return p;
+    } catch (e) {
+      console.error('profile load failed', e);
+      // 42P01 = undefined_table: the schema migration has not been run yet.
+      const missingSchema =
+        e?.code === '42P01' || /relation .*erp_users.* does not exist/i.test(e?.message || '');
+      if (isCurrent()) {
+        setSchemaError(missingSchema ? 'missing-schema' : (e?.message || 'unknown'));
+        // Remember the failure: a profile that could not be fetched is a
+        // broken connection, not an account without permissions, and the two
+        // must not look the same to whoever is signing in.
+        setProfileError(missingSchema
+          ? 'The ERP tables are missing from the database.'
+          : (e?.message || 'Could not load your profile.'));
+      }
+      return null;
+    } finally {
+      if (isCurrent()) setProfileLoading(false);
+    }
+  }, [refreshRoles]);
+
+  /** Try the profile again after a failed load — offered on the error screen. */
+  const retryProfile = useCallback(
+    () => loadProfile(authUserRef.current),
+    [loadProfile]
+  );
+
   useEffect(() => {
     let mounted = true;
 
-    const loadProfile = async (authUser) => {
+    const onSession = async (authUser) => {
+      authUserRef.current = authUser || null;
       if (!authUser) {
         setCurrentActor(null);
-        if (mounted) { setUser(null); setProfile(null); setStoredRoles([]); setLoading(false); }
+        if (mounted) {
+          setUser(null); setProfile(null); setStoredRoles([]);
+          setProfileError(null); setProfileLoading(false); setLoading(false);
+        }
         return;
       }
       if (mounted) setUser(authUser);
-      // Name the actor for the audit trail before any write can happen — the
-      // profile row below is itself created through the logged data layer.
-      setCurrentActor({
-        id: authUser.id,
-        name: authUser.user_metadata?.name || authUser.email,
-        email: authUser.email,
-      });
-      try {
-        let p = await getOne(COLLECTIONS.USERS, authUser.id);
-        // A profile in the trash is revoked access, not a live account: an
-        // admin removed it, and it stays restorable rather than being erased.
-        // getOne deliberately reads deleted rows, so rule it out here.
-        if (p?.deletedAt) p = { ...p, active: false, permissionMode: 'role', permissions: {} };
-        if (!p) {
-          // The very first sign-in bootstraps an admin so somebody can hand
-          // out access. Anyone else who turns up without a profile — created
-          // straight in the Supabase dashboard, say — lands as an inactive
-          // viewer and waits for an admin to grant them access, rather than
-          // letting an unknown login walk into the ERP.
-          const existing = await getAll(COLLECTIONS.USERS);
-          const isFirstUser = existing.length === 0;
-          const basicProfile = {
-            name: authUser.user_metadata?.name || authUser.email.split('@')[0],
-            email: authUser.email,
-            role: isFirstUser ? 'admin' : 'viewer',
-            permissionMode: 'role',
-            active: isFirstUser,
-          };
-          await createWithId(COLLECTIONS.USERS, authUser.id, basicProfile);
-          p = { id: authUser.id, ...basicProfile };
-        }
-        if (mounted) setProfile(p);
-        await refreshRoles();
-      } catch (e) {
-        console.error('profile load failed', e);
-        // 42P01 = undefined_table: the schema migration has not been run yet.
-        const missingSchema =
-          e?.code === '42P01' || /relation .*erp_users.* does not exist/i.test(e?.message || '');
-        if (mounted) setSchemaError(missingSchema ? 'missing-schema' : (e?.message || 'unknown'));
-      }
+      await loadProfile(authUser);
       if (mounted) setLoading(false);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      loadProfile(session?.user ?? null);
+      onSession(session?.user ?? null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      loadProfile(session?.user ?? null);
+      onSession(session?.user ?? null);
     });
 
     return () => { mounted = false; subscription.unsubscribe(); };
-  }, [refreshRoles]);
+  }, [loadProfile]);
 
   // Staff sign in with whatever they remember: their email, their phone number,
   // or a username. Supabase Auth keys on email, so an identifier that is not an
@@ -227,7 +272,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{
-      user, profile, loading, schemaError,
+      user, profile, loading, schemaError, profileLoading, profileError, retryProfile,
       login, logout, register, sendPasswordReset, updatePassword,
       roles, storedRoles, permissions, can, isAdmin, hasPermission,
       refreshRoles, refreshProfile,

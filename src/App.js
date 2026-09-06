@@ -34,27 +34,65 @@ import WhatsApp from './pages/WhatsApp';
 import Settings from './pages/Settings';
 import SetupRequired from './pages/SetupRequired';
 import NoAccess from './pages/NoAccess';
+import { Loader } from './components/ui';
 import { isSupabaseConfigured } from './lib/supabase';
 import { MODULES } from './lib/permissions';
 
+// Shown while the signed-in user's profile — and with it their permissions —
+// is still on its way.
+function Splash() {
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: 'var(--bg)',
+    }}>
+      <Loader />
+    </div>
+  );
+}
+
 function PrivateRoute({ children }) {
-  const { user, profile, permissions } = useAuth();
+  const { user, profile, permissions, profileError, retryProfile } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+  // The profile decides what this user may do, so nothing below may render
+  // until it has arrived. Rendering the app in the gap — a real wait on a
+  // phone, where the sign-in redirect beats the profile fetch — failed every
+  // module check and stranded the user on "No access" even though their
+  // access loaded a moment later.
+  if (!profile) {
+    if (profileError) return <NoAccess reason="error" detail={profileError} onRetry={retryProfile} />;
+    return <Splash />;
+  }
   // Signed in, but shut out: deactivated, or granted nothing at all.
-  if (profile && profile.active === false) return <NoAccess reason="inactive" />;
-  if (profile && Object.keys(permissions).length === 0) return <NoAccess reason="empty" />;
+  if (profile.active === false) return <NoAccess reason="inactive" />;
+  if (Object.keys(permissions).length === 0) return <NoAccess reason="empty" />;
   return children;
+}
+
+// The first module this user can open — where someone who asked for a page
+// they may not see is sent instead.
+function useFirstAllowedPath() {
+  const { can } = useAuth();
+  return MODULES.find(m => can(m.key, 'view'))?.path;
 }
 
 // Wraps a route so a user who lacks the module's `view` permission is sent to
 // the first page they can actually open instead of a blank screen.
 function Require({ module, children }) {
   const { can } = useAuth();
+  const fallback = useFirstAllowedPath();
   if (can(module, 'view')) return children;
-  // PrivateRoute already catches "no permissions at all", so a fallback exists
-  // in practice; /no-access is the belt-and-braces case.
-  const fallback = MODULES.find(m => can(m.key, 'view'))?.path;
-  return <Navigate to={fallback || '/no-access'} replace />;
+  // With nothing to fall back to, the notice is rendered where the user is
+  // rather than redirected to: a /no-access URL sticks in the address bar and
+  // would keep showing the notice long after their access had loaded.
+  return fallback ? <Navigate to={fallback} replace /> : <NoAccess reason="empty" />;
+}
+
+// /no-access as a destination of its own — reached from an old link or a tab
+// left open. Anyone who does have access is handed back to the app.
+function NoAccessRoute() {
+  const fallback = useFirstAllowedPath();
+  return fallback ? <Navigate to={fallback} replace /> : <NoAccess reason="empty" />;
 }
 
 // Signed in, database reachable, but the tables are absent — tell the operator
@@ -112,7 +150,7 @@ function AppRoutes() {
               <Route path="/import" element={<Require module="import"><Import /></Require>} />
               <Route path="/whatsapp" element={<Require module="whatsapp"><WhatsApp /></Require>} />
               <Route path="/settings" element={<Require module="settings"><Settings /></Require>} />
-              <Route path="/no-access" element={<NoAccess reason="empty" />} />
+              <Route path="/no-access" element={<NoAccessRoute />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </Layout>

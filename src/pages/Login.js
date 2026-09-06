@@ -85,7 +85,10 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      // `replace` so the back button does not land on the sign-in form of a
+      // session that is already signed in. The app itself waits for the
+      // profile before deciding what this user may open (see PrivateRoute).
+      navigate('/', { replace: true });
     } catch (err) {
       const msg = err?.code === 'identifier_not_found'
         ? err.message
