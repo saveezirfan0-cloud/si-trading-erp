@@ -146,7 +146,7 @@ const pickMatch = (rank, name) => {
   if (!best) return { action: 'create', itemId: '', matchScore: 0, nearMiss: null };
   const clear = best.score >= AUTO_MATCH && (!next || best.score - next.score >= AUTO_MARGIN);
   return clear
-    ? { action: 'match', itemId: best.id, matchScore: best.score, runnerUp: next?.score || 0, nearMiss: null }
+    ? { action: 'match', itemId: best.id, matchScore: best.score, nearMiss: null }
     : { action: 'create', itemId: '', matchScore: 0,
         nearMiss: best.score >= 0.3 ? { name: best.name, score: best.score } : null };
 };
@@ -174,7 +174,7 @@ const reconcileQty = (l) => {
 
 const emptyLine = () => ({
   ocrName: '', unit: 'pcs', qty: '', rate: '', printedAmount: 0,
-  action: 'create', itemId: '', matchScore: 0, manual: true,
+  action: 'create', itemId: '', matchScore: 0,
 });
 
 // ── Small field primitives ───────────────────────────────────────────────────
@@ -251,7 +251,8 @@ export default function ScanInvoice() {
 
   // review state
   const [meta, setMeta] = useState({ supplierId: '', supplierName: '', dateRead: false,
-    documentNo: '', date: '', status: 'unpaid', remarks: '', previousBalance: 0, totalDue: 0 });
+    documentNo: '', date: '', status: 'unpaid', remarks: '', discount: 0,
+    previousBalance: 0, totalDue: 0 });
   const [printed, setPrinted] = useState({ subtotal: 0, discount: 0, netTotal: 0, totalQty: 0 });
   const [lines, setLines] = useState([]);
   // What the reader itself found wrong against the invoice's printed totals.
@@ -302,6 +303,7 @@ export default function ScanInvoice() {
         date: d.date || new Date().toISOString().split('T')[0],
         status: 'unpaid',
         remarks: d.remarks || '',
+        discount: num(d.discount),
         previousBalance: num(d.previousBalance),
         totalDue: num(d.totalDue),
       });
@@ -328,7 +330,6 @@ export default function ScanInvoice() {
           ...l,
           ...pickMatch(ranker, l.ocrName),
           ...(l.duplicateOf !== null ? { action: 'skip' } : {}),
-          manual: false,
         })));
       setStep('review');
     } catch (e) {
@@ -356,9 +357,13 @@ export default function ScanInvoice() {
   }), [existingInvoices, meta.date, meta.documentNo, meta.supplierId, meta.supplierName, suppliers]);
 
   const activeLines = useMemo(() => lines.filter(l => l.action !== 'skip'), [lines]);
-  const total = useMemo(() =>
+  const subtotal = useMemo(() =>
     activeLines.reduce((s, l) => s + num(l.qty) * num(l.rate), 0),
     [activeLines]);
+  // The discount is printed on the invoice; ignoring it overstates what is owed
+  // to the supplier and makes the net total look like a misread line.
+  const discount = useMemo(() => Math.min(num(meta.discount), subtotal), [meta.discount, subtotal]);
+  const total = useMemo(() => subtotal - discount, [subtotal, discount]);
 
   // ── What didn't come through ───────────────────────────────────────────────
   // Recomputed from live state, so a highlight clears as soon as it's fixed.
@@ -375,10 +380,14 @@ export default function ScanInvoice() {
 
   const lineFlags = useMemo(() => lines.map((l) => {
     if (l.action === 'skip') return {};
-    if (l.duplicateOf) return { name: { level: 'warn', short: 'read twice?',
-      msg: `Looks like row ${l.duplicateOf} read twice — skip it unless the invoice really lists it again` } };
     const f = {};
     if (!String(l.ocrName || '').trim()) f.name = { level: 'error', msg: "Name wasn't read", short: 'not read' };
+    // Restored from the reader's "same row twice" list. Say so, but keep
+    // checking qty, rate and the item below: the row was flagged precisely
+    // because something about it was empty, and skipping the rest of the
+    // checks would let a qty-0 line through that any other line is stopped on.
+    else if (l.duplicateOf) f.name = { level: 'warn', short: 'read twice?',
+      msg: `Looks like row ${l.duplicateOf} read twice — skip it unless the invoice really lists it again` };
     if (!(num(l.qty) > 0)) f.qty = { level: 'error', msg: "Qty wasn't read", short: 'not read' };
     else if (l.qtyFromAmount) f.qty = {
       level: 'warn', short: `read as ${l.qtyRead}`,
@@ -463,11 +472,30 @@ export default function ScanInvoice() {
         });
       }
 
-      // 2. items — create the ones flagged as new
+      // 2. is this document already recorded?
+      //
+      // Checked before anything else is written: a repeat is still saved — the
+      // photo is evidence and quietly discarding someone's capture is worse —
+      // but it is recorded for reference only, so it must not create inventory
+      // items either, which is what the banner and the button promise.
+      //
+      // `existing` deliberately includes trashed invoices so a restored one
+      // cannot collide with a number handed out meanwhile; the duplicate check
+      // itself ignores them, or a rescan of an invoice the user deliberately
+      // threw away would silently post no stock. The banner above reads the
+      // same live list.
+      const { no, existing } = await nextInvoiceNo();
+      const duplicateOnSave = findDuplicate(existing.filter((i) => !i.deletedAt), {
+        date: meta.date,
+        supplierInvoiceNo: meta.documentNo,
+        supplierId, supplierName,
+      });
+
+      // 3. items — create the ones flagged as new
       const resolvedLines = [];
       for (const l of activeLines) {
         let itemId = l.itemId, itemDoc = null;
-        if (l.action === 'create') {
+        if (l.action === 'create' && !duplicateOnSave) {
           itemId = await create(COLLECTIONS.INVENTORY, {
             code: `OCR-${Date.now().toString(36).toUpperCase()}${resolvedLines.length}`,
             name: l.ocrName.trim(), description: '', brand: '', category: '',
@@ -481,19 +509,9 @@ export default function ScanInvoice() {
         resolvedLines.push({ ...l, itemId, itemDoc });
       }
 
-      // 3. purchase invoice.
-      //
-      // Before writing it, check whether this exact document (same date, same
-      // supplier, same printed reference) is already recorded. A repeat is
-      // still saved — the photo is evidence and quietly discarding someone's
-      // capture is worse — but it is marked, and steps 5 and 6 below are
-      // skipped so it moves no stock and owes no money.
-      const { no, existing } = await nextInvoiceNo();
-      const duplicateOnSave = findDuplicate(existing, {
-        date: meta.date,
-        supplierInvoiceNo: meta.documentNo,
-        supplierId, supplierName,
-      });
+      // 4. purchase invoice. A duplicate is written for reference only: it is
+      // marked, and steps 6 and 7 below are skipped so it moves no stock and
+      // owes no money.
       const items = resolvedLines.map(l => ({
         itemId: l.itemId,
         itemCode: l.itemDoc?.code || '',
@@ -511,7 +529,7 @@ export default function ScanInvoice() {
         status: meta.status, paymentMethod: '',
         notes: [meta.remarks, provider ? `Scanned via AI OCR (${provider})` : 'Scanned via AI OCR']
           .filter(Boolean).join(' — '),
-        items, subtotal: total, discountAmount: 0, taxAmount: 0,
+        items, subtotal, discountAmount: discount, taxAmount: 0,
         total, paidAmount: paid ? total : 0, currency: 'PKR',
         source: 'ocr',
         supplierStatement: { previousBalance: num(meta.previousBalance), totalDue: num(meta.totalDue) },
@@ -523,7 +541,7 @@ export default function ScanInvoice() {
         } : {}),
       });
 
-      // 4. attach the scanned photo to the invoice it produced. The invoice is
+      // 5. attach the scanned photo to the invoice it produced. The invoice is
       // already saved, so a storage failure must not lose it — but it must not
       // pass silently either, or the user believes they have an attachment.
       const scanPath = `scans/${invoiceId}.jpg`;
@@ -542,28 +560,41 @@ export default function ScanInvoice() {
                     { duration: 7000 });
       }
 
-      // 5. inventory quantities + cost prices — never for a duplicate, or the
-      // same delivery would be counted into stock twice.
-      for (const l of (duplicateOf ? [] : resolvedLines)) {
-        const current = await getOne(COLLECTIONS.INVENTORY, l.itemId);
-        if (!current) continue;
-        await update(COLLECTIONS.INVENTORY, l.itemId, {
-          quantity: (Number(current.quantity) || 0) + num(l.qty),
-          costPrice: num(l.rate) || current.costPrice || 0,
-        });
+      // 6. inventory quantities + cost prices, then 7. the supplier balance —
+      // never for a duplicate, or the same delivery would be counted twice.
+      //
+      // The invoice exists by now, so a failure here must not be reported as
+      // "save failed": the user would confirm again, the retry would find the
+      // invoice just written and treat it as a duplicate, and the postings
+      // would be stranded for good. Say exactly what did not post instead.
+      try {
+        for (const l of (duplicateOnSave ? [] : resolvedLines)) {
+          const current = await getOne(COLLECTIONS.INVENTORY, l.itemId);
+          if (!current) continue;
+          await update(COLLECTIONS.INVENTORY, l.itemId, {
+            quantity: (Number(current.quantity) || 0) + num(l.qty),
+            costPrice: num(l.rate) || current.costPrice || 0,
+          });
+        }
+
+        if (!paid && !duplicateOnSave) {
+          const supp = await getOne(COLLECTIONS.SUPPLIERS, supplierId);
+          await update(COLLECTIONS.SUPPLIERS, supplierId, {
+            balance: (Number(supp?.balance) || 0) + total,
+          });
+        }
+      } catch (e) {
+        console.error('posting failed', e);
+        toast.error(
+          `${no} was saved, but stock and the supplier balance could not be updated: ` +
+          `${e.message || e}. Adjust them by hand — confirming again would only create a ` +
+          `second invoice.`,
+          { duration: 12000 });
       }
 
-      // 6. supplier balance (unpaid amount owed to supplier)
-      if (!paid && !duplicateOf) {
-        const supp = await getOne(COLLECTIONS.SUPPLIERS, supplierId);
-        await update(COLLECTIONS.SUPPLIERS, supplierId, {
-          balance: (Number(supp?.balance) || 0) + total,
-        });
-      }
-
-      if (duplicateOf) {
+      if (duplicateOnSave) {
         toast(
-          `Saved as a duplicate of ${duplicateOf.invoiceNo || 'an existing invoice'} — ` +
+          `Saved as a duplicate of ${duplicateOnSave.invoiceNo || 'an existing invoice'} — ` +
           'stock and supplier balance were left unchanged.',
           { icon: '⚠️', duration: 8000 }
         );
@@ -661,7 +692,6 @@ export default function ScanInvoice() {
           </Card>
         )}
 
-
         {step === 'review' && (
           <div className="g-main" style={{ gap: isMobile ? 14 : 20, alignItems: 'start' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 14 : 16, minWidth: 0 }}>
@@ -751,6 +781,10 @@ export default function ScanInvoice() {
                     <option value="paid">Paid</option>
                   </SelectField>
 
+                  <TextField label="Discount on invoice" type="number"
+                    value={meta.discount}
+                    onChange={e => setMetaField({ discount: e.target.value })} />
+
                   <TextField label="Prev. balance on invoice" type="number"
                     value={meta.previousBalance}
                     onChange={e => setMetaField({ previousBalance: e.target.value })} />
@@ -815,6 +849,13 @@ export default function ScanInvoice() {
                             </button>
                           </div>
 
+                          {skipped && l.duplicateOf ? (
+                            <div style={{ fontSize: '0.74rem', color: WARN, marginTop: 4 }}>
+                              Same printed row as {l.duplicateOf} — skipped. Restore it if the
+                              invoice really lists this item twice.
+                            </div>
+                          ) : null}
+
                           {!skipped && (
                             <>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 10 }}>
@@ -875,7 +916,11 @@ export default function ScanInvoice() {
                                 <Hint flag={f.name} short />
                               </td>
                               <td style={{ padding: '7px 8px' }}>
-                                {skipped ? <span style={{ color: 'var(--text3)', fontSize: '12px' }}>skipped</span> : (
+                                {skipped ? (
+                                  <span style={{ color: l.duplicateOf ? WARN : 'var(--text3)', fontSize: '12px' }}>
+                                    {l.duplicateOf ? `same as row ${l.duplicateOf} — skipped` : 'skipped'}
+                                  </span>
+                                ) : (
                                   <>
                                     <ItemPicker
                                       items={inventory}
@@ -938,6 +983,18 @@ export default function ScanInvoice() {
                     <span style={{ color: qtyFlag ? WARN : undefined }}>{qtyTotal}</span>
                   </div>
                   <Hint flag={qtyFlag} />
+                  {discount > 0 && (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                        <span style={{ color: 'var(--text2)' }}>Lines</span>
+                        <span>{formatCurrency(subtotal)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                        <span style={{ color: 'var(--text2)' }}>Discount on invoice</span>
+                        <span>− {formatCurrency(discount)}</span>
+                      </div>
+                    </>
+                  )}
                   <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: '1.05rem', alignItems: 'baseline' }}>
                     <span>Total</span>
