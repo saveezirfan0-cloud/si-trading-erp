@@ -10,6 +10,7 @@
 //
 // Both are publishable, browser-safe values — never put a service-role key here.
 import { createClient } from '@supabase/supabase-js';
+import safeStorage from './safeStorage';
 
 export const SUPABASE_URL = (process.env.REACT_APP_SUPABASE_URL || '').trim();
 export const SUPABASE_ANON_KEY = (process.env.REACT_APP_SUPABASE_ANON_KEY || '').trim();
@@ -58,6 +59,10 @@ export const supabase = isSupabaseConfigured
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        // Never touch window.localStorage directly: a browser blocking site
+        // data throws on the property access and takes the app down with it.
+        // With this adapter the session simply lives for the tab instead.
+        storage: safeStorage,
       },
     })
   : stub();
