@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "S.I Trading & Co. ERP",
   "short_name": "SI ERP",
   "description": "Enterprise Resource Planning for S.I Trading & Co.",
@@ -13,11 +14,11 @@
   "dir": "ltr",
   "prefer_related_applications": false,
   "icons": [
-    { "src": "favicon.ico", "sizes": "64x64", "type": "image/x-icon" },
+    { "src": "favicon.ico", "sizes": "16x16 32x32 48x48", "type": "image/x-icon" },
     { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
-    { "src": "logo192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
     { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
-    { "src": "logo512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+    { "src": "logo192-maskable.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "logo512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ],
   "shortcuts": [
     {
