@@ -171,6 +171,35 @@ export default function Sidebar() {
             </NavLink>
           );
         })}
+
+        {/* Signing out belongs in the menu itself: the footer icon only shows
+            when the rail is expanded, so a collapsed desktop sidebar had no way
+            out at all. */}
+        <div style={{ height: 1, background: 'var(--border)', margin: '8px 10px' }} />
+        <button
+          onClick={handleLogout}
+          title="Logout"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: (sidebarOpen || isMobile) ? '10px 16px' : '10px',
+            justifyContent: (sidebarOpen || isMobile) ? 'flex-start' : 'center',
+            marginInline: 8,
+            width: 'calc(100% - 16px)',
+            borderRadius: 'var(--radius)',
+            color: 'var(--text2)',
+            background: 'transparent',
+            fontSize: '0.85rem',
+            fontWeight: 400,
+            whiteSpace: 'nowrap',
+            textAlign: 'left',
+            minHeight: isMobile ? 44 : 'auto',
+          }}
+        >
+          <LogOut size={16} style={{ flexShrink: 0 }} />
+          {(sidebarOpen || isMobile) && <span style={{ flex: 1 }}>Logout</span>}
+        </button>
       </nav>
 
       {/* User footer */}
@@ -197,22 +226,13 @@ export default function Sidebar() {
           {profile?.name?.[0]?.toUpperCase() || 'U'}
         </div>
         {(sidebarOpen || isMobile) && (
-          <>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.name || 'User'}</div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>
-                {roles.find(r => r.key === profile?.role)?.label || profile?.role || 'Viewer'}
-                {profile?.permissionMode === 'custom' && ' · custom'}
-              </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '0.8rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{profile?.name || 'User'}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>
+              {roles.find(r => r.key === profile?.role)?.label || profile?.role || 'Viewer'}
+              {profile?.permissionMode === 'custom' && ' · custom'}
             </div>
-            <button
-              onClick={handleLogout}
-              style={{ background: 'none', color: 'var(--text3)', padding: 8, borderRadius: 8, WebkitTapHighlightColor: 'transparent' }}
-              aria-label="Logout"
-            >
-              <LogOut size={15} />
-            </button>
-          </>
+          </div>
         )}
       </div>
     </aside>
