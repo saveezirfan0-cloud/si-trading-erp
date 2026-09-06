@@ -1,27 +1,117 @@
 // src/components/layout/BottomNav.js
 //
-// Mobile bottom bar. The two actions the business does on a phone — scanning a
-// supplier invoice and writing a quick sale — get first-class slots; the centre
-// FAB is the scanner, since that is the camera-driven flow.
+// Mobile bottom bar. It carries only what the business actually does standing
+// in the shop: photograph a supplier bill, write a sale, or open the menu for
+// everything else. Five cramped tabs with clipped labels were harder to hit
+// and read than the three big targets here.
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, Receipt, Zap, Camera } from 'lucide-react';
+import { Menu, X, Camera, Zap, Receipt, ShoppingCart } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 
-// `module` ties each slot to a permission key, so the bar only offers what the
-// signed-in user can actually open.
-const BOTTOM_NAV = [
-  { label: 'Summary', to: '/', icon: LayoutDashboard, end: true, module: 'dashboard' },
-  { label: 'Stock', to: '/inventory', icon: Package, module: 'inventory' },
-  { label: 'Scan', to: '/purchases/scan', icon: Camera, fab: true, module: 'scan' },
-  { label: 'Quick Sale', to: '/sales/quick', icon: Zap, module: 'sales' },
-  { label: 'Sales', to: '/sales', icon: Receipt, module: 'sales' },
-];
+// Slot heights are shared with Layout's bottom padding and the install banner.
+export const BOTTOM_NAV_H = 62;
+
+// Each action falls back to the list page when the user cannot create or scan,
+// so the slot is never dead and never disappears mid-session.
+const actionSlots = (can) => {
+  const slots = [];
+
+  if (can('scan', 'view')) {
+    slots.push({ key: 'scan', label: 'Scan Bill', to: '/purchases/scan', icon: Camera, fab: true });
+  } else if (can('purchases', 'view')) {
+    slots.push({ key: 'purchases', label: 'Purchases', to: '/purchases', icon: ShoppingCart });
+  }
+
+  if (can('sales', 'create')) {
+    slots.push({ key: 'sale', label: 'New Sale', to: '/sales/quick', icon: Zap });
+  } else if (can('sales', 'view')) {
+    slots.push({ key: 'sales', label: 'Sales', to: '/sales', icon: Receipt });
+  }
+
+  return slots;
+};
+
+const slotStyle = {
+  flex: 1,
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 4,
+  background: 'none',
+  border: 'none',
+  padding: '0 4px',
+  textDecoration: 'none',
+  fontFamily: 'var(--font-body)',
+  fontSize: '0.68rem',
+  WebkitTapHighlightColor: 'transparent',
+};
+
+const labelStyle = {
+  letterSpacing: '0.01em',
+  maxWidth: '100%',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  lineHeight: 1.2,
+};
+
+// Plain icon + label slot; `active` drives the pill behind the icon.
+function SlotBody({ icon: Icon, label, active }) {
+  return (
+    <>
+      <div style={{
+        width: 40,
+        height: 26,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 99,
+        background: active ? 'var(--accent-glow)' : 'transparent',
+        transition: 'background 0.15s',
+      }}>
+        <Icon size={19} strokeWidth={active ? 2.4 : 1.9} />
+      </div>
+      <span style={labelStyle}>{label}</span>
+    </>
+  );
+}
+
+// The camera slot sits proud of the bar: it is the flow that starts from the
+// bottom bar rather than from a list.
+function FabBody({ icon: Icon, label, active }) {
+  return (
+    <>
+      <div style={{
+        width: 48,
+        height: 48,
+        borderRadius: '50%',
+        background: active ? 'var(--accent2)' : 'var(--accent)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 6px 16px var(--accent-glow)',
+        border: '3px solid var(--bg2)',
+        marginTop: -20,
+        marginBottom: 1,
+      }}>
+        <Icon size={22} color="var(--on-accent)" strokeWidth={2.4} />
+      </div>
+      <span style={{ ...labelStyle, color: active ? 'var(--accent)' : 'var(--text2)', fontWeight: 600 }}>
+        {label}
+      </span>
+    </>
+  );
+}
 
 export default function BottomNav() {
+  const { sidebarOpen, setSidebarOpen } = useApp();
   const { can } = useAuth();
-  const items = BOTTOM_NAV.filter(i => can(i.module, 'view'));
-  if (!items.length) return null;
+  const slots = actionSlots(can);
+
   return (
     <nav
       aria-label="Primary"
@@ -33,91 +123,42 @@ export default function BottomNav() {
         zIndex: 200,
         background: 'var(--bg2)',
         borderTop: '1px solid var(--border)',
+        boxShadow: '0 -4px 20px rgba(0,0,0,0.07)',
         display: 'flex',
         alignItems: 'stretch',
-        height: 'calc(58px + env(safe-area-inset-bottom))',
+        height: `calc(${BOTTOM_NAV_H}px + env(safe-area-inset-bottom))`,
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {items.map((item) => {
-        const Icon = item.icon;
+      {/* Menu: everything that is not a scan or a sale lives behind this. */}
+      <button
+        type="button"
+        onClick={() => setSidebarOpen((o) => !o)}
+        aria-expanded={sidebarOpen}
+        aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+        style={{
+          ...slotStyle,
+          color: sidebarOpen ? 'var(--accent)' : 'var(--text3)',
+          fontWeight: sidebarOpen ? 700 : 500,
+        }}
+      >
+        <SlotBody icon={sidebarOpen ? X : Menu} label={sidebarOpen ? 'Close' : 'Menu'} active={sidebarOpen} />
+      </button>
+
+      {slots.map((slot) => {
+        const Body = slot.fab ? FabBody : SlotBody;
         return (
           <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
+            key={slot.key}
+            to={slot.to}
             style={({ isActive }) => ({
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 3,
+              ...slotStyle,
               color: isActive ? 'var(--accent)' : 'var(--text3)',
-              textDecoration: 'none',
-              fontSize: '0.6rem',
               fontWeight: isActive ? 700 : 500,
-              fontFamily: 'var(--font-body)',
-              WebkitTapHighlightColor: 'transparent',
               transition: 'color 0.15s',
-              padding: '0 2px',
             })}
           >
-            {({ isActive }) => (
-              <>
-                {item.fab ? (
-                  <>
-                    <div style={{
-                      width: 46,
-                      height: 46,
-                      borderRadius: '50%',
-                      background: isActive ? 'var(--accent2)' : 'var(--accent)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 4px 14px var(--accent-glow)',
-                      border: '3px solid var(--bg2)',
-                      marginTop: -18,
-                      marginBottom: 1,
-                    }}>
-                      <Icon size={21} color="var(--on-accent)" strokeWidth={2.4} />
-                    </div>
-                    <span style={{
-                      letterSpacing: '0.01em',
-                      color: isActive ? 'var(--accent)' : 'var(--text2)',
-                      fontWeight: 600,
-                    }}>
-                      {item.label}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <div style={{
-                      width: 34,
-                      height: 26,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 8,
-                      background: isActive ? 'var(--accent-glow)' : 'transparent',
-                      transition: 'background 0.15s',
-                    }}>
-                      <Icon size={18} strokeWidth={isActive ? 2.4 : 1.8} />
-                    </div>
-                    <span style={{
-                      letterSpacing: '0.01em',
-                      maxWidth: '100%',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {item.label}
-                    </span>
-                  </>
-                )}
-              </>
-            )}
+            {({ isActive }) => <Body icon={slot.icon} label={slot.label} active={isActive} />}
           </NavLink>
         );
       })}

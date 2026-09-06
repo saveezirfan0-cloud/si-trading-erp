@@ -5,10 +5,24 @@ import { useApp } from '../contexts/AppContext';
 import { Card, Btn, Input, Select, FormGrid, PageHeader, Tabs } from '../components/ui';
 import { getAll, create, remove, COLLECTIONS } from '../lib/db';
 import toast from 'react-hot-toast';
-import { Save, Plus, Trash2, Tag } from 'lucide-react';
+import { Save, Plus, Trash2, Tag, Download, Smartphone, Check } from 'lucide-react';
+
+function InstallSteps({ title, steps }) {
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, fontSize: '0.82rem', color: 'var(--text)' }}>
+        <Smartphone size={14} />
+        {title}
+      </div>
+      <ol style={{ margin: '8px 0 0', paddingLeft: 22, color: 'var(--text2)', fontSize: '0.82rem', lineHeight: 1.9 }}>
+        {steps.map((step) => <li key={step}>{step}</li>)}
+      </ol>
+    </div>
+  );
+}
 
 export default function Settings() {
-  const { fyStartMonth, setFyStartMonth } = useApp();
+  const { fyStartMonth, setFyStartMonth, isInstalled, installMode, triggerInstall } = useApp();
   const [tab, setTab] = useState('company');
   const [company, setCompany] = useState({
     name: 'S.I Trading & Co.',
@@ -71,6 +85,7 @@ export default function Settings() {
             { value: 'brands', label: 'Brands' },
             { value: 'invoice', label: 'Invoice' },
             { value: 'notifications', label: 'Notifications' },
+            { value: 'app', label: 'App' },
           ]}
           active={tab}
           onChange={setTab}
@@ -187,6 +202,52 @@ export default function Settings() {
           <Card>
             <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.9rem', marginBottom: 20 }}>Notification Settings</div>
             <p style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>WhatsApp and email notification settings coming soon.</p>
+          </Card>
+        )}
+
+        {/* App / install */}
+        {tab === 'app' && (
+          <Card>
+            <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.9rem', marginBottom: 20 }}>Install on Your Phone</div>
+
+            {isInstalled ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text2)', fontSize: '0.85rem' }}>
+                <Check size={16} style={{ color: '#22c55e' }} />
+                SI ERP is installed and running from your home screen.
+              </div>
+            ) : (
+              <>
+                <p style={{ color: 'var(--text2)', fontSize: '0.85rem', marginTop: 0, lineHeight: 1.6 }}>
+                  SI ERP installs like a normal app — its own icon, full screen, no address bar,
+                  and it still opens (read-only on cached pages) when you lose signal.
+                </p>
+
+                {installMode === 'prompt' && (
+                  <div style={{ margin: '16px 0' }}>
+                    <Btn icon={Download} onClick={triggerInstall}>Install SI ERP</Btn>
+                  </div>
+                )}
+
+                <InstallSteps
+                  title="Android — Chrome"
+                  steps={[
+                    'Open the app in Chrome and sign in.',
+                    'Tap the ⋮ menu at the top right.',
+                    'Tap "Install app" (or "Add to Home screen").',
+                    'Confirm with Install — the SI icon lands on your home screen.',
+                  ]}
+                />
+                <InstallSteps
+                  title="iPhone / iPad — Safari"
+                  steps={[
+                    'Open the app in Safari (Chrome on iOS cannot install it).',
+                    'Tap the Share button in the toolbar.',
+                    'Scroll down and tap "Add to Home Screen".',
+                    'Tap Add.',
+                  ]}
+                />
+              </>
+            )}
           </Card>
         )}
       </div>

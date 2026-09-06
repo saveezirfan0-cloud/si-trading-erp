@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import useCounts from '../../hooks/useCounts';
+import { BOTTOM_NAV_H } from './BottomNav';
 import { COLLECTIONS } from '../../lib/db';
 import {
   LayoutDashboard, Users, Truck, Package, Warehouse,
@@ -83,6 +84,9 @@ export default function Sidebar() {
       overflow: 'hidden',
       // Safe area inset for notch devices
       paddingTop: 'env(safe-area-inset-top)',
+      // The bottom bar floats over the drawer (its Close button has to stay
+      // reachable), so the drawer stops short of it.
+      paddingBottom: isMobile ? `calc(${BOTTOM_NAV_H}px + env(safe-area-inset-bottom))` : 0,
     }}>
 
       {/* Logo row */}
@@ -210,7 +214,7 @@ export default function Sidebar() {
         alignItems: 'center',
         gap: 10,
         flexShrink: 0,
-        paddingBottom: isMobile ? 'max(12px, env(safe-area-inset-bottom))' : '12px',
+        paddingBottom: '12px',
       }}>
         <div style={{
           width: 32, height: 32,

@@ -1,7 +1,7 @@
 // src/components/layout/Layout.js
 import React, { useEffect } from 'react';
 import Sidebar from './Sidebar';
-import BottomNav from './BottomNav';
+import BottomNav, { BOTTOM_NAV_H } from './BottomNav';
 import { useApp } from '../../contexts/AppContext';
 import { useLocation } from 'react-router-dom';
 import { useLockBodyScroll } from '../../hooks/useMobile';
@@ -44,7 +44,7 @@ export default function Layout({ children }) {
         flexDirection: 'column',
         background: 'var(--bg)',
         // Bottom padding for mobile bottom nav + safe area
-        paddingBottom: isMobile ? 'calc(56px + env(safe-area-inset-bottom))' : 0,
+        paddingBottom: isMobile ? `calc(${BOTTOM_NAV_H + 8}px + env(safe-area-inset-bottom))` : 0,
       }}>
         {children}
       </main>

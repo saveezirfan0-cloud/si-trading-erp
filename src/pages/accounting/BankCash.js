@@ -22,7 +22,7 @@ const EMPTY = {
 };
 
 export default function BankCash() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear } = useApp();
   const [transactions, setTransactions] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [modal, setModal] = useState(false);
@@ -36,10 +36,12 @@ export default function BankCash() {
       getAll(COLLECTIONS.TRANSACTIONS),
       getAll(COLLECTIONS.ACCOUNTS),
     ]);
-    setTransactions(tx.sort((a, b) => new Date(b.date) - new Date(a.date)));
+    // Movements follow the header's fiscal year, like every other dated list.
+    // Account balances stay cumulative — a bank balance is not a yearly figure.
+    setTransactions(filterByFiscalYear(tx).sort((a, b) => new Date(b.date) - new Date(a.date)));
     setAccounts(acc.filter(a => ['asset'].includes(a.type)));
     setLoading(false);
-  }, []);
+  }, [filterByFiscalYear]);
 
   useEffect(() => { load(); }, [load]);
 

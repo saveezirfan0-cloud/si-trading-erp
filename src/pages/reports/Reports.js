@@ -1,5 +1,5 @@
 // src/pages/reports/Reports.js
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { getAll, COLLECTIONS } from '../../lib/db';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
@@ -11,13 +11,15 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 const COLORS = ['#f0a500', '#3b82f6', '#22c55e', '#ef4444', '#8b5cf6', '#ec4899'];
 
 export default function Reports() {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, filterByFiscalYear, fiscalYear, fiscalYearLabel, fyStartMonth } = useApp();
   const [tab, setTab] = useState('pl');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     expenses: [], payments: [], accounts: [], transactions: [], journals: []
   });
-  const [period, setPeriod] = useState('this_month');
+  // Reports open on the whole fiscal year picked in the header; the period
+  // selector narrows within it rather than cutting across years.
+  const [period, setPeriod] = useState('fy');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -34,7 +36,15 @@ export default function Reports() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Every dated figure below is scoped to the header's fiscal year first.
+  const scoped = useMemo(() => ({
+    expenses: filterByFiscalYear(data.expenses),
+    payments: filterByFiscalYear(data.payments),
+    transactions: filterByFiscalYear(data.transactions),
+  }), [data, filterByFiscalYear]);
+
   const filterByPeriod = (items) => {
+    if (period === 'fy') return items;
     const now = new Date();
     return items.filter(item => {
       const d = new Date(item.date);
@@ -43,14 +53,13 @@ export default function Reports() {
         const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
       }
-      if (period === 'this_year') return d.getFullYear() === now.getFullYear();
-      return true; // all time
+      return true;
     });
   };
 
-  const fExpenses = filterByPeriod(data.expenses);
-  const fPayments = filterByPeriod(data.payments);
-  const fTransactions = filterByPeriod(data.transactions);
+  const fExpenses = filterByPeriod(scoped.expenses);
+  const fPayments = filterByPeriod(scoped.payments);
+  const fTransactions = filterByPeriod(scoped.transactions);
 
   const totalIncome = fPayments.filter(p => p.type === 'received').reduce((s, p) => s + Number(p.amount || 0), 0);
   const totalExpenses = fExpenses.reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -65,16 +74,19 @@ export default function Reports() {
     }, {})
   ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 
-  // Monthly P&L
+  // Monthly P&L across the selected fiscal year, in fiscal-year month order —
+  // a July–June year charted Jan→Dec reads as if it started in the middle.
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const monthlyPL = months.map((m, i) => {
-    const income = data.payments
+  const monthOrder = (fiscalYear === 'all' ? 0 : fyStartMonth - 1);
+  const monthlyPL = months.map((_, n) => {
+    const i = (monthOrder + n) % 12;
+    const income = scoped.payments
       .filter(p => p.type === 'received' && new Date(p.date).getMonth() === i)
       .reduce((s, p) => s + Number(p.amount || 0), 0);
-    const expenses = data.expenses
+    const expenses = scoped.expenses
       .filter(e => new Date(e.date).getMonth() === i)
       .reduce((s, e) => s + Number(e.amount || 0), 0);
-    return { month: m, income, expenses, profit: income - expenses };
+    return { month: months[i], income, expenses, profit: income - expenses };
   });
 
   // Balance sheet totals
@@ -89,7 +101,10 @@ export default function Reports() {
   const cashIn = fTransactions.filter(t => t.type === 'receipt').reduce((s, t) => s + Number(t.amount || 0), 0);
   const cashOut = fTransactions.filter(t => t.type === 'payment').reduce((s, t) => s + Number(t.amount || 0), 0);
 
-  const periodLabel = { this_month: 'This Month', last_month: 'Last Month', this_year: 'This Year', all_time: 'All Time' }[period];
+  const yearLabel = fiscalYearLabel(fiscalYear);
+  const periodLabel = period === 'fy'
+    ? yearLabel
+    : `${{ this_month: 'This Month', last_month: 'Last Month' }[period]} · ${yearLabel}`;
 
   return (
     <>
@@ -101,10 +116,9 @@ export default function Reports() {
           actions={[
             <select key="period" value={period} onChange={e => setPeriod(e.target.value)}
               style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text)', fontSize: '0.85rem' }}>
+              <option value="fy">{fiscalYear === 'all' ? 'All years' : `Whole ${yearLabel}`}</option>
               <option value="this_month">This Month</option>
               <option value="last_month">Last Month</option>
-              <option value="this_year">This Year</option>
-              <option value="all_time">All Time</option>
             </select>,
             <Btn key="pdf" variant="secondary" icon={Download} onClick={() => exportPDF('reports-content', 'SI_Trading_Report')}>Export PDF</Btn>,
           ]}
