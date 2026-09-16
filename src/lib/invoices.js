@@ -135,6 +135,28 @@ export const expiresSoon = (inv, days = 7, today = todayISO()) => {
   return until >= today && until <= horizon;
 };
 
+// A quotation sent and then forgotten is the most expensive kind. "Chased"
+// means the last time somebody actually contacted the customer about it: the
+// date it was marked followed up, else the date its link was sent, else the
+// date it was written. After a few quiet days it belongs on somebody's list.
+export const FOLLOW_UP_AFTER_DAYS = 5;
+
+export const lastChasedAt = (inv) =>
+  String(inv?.followedUpAt || inv?.sharedAt || inv?.date || '').slice(0, 10);
+
+export const daysSinceChased = (inv, today = todayISO()) => {
+  const last = lastChasedAt(inv);
+  if (!last) return null;
+  return Math.max(0, Math.round((Date.parse(today) - Date.parse(last)) / 86400000));
+};
+
+// An offer already won, cancelled or lapsed is not waiting on a phone call.
+export const needsFollowUp = (inv, today = todayISO(), after = FOLLOW_UP_AFTER_DAYS) => {
+  if (!isQuotationOpen(inv) || isExpired(inv, today)) return false;
+  const since = daysSinceChased(inv, today);
+  return since == null || since >= after;
+};
+
 // ── Dates ─────────────────────────────────────────────────────────────────────
 export const invoiceYear = (inv) => (inv?.date ? String(inv.date).slice(0, 4) : '');
 export const invoiceMonth = (inv) => (inv?.date ? String(inv.date).slice(5, 7) : '');
@@ -264,6 +286,7 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
     if (f.flag === 'expired' && !isExpired(inv, today)) return false;
     if (f.flag === 'expiringsoon' && !expiresSoon(inv, 7, today)) return false;
     if (f.flag === 'open' && !isQuotationOpen(inv)) return false;
+    if (f.flag === 'followup' && !needsFollowUp(inv, today)) return false;
 
     return true;
   });

@@ -28,6 +28,7 @@ const FLAGS = [
 // A quotation owes nothing and cannot be late, so the money flags say nothing
 // about one. What matters is whether the offer still stands.
 const QUOTATION_FLAGS = [
+  { value: 'followup', label: 'Needs follow-up' },
   { value: 'open', label: 'Still open' },
   { value: 'expired', label: 'Expired' },
   { value: 'expiringsoon', label: 'Expires in 7 days' },

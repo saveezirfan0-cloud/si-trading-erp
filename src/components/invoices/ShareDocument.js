@@ -9,16 +9,18 @@
 // assume the link is private to the person they sent it to.
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Share2, Copy, Check, Link2Off, MessageSquare } from 'lucide-react';
+import { Share2, Copy, Check, Link2Off, MessageSquare, Mail, PhoneCall } from 'lucide-react';
 import { Btn } from '../ui';
-import { isShared, shareUrl, startSharing, stopSharing, whatsappLink } from '../../lib/share';
-import { docLabel } from '../../lib/salesDocs';
+import { isShared, shareUrl, startSharing, stopSharing, whatsappLink, emailDraft, markChased } from '../../lib/share';
+import { docLabel, isQuotation } from '../../lib/salesDocs';
+import { needsFollowUp, daysSinceChased, lastChasedAt } from '../../lib/invoices';
 
 export default function ShareDocument({ invoice, canEdit = false, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const shared = isShared(invoice);
   const url = shared ? shareUrl(invoice.shareToken) : '';
+  const quote = isQuotation(invoice);
 
   if (!invoice?.id) return null;
 
@@ -60,6 +62,26 @@ export default function ShareDocument({ invoice, canEdit = false, onChanged }) {
 
   const label = docLabel(invoice).toLowerCase();
 
+  // Sending the document to the customer is itself a follow-up, so the two
+  // are recorded together rather than leaving somebody to tick a box.
+  const sendAndRecord = async (href) => {
+    window.open(href, '_blank', 'noopener');
+    if (!quote || !canEdit) return;
+    try { await markChased(invoice, 'Sent to the customer'); onChanged?.(); } catch { /* the send still happened */ }
+  };
+
+  const chase = async () => {
+    setBusy(true);
+    try {
+      await markChased(invoice, 'Followed up by phone or in person');
+      toast.success('Recorded as followed up today');
+      onChanged?.();
+    } catch (e) { toast.error('Could not record it: ' + e.message); }
+    setBusy(false);
+  };
+
+  const emailHref = emailDraft(invoice, url, { to: invoice.customerEmail || '' });
+
   return (
     <div style={{
       border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: 14,
@@ -82,15 +104,37 @@ export default function ShareDocument({ invoice, canEdit = false, onChanged }) {
             Useful for sending to a customer on WhatsApp or by email.
           </div>
           {canEdit ? (
-            <Btn icon={Share2} onClick={create} disabled={busy} style={{ alignSelf: 'flex-start' }}>
-              {busy ? 'Creating…' : 'Create share link'}
-            </Btn>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Btn icon={Share2} onClick={create} disabled={busy}>
+                {busy ? 'Creating…' : 'Create share link'}
+              </Btn>
+              <Btn size="sm" variant="secondary" icon={Mail} onClick={() => sendAndRecord(emailHref)}>
+                Send by email
+              </Btn>
+            </div>
           ) : (
             <div style={{ fontSize: '0.8rem', color: 'var(--text3)' }}>
               You do not have permission to share this {label}.
             </div>
           )}
         </>
+      )}
+
+      {quote && invoice.status !== 'cancelled' && !invoice.convertedToId && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+          fontSize: '0.82rem', color: needsFollowUp(invoice) ? 'var(--yellow)' : 'var(--text2)',
+        }}>
+          <PhoneCall size={13} />
+          <span style={{ flex: 1, minWidth: 160 }}>
+            {invoice.followedUpAt
+              ? `Last followed up ${daysSinceChased(invoice) === 0 ? 'today' : `${daysSinceChased(invoice)} days ago`}`
+              : `Not followed up since ${lastChasedAt(invoice) || 'it was written'}`}
+          </span>
+          {canEdit && (
+            <Btn size="sm" variant="ghost" onClick={chase} disabled={busy}>Mark followed up</Btn>
+          )}
+        </div>
       )}
 
       {shared && (
@@ -111,9 +155,12 @@ export default function ShareDocument({ invoice, canEdit = false, onChanged }) {
             </Btn>
             <Btn
               size="sm" variant="secondary" icon={MessageSquare}
-              onClick={() => window.open(whatsappLink(invoice, url, invoice.customerPhone), '_blank', 'noopener')}
+              onClick={() => sendAndRecord(whatsappLink(invoice, url, invoice.customerPhone))}
             >
               Send on WhatsApp
+            </Btn>
+            <Btn size="sm" variant="secondary" icon={Mail} onClick={() => sendAndRecord(emailHref)}>
+              Send by email
             </Btn>
             {canEdit && (
               <Btn size="sm" variant="ghost" icon={Link2Off} onClick={revoke} disabled={busy}>

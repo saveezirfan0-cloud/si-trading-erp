@@ -6,16 +6,32 @@ import Header from '../../components/layout/Header';
 import { Card, Btn, Tabs, Loader, PageHeader } from '../../components/ui';
 import { Download } from 'lucide-react';
 import { exportPDF } from '../../lib/export';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { quotationReport, ratePercent } from '../../lib/quotationReport';
 
 const COLORS = ['#f0a500', '#3b82f6', '#22c55e', '#ef4444', '#8b5cf6', '#ec4899'];
+
+// Narrows a dated list within the fiscal year already chosen in the header.
+const filterByPeriodFn = (items, period) => {
+  if (period === 'fy') return items;
+  const now = new Date();
+  return items.filter(item => {
+    const d = new Date(item.date);
+    if (period === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    if (period === 'last_month') {
+      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
+    }
+    return true;
+  });
+};
 
 export default function Reports() {
   const { formatCurrency, filterByFiscalYear, fiscalYear, fiscalYearLabel, fyStartMonth } = useApp();
   const [tab, setTab] = useState('pl');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
-    expenses: [], payments: [], accounts: [], transactions: [], journals: []
+    expenses: [], payments: [], accounts: [], transactions: [], journals: [], sales: []
   });
   // Reports open on the whole fiscal year picked in the header; the period
   // selector narrows within it rather than cutting across years.
@@ -23,14 +39,15 @@ export default function Reports() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [expenses, payments, accounts, transactions, journals] = await Promise.all([
+    const [expenses, payments, accounts, transactions, journals, sales] = await Promise.all([
       getAll(COLLECTIONS.EXPENSES),
       getAll(COLLECTIONS.PAYMENTS),
       getAll(COLLECTIONS.ACCOUNTS),
       getAll(COLLECTIONS.TRANSACTIONS),
       getAll(COLLECTIONS.JOURNALS),
+      getAll(COLLECTIONS.SALES_INVOICES),
     ]);
-    setData({ expenses, payments, accounts, transactions, journals });
+    setData({ expenses, payments, accounts, transactions, journals, sales });
     setLoading(false);
   }, []);
 
@@ -43,19 +60,7 @@ export default function Reports() {
     transactions: filterByFiscalYear(data.transactions),
   }), [data, filterByFiscalYear]);
 
-  const filterByPeriod = (items) => {
-    if (period === 'fy') return items;
-    const now = new Date();
-    return items.filter(item => {
-      const d = new Date(item.date);
-      if (period === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      if (period === 'last_month') {
-        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
-      }
-      return true;
-    });
-  };
+  const filterByPeriod = (items) => filterByPeriodFn(items, period);
 
   const fExpenses = filterByPeriod(scoped.expenses);
   const fPayments = filterByPeriod(scoped.payments);
@@ -101,6 +106,15 @@ export default function Reports() {
   const cashIn = fTransactions.filter(t => t.type === 'receipt').reduce((s, t) => s + Number(t.amount || 0), 0);
   const cashOut = fTransactions.filter(t => t.type === 'payment').reduce((s, t) => s + Number(t.amount || 0), 0);
 
+  // What became of the quotations. The invoices come along unfiltered by
+  // period so a quotation can still find the invoice it became, however long
+  // that took; the quotations themselves are scoped like everything else.
+  const quotes = useMemo(() => {
+    const scopedQuotes = filterByPeriodFn(filterByFiscalYear(data.sales), period);
+    const invoices = data.sales.filter((r) => r.docType !== 'quotation');
+    return quotationReport([...scopedQuotes, ...invoices], undefined);
+  }, [data.sales, filterByFiscalYear, period]);
+
   const yearLabel = fiscalYearLabel(fiscalYear);
   const periodLabel = period === 'fy'
     ? yearLabel
@@ -129,6 +143,7 @@ export default function Reports() {
             { value: 'pl', label: 'P&L Statement' },
             { value: 'balance', label: 'Balance Sheet' },
             { value: 'cashflow', label: 'Cash Flow' },
+            { value: 'quotes', label: 'Quotations' },
             { value: 'charts', label: 'Analytics' },
           ]}
           active={tab}
@@ -301,6 +316,102 @@ export default function Reports() {
             )}
 
             {/* Analytics */}
+            {/* What became of the quotations */}
+            {tab === 'quotes' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div className="g-stats" style={{ gap: 16 }}>
+                  {[
+                    { label: 'Quoted', value: formatCurrency(quotes.quotedValue), sub: `${quotes.count} quotation${quotes.count === 1 ? '' : 's'}`, color: 'var(--accent)' },
+                    { label: 'Won', value: formatCurrency(quotes.wonValue), sub: `${quotes.won} converted to invoices`, color: 'var(--green)' },
+                    { label: 'Win rate', value: ratePercent(quotes.winRate), sub: quotes.decided ? `of ${quotes.decided} decided` : 'nothing decided yet', color: 'var(--blue)' },
+                    { label: 'Still open', value: formatCurrency(quotes.openValue), sub: `${quotes.open} awaiting an answer`, color: 'var(--purple)' },
+                  ].map(st => (
+                    <Card key={st.label} style={{ textAlign: 'center' }}>
+                      <p style={{ fontSize: '0.72rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 8 }}>{st.label}</p>
+                      <h3 style={{ fontFamily: 'var(--font-head)', fontSize: '1.35rem', fontWeight: 800, color: st.color, overflowWrap: 'anywhere' }}>{st.value}</h3>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text3)', marginTop: 6 }}>{st.sub}</p>
+                    </Card>
+                  ))}
+                </div>
+
+                <Card>
+                  <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, marginBottom: 14, fontSize: '0.9rem' }}>How each offer ended</h3>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <tbody>
+                      {[
+                        ['Won — converted to an invoice', quotes.won, quotes.wonValue, 'var(--green)'],
+                        ['Expired — past its valid-until date', quotes.expired, quotes.expiredValue, 'var(--red)'],
+                        ['Cancelled', quotes.cancelled, quotes.cancelledValue, 'var(--text2)'],
+                        ['Still open', quotes.open, quotes.openValue, 'var(--purple)'],
+                      ].map(([label, n, value, color]) => (
+                        <tr key={label} style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td style={{ padding: '9px 0', fontSize: '0.85rem', color: 'var(--text2)' }}>{label}</td>
+                          <td style={{ padding: '9px 0', fontSize: '0.85rem', textAlign: 'right', width: 70 }}>{n}</td>
+                          <td style={{ padding: '9px 0', fontSize: '0.85rem', textAlign: 'right', fontWeight: 700, color, width: 140 }}>{formatCurrency(value)}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td style={{ padding: '12px 0', fontWeight: 800, fontSize: '0.9rem' }}>Total quoted</td>
+                        <td style={{ padding: '12px 0', textAlign: 'right', fontWeight: 800 }}>{quotes.count}</td>
+                        <td style={{ padding: '12px 0', textAlign: 'right', fontWeight: 800, color: 'var(--accent)' }}>{formatCurrency(quotes.quotedValue)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text3)', marginTop: 12, lineHeight: 1.6 }}>
+                    Win rate by value is {ratePercent(quotes.valueRate)}, and the average quotation is{' '}
+                    {formatCurrency(quotes.averageQuote)}.
+                    {quotes.averageDaysToWin != null
+                      ? ` A won quotation becomes an invoice after ${quotes.averageDaysToWin} day${quotes.averageDaysToWin === 1 ? '' : 's'} on average.`
+                      : ''}
+                  </p>
+                </Card>
+
+                <Card>
+                  <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, marginBottom: 20, fontSize: '0.9rem' }}>Quoted and won by month</h3>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={quotes.byMonth}>
+                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--text3)' }} />
+                      <YAxis tick={{ fontSize: 11, fill: 'var(--text3)' }} tickFormatter={v => `${Math.round(v / 1000)}k`} />
+                      <Tooltip formatter={v => formatCurrency(v)} contentStyle={{ background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      <Bar dataKey="quoted" name="Quoted" fill="#f0a500" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="wonValue" name="Won" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </Card>
+
+                <Card>
+                  <h3 style={{ fontFamily: 'var(--font-head)', fontWeight: 700, marginBottom: 14, fontSize: '0.9rem' }}>Customers by value quoted</h3>
+                  {quotes.byCustomer.length === 0 ? (
+                    <p style={{ color: 'var(--text3)', fontSize: '0.82rem' }}>No quotations in this period.</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 440 }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                            {['Customer', 'Quotes', 'Quoted', 'Won', 'Win rate'].map((h, i) => (
+                              <th key={h} style={{ padding: '8px 10px', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: i ? 'right' : 'left' }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {quotes.byCustomer.slice(0, 15).map(c => (
+                            <tr key={c.name} style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 10px', fontSize: '0.85rem' }}>{c.name}</td>
+                              <td style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'right' }}>{c.quotes}</td>
+                              <td style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'right', fontWeight: 600 }}>{formatCurrency(c.quoted)}</td>
+                              <td style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'right', color: 'var(--green)' }}>{formatCurrency(c.wonValue)}</td>
+                              <td style={{ padding: '8px 10px', fontSize: '0.85rem', textAlign: 'right' }}>{ratePercent(c.winRate)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
             {tab === 'charts' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 16 }}>

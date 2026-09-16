@@ -5,7 +5,7 @@ import {
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
   activeFilterCount, hasAttachment, attachmentCount, attachmentEntries, EMPTY_FILTERS,
   duplicateKey, findDuplicate, activeInvoices, duplicateInvoices, partyLines,
-  isExpired, expiresSoon, isQuotationOpen,
+  isExpired, expiresSoon, isQuotationOpen, needsFollowUp, lastChasedAt, daysSinceChased,
 } from './invoices';
 
 const imported = {
@@ -343,4 +343,24 @@ test('expired offers are counted apart from won and open ones', () => {
   expect(s.expiredAmount).toBe(50000);
   // An offer is never revenue, however it ends.
   expect(s.total).toBe(0);
+});
+
+// ── Chasing an open offer ────────────────────────────────────────────────────
+test('an offer is chased from the last time somebody contacted the customer', () => {
+  // Marked followed up beats the day the link went out, which beats the date.
+  expect(lastChasedAt({ date: '2026-09-01', sharedAt: '2026-09-05T09:00:00Z', followedUpAt: '2026-09-10' })).toBe('2026-09-10');
+  expect(lastChasedAt({ date: '2026-09-01', sharedAt: '2026-09-05T09:00:00Z' })).toBe('2026-09-05');
+  expect(lastChasedAt({ date: '2026-09-01' })).toBe('2026-09-01');
+  expect(daysSinceChased({ date: '2026-09-01' }, '2026-09-16')).toBe(15);
+});
+
+test('an open offer gone quiet needs chasing; a settled one does not', () => {
+  const open = { docType: 'quotation', status: 'approved', dueDate: '2026-12-31', date: '2026-09-01' };
+  expect(needsFollowUp(open, '2026-09-16')).toBe(true);
+  expect(needsFollowUp({ ...open, followedUpAt: '2026-09-15' }, '2026-09-16')).toBe(false);
+  // Won, cancelled, lapsed, or an invoice: none of them are waiting on a call.
+  expect(needsFollowUp({ ...open, convertedToId: 'si1' }, '2026-09-16')).toBe(false);
+  expect(needsFollowUp({ ...open, status: 'cancelled' }, '2026-09-16')).toBe(false);
+  expect(needsFollowUp({ ...open, dueDate: '2026-09-01' }, '2026-09-16')).toBe(false);
+  expect(needsFollowUp({ ...open, docType: 'invoice' }, '2026-09-16')).toBe(false);
 });

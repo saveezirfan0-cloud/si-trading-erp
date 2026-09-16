@@ -47,6 +47,15 @@ export const stopSharing = async (doc) => {
   }, { action: 'share', note: 'Share link revoked' });
 };
 
+// Chasing an open quotation is recorded on the document, so the follow-up list
+// knows it has been done however it was done — a link sent, an email, or a
+// phone call somebody ticks off by hand.
+export const markChased = async (doc, note = 'Followed up') => {
+  await update(COLLECTIONS.SALES_INVOICES, doc.id, {
+    followedUpAt: new Date().toISOString().slice(0, 10),
+  }, { action: 'share', note });
+};
+
 // WhatsApp is how this business actually sends documents, so the message is
 // composed here rather than left to the person pasting the link.
 export const whatsappMessage = (doc, url, { company = 'S.I Trading & Co.' } = {}) => {
@@ -65,4 +74,29 @@ export const whatsappLink = (doc, url, phone = '') => {
   const digits = String(phone || '').replace(/\D/g, '');
   const to = digits ? `phone=${digits}&` : '';
   return `https://wa.me/?${to}text=${encodeURIComponent(whatsappMessage(doc, url))}`;
+};
+
+// Email goes through whatever mail client the person already uses, via a
+// mailto: draft they can read and edit before sending. Attaching the PDF
+// automatically would mean this app sending mail on the business's behalf,
+// which needs a mail provider and a verified sending domain — so the draft
+// carries the link, and the PDF is there to attach if they want the file.
+export const emailDraft = (doc, url, { company = 'S.I Trading & Co.', to = '' } = {}) => {
+  const what = doc?.docType === 'quotation' ? 'Quotation' : 'Invoice';
+  const subject = `${company} — ${what} ${doc?.invoiceNo || ''}`.trim();
+  const greeting = doc?.attention ? `Dear ${doc.attention},` : 'Dear Sir/Madam,';
+  const body = [
+    greeting,
+    '',
+    `Please find our ${what.toLowerCase()} ${doc?.invoiceNo || ''} for `
+      + `PKR ${Math.round(Number(doc?.total) || 0).toLocaleString('en-PK')}.`,
+    ...(url ? ['', `You can view it here: ${url}`] : []),
+    ...(doc?.dueDate && doc?.docType === 'quotation'
+      ? ['', `This quotation is valid until ${doc.dueDate}.`] : []),
+    '',
+    'Thank you,',
+    company,
+  ].join('\n');
+  return `mailto:${encodeURIComponent(to)}`
+    + `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };

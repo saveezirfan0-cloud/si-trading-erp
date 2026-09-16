@@ -288,6 +288,7 @@ export const buildDraft = (parsedIn, {
     customerCompany: customer ? (customer.company || '') : (parsed.customerName || ''),
     customerAddress: customer?.address || parsed.customerAddress || '',
     customerPhone: customer?.phone || parsed.customerPhone || '',
+    customerEmail: customer?.email || '',
     attention: parsed.attention || '',
     reference: parsed.reference || '',
     status: docType === 'quotation' ? 'draft' : 'unpaid',

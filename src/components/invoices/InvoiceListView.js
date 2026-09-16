@@ -18,7 +18,7 @@ import InvoiceFilters from './InvoiceFilters';
 import InvoiceQuickView from './InvoiceQuickView';
 import {
   EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, docTypeOf, partyLines, filterInvoices, sortInvoices,
-  isExpired, expiresSoon, isQuotationOpen,
+  isExpired, expiresSoon, isQuotationOpen, needsFollowUp, daysSinceChased,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
   isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
@@ -153,6 +153,7 @@ export default function InvoiceListView({
       overdue: base.filter((i) => isOverdue(i)).length,
       duesoon: base.filter((i) => isDueSoon(i)).length,
       issues: base.filter((i) => invoiceIssues(i, partyField).length > 0).length,
+      followup: base.filter((i) => needsFollowUp(i)).length,
       open: base.filter(isQuotationOpen).length,
       expired: base.filter((i) => isExpired(i)).length,
       expiringsoon: base.filter((i) => expiresSoon(i)).length,
@@ -297,6 +298,11 @@ export default function InvoiceListView({
               <Badge color="purple">Quote</Badge>
             )}
             {isExpired(row) && <Badge color="red">Expired</Badge>}
+            {needsFollowUp(row) && (
+              <span title={`Not chased for ${daysSinceChased(row)} days`}>
+                <Badge color="yellow">Chase</Badge>
+              </span>
+            )}
             {row.convertedToNo && (
               <span title={`Converted to ${row.convertedToNo}`}>
                 <Badge color="green">Won</Badge>
