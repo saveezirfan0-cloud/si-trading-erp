@@ -113,6 +113,28 @@ export const isDueSoon = (inv, days = 7, today = todayISO()) => {
   return due >= today && due <= horizon;
 };
 
+// ── A quotation's own clock ───────────────────────────────────────────────────
+//
+// A quotation carries a "valid until" date instead of a due date: after it, the
+// prices it offered no longer stand. An offer the customer accepted is closed
+// whatever that date says, and so is one that was cancelled, so neither can
+// expire. A quotation with no date never expires — it was written without one
+// on purpose.
+export const isQuotationOpen = (inv) =>
+  isQuotation(inv) && !inv?.convertedToId && inv?.status !== 'cancelled';
+
+export const isExpired = (inv, today = todayISO()) => {
+  if (!isQuotationOpen(inv) || !inv?.dueDate) return false;
+  return String(inv.dueDate).slice(0, 10) < today;
+};
+
+export const expiresSoon = (inv, days = 7, today = todayISO()) => {
+  if (!isQuotationOpen(inv) || !inv?.dueDate) return false;
+  const until = String(inv.dueDate).slice(0, 10);
+  const horizon = new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
+  return until >= today && until <= horizon;
+};
+
 // ── Dates ─────────────────────────────────────────────────────────────────────
 export const invoiceYear = (inv) => (inv?.date ? String(inv.date).slice(0, 4) : '');
 export const invoiceMonth = (inv) => (inv?.date ? String(inv.date).slice(5, 7) : '');
@@ -239,6 +261,9 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
     if (f.flag === 'outstanding' && balanceDue(inv) <= 0) return false;
     if (f.flag === 'issues' && invoiceIssues(inv, partyField).length === 0) return false;
     if (f.flag === 'duplicates' && !isDuplicate(inv)) return false;
+    if (f.flag === 'expired' && !isExpired(inv, today)) return false;
+    if (f.flag === 'expiringsoon' && !expiresSoon(inv, 7, today)) return false;
+    if (f.flag === 'open' && !isQuotationOpen(inv)) return false;
 
     return true;
   });
@@ -329,6 +354,7 @@ export const summarise = (allRows = []) => {
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
   let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
   let quotations = 0, quotedAmount = 0, converted = 0, convertedAmount = 0;
+  let expired = 0, expiredAmount = 0;
   rows.forEach((inv) => {
     if (hasAttachment(inv)) withAttachment += 1;
     if (isQuotation(inv)) {
@@ -336,6 +362,7 @@ export const summarise = (allRows = []) => {
       quotedAmount += invoiceTotal(inv);
       // An offer the customer accepted, now raised as an invoice of its own.
       if (inv.convertedToId) { converted += 1; convertedAmount += invoiceTotal(inv); }
+      else if (isExpired(inv, today)) { expired += 1; expiredAmount += invoiceTotal(inv); }
       return;
     }
     if (isProvisional(inv.status)) {
@@ -352,7 +379,7 @@ export const summarise = (allRows = []) => {
   return {
     count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
     provisionalCount, awaitingCount, awaitingAmount,
-    quotations, quotedAmount, converted, convertedAmount,
+    quotations, quotedAmount, converted, convertedAmount, expired, expiredAmount,
     duplicates: allRows.length - rows.length,
   };
 };

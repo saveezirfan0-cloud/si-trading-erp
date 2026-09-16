@@ -4,10 +4,10 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribe, COLLECTIONS } from '../lib/db';
 import { INVOICE_STATUSES, countsToTotals } from '../lib/invoiceStatus';
-import { activeInvoices, isQuotation } from '../lib/invoices';
+import { activeInvoices, isQuotation, isQuotationOpen, isExpired } from '../lib/invoices';
 import { Card, Loader } from '../components/ui';
 import Header from '../components/layout/Header';
-import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
+import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart, FileSignature } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, PieChart, Pie, Cell
@@ -15,7 +15,7 @@ import {
 
 const COLORS = ['#f0a500', '#22c55e', '#ef4444', '#3b82f6', '#8b5cf6', '#14b8a6', '#94a3b8'];
 
-function StatCard({ label, value, icon: Icon, color }) {
+function StatCard({ label, value, icon: Icon, color, sub }) {
   return (
     <div style={{
       background: 'var(--bg2)',
@@ -37,6 +37,9 @@ function StatCard({ label, value, icon: Icon, color }) {
       <div style={{ fontFamily: 'var(--font-head)', fontSize: '1.6rem', fontWeight: 800, color: 'var(--text)', lineHeight: 1, letterSpacing: '-0.02em' }}>
         {value}
       </div>
+      {sub && (
+        <div style={{ fontSize: '0.74rem', color: 'var(--text3)', marginTop: -6 }}>{sub}</div>
+      )}
     </div>
   );
 }
@@ -58,14 +61,14 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }) => {
 export default function Dashboard() {
   const { formatCurrency, filterByFiscalYear, fiscalYear } = useApp();
   const { profile } = useAuth();
-  const [stats, setStats] = useState({ customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0 });
+  const [stats, setStats] = useState({ customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0, quotesOpen: 0, quotesValue: 0, quotesExpired: 0 });
   const [salesData, setSalesData] = useState([]);
   const [invoiceStatusData, setInvoiceStatusData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setSalesData([]);
-    let d = { customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0 };
+    let d = { customers: 0, suppliers: 0, inventory: 0, inventoryValue: 0, totalPayments: 0, totalExpenses: 0, salesTotal: 0, purchasesTotal: 0, salesCount: 0, purchasesCount: 0, quotesOpen: 0, quotesValue: 0, quotesExpired: 0 };
     let loaded = 0;
     const done = (n = 1) => { loaded += n; if (loaded >= 7) setLoading(false); };
 
@@ -87,6 +90,17 @@ export default function Dashboard() {
       // Quotations are offers, not sales, whatever their status.
       const r = activeInvoices(filterByFiscalYear(rows)).filter(i => countsToTotals(i.status) && !isQuotation(i));
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
+
+      // What is out with customers and still undecided: the money the business
+      // has offered and not yet won or lost.
+      const quotes = activeInvoices(filterByFiscalYear(rows)).filter(isQuotation);
+      const open = quotes.filter((q) => isQuotationOpen(q) && !isExpired(q));
+      d = {
+        ...d,
+        quotesOpen: open.length,
+        quotesValue: open.reduce((s, q) => s + (q.total || 0), 0),
+        quotesExpired: quotes.filter((q) => isExpired(q)).length,
+      };
       setStats({ ...d });
 
       // Build monthly sales chart from real invoice data
@@ -175,6 +189,11 @@ export default function Dashboard() {
             <StatCard label="Inventory Value" value={formatCurrency(stats.inventoryValue)} icon={Warehouse} color="#f0a500" />
             <StatCard label="Sales Invoices" value={stats.salesCount} icon={Receipt} color="#f0a500" />
             <StatCard label="Purchase Invoices" value={stats.purchasesCount} icon={ShoppingCart} color="#8b5cf6" />
+            <StatCard
+              label="Open Quotations" value={stats.quotesOpen} icon={FileSignature} color="#8b5cf6"
+              sub={stats.quotesExpired
+                ? `${formatCurrency(stats.quotesValue)} · ${stats.quotesExpired} expired`
+                : formatCurrency(stats.quotesValue)} />
             <StatCard label="Total Revenue" value={formatCurrency(stats.salesTotal)} icon={TrendingUp} color="#22c55e" />
             <StatCard label="Total Purchases" value={formatCurrency(stats.purchasesTotal)} icon={TrendingDown} color="#ef4444" />
           </div>

@@ -12,6 +12,11 @@ import { Plus, ArrowLeft, Save, Eye, UserPlus } from 'lucide-react';
 
 const EMPTY_LINE = { itemId: '', itemCode: '', itemName: '', description: '', qty: 1, unit: 'pcs', unitPrice: 0, discount: 0, taxRate: 0, total: 0, isCustom: false };
 
+// What the supplier search box looks at. The first two identify the supplier;
+// the rest only help find them. Same shape as the customer box on the sales
+// forms, so both sides of the trade behave the same way.
+const PARTY_FIELDS = ['name', 'company', 'phone', 'city', 'email'];
+
 const nextInvoiceNo = (existing) => {
   const nums = existing.map(i => parseInt((i.invoiceNo || 'PI-0').split('-')[1])).filter(Boolean);
   return `PI-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`;
@@ -27,7 +32,7 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
   const [form, setForm] = useState({
     invoiceNo: '', supplierInvoiceNo: '',
     date: new Date().toISOString().split('T')[0], dueDate: '',
-    supplierId: '', supplierName: '', supplierAddress: '', supplierPhone: '',
+    supplierId: '', supplierName: '', supplierCompany: '', supplierAddress: '', supplierPhone: '',
     status: 'unpaid', paymentMethod: '',
     notes: '', items: [{ ...EMPTY_LINE }],
     subtotal: 0, discountAmount: 0, taxAmount: 0, total: 0, paidAmount: 0, currency: 'PKR',
@@ -47,7 +52,10 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
 
   const setSupplier = (id) => {
     const s = suppliers.find(x => x.id === id);
-    if (s) setForm(f => ({ ...f, supplierId: id, supplierName: s.name, supplierAddress: s.address || '', supplierPhone: s.phone || '' }));
+    if (s) setForm(f => ({
+      ...f, supplierId: id, supplierName: s.name, supplierCompany: s.company || '',
+      supplierAddress: s.address || '', supplierPhone: s.phone || '',
+    }));
   };
 
   const handleSupplierCreated = (s) => {
@@ -158,8 +166,18 @@ export default function PurchaseInvoiceForm({ invoice, onBack, onPreview }) {
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Supplier</div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginBottom: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <Select label="Supplier *" value={form.supplierId} onChange={e => setSupplier(e.target.value)}
-                    options={suppliers.map(s => ({ value: s.id, label: s.name }))} />
+                  <ItemPicker
+                    label="Supplier" required
+                    items={suppliers}
+                    value={form.supplierId}
+                    onChange={(id) => setSupplier(id)}
+                    fields={PARTY_FIELDS}
+                    identityCount={2}
+                    noun="supplier"
+                    placeholder="Search by name, company, phone…"
+                    formatSub={(s) => [s.company, s.phone, s.city].filter(Boolean).join(' · ')}
+                    style={{ padding: '8px 12px', minHeight: 38 }}
+                  />
                 </div>
                 <Btn variant="secondary" icon={UserPlus} onClick={() => setShowQuickSupplier(true)} style={{ height: 38, whiteSpace: 'nowrap' }}>
                   + New

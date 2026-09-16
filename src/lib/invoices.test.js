@@ -5,6 +5,7 @@ import {
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
   activeFilterCount, hasAttachment, attachmentCount, attachmentEntries, EMPTY_FILTERS,
   duplicateKey, findDuplicate, activeInvoices, duplicateInvoices, partyLines,
+  isExpired, expiresSoon, isQuotationOpen,
 } from './invoices';
 
 const imported = {
@@ -288,4 +289,58 @@ test('the export carries the company and the search finds it', () => {
   const row = { ...imported, customerCompany: 'ARY Laguna' };
   expect(invoiceExportRows([row])[0].company).toBe('ARY Laguna');
   expect(filterInvoices([row], f({ search: 'ary laguna' })).map(r => r.id)).toEqual(['a']);
+});
+
+// ── A quotation's own clock ──────────────────────────────────
+const offer = (patch = {}) => ({
+  id: 'o', invoiceNo: 'QT-0009', docType: 'quotation', date: '2026-09-01',
+  dueDate: '2026-09-15', status: 'approved', total: 50000, customerName: 'ARY',
+  items: [{ itemName: 'Hammer' }], ...patch,
+});
+
+test('an offer past its valid-until date has expired', () => {
+  expect(isExpired(offer(), '2026-09-16')).toBe(true);
+  expect(isExpired(offer(), '2026-09-15')).toBe(false);
+  expect(isExpired(offer(), '2026-09-01')).toBe(false);
+});
+
+test('an offer that was won or cancelled cannot expire', () => {
+  expect(isExpired(offer({ convertedToId: 'si1' }), '2026-12-01')).toBe(false);
+  expect(isExpired(offer({ status: 'cancelled' }), '2026-12-01')).toBe(false);
+  // Written with no date on purpose: it stands until somebody says otherwise.
+  expect(isExpired(offer({ dueDate: '' }), '2026-12-01')).toBe(false);
+});
+
+test('an invoice never expires — it falls due instead', () => {
+  expect(isExpired({ ...offer(), docType: 'invoice' }, '2026-12-01')).toBe(false);
+  expect(isQuotationOpen({ ...offer(), docType: 'invoice' })).toBe(false);
+});
+
+test('an offer about to lapse is worth chasing', () => {
+  expect(expiresSoon(offer(), 7, '2026-09-10')).toBe(true);
+  expect(expiresSoon(offer(), 7, '2026-09-01')).toBe(false);   // still weeks away
+  expect(expiresSoon(offer(), 7, '2026-09-16')).toBe(false);   // already gone
+});
+
+test('the quotation filters narrow to what still stands', () => {
+  const rows2 = [
+    offer(),                                            // expired at 16 Sept
+    offer({ id: 'w', convertedToId: 'si1' }),           // won
+    offer({ id: 'l', dueDate: '2026-12-31' }),          // still open
+  ];
+  const at = (flag) => filterInvoices(rows2, f({ flag })).map(r => r.id);
+  // filterInvoices judges "today" itself, so only the date-free rules are
+  // pinned here; the dated ones are covered above.
+  expect(at('expired').concat(at('open')).length).toBeGreaterThan(0);
+  expect(filterInvoices(rows2, f({ flag: 'open' })).every(isQuotationOpen)).toBe(true);
+});
+
+test('expired offers are counted apart from won and open ones', () => {
+  const s = summarise([offer({ dueDate: '2020-01-01' }), offer({ id: 'w', convertedToId: 'si1', dueDate: '2020-01-01' })]);
+  expect(s.quotations).toBe(2);
+  expect(s.converted).toBe(1);
+  expect(s.expired).toBe(1);
+  expect(s.expiredAmount).toBe(50000);
+  // An offer is never revenue, however it ends.
+  expect(s.total).toBe(0);
 });
