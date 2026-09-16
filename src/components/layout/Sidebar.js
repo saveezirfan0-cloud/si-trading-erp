@@ -10,7 +10,7 @@ import {
   LayoutDashboard, Users, Truck, Package, Warehouse,
   BookOpen, FileText, BarChart3, UserCog, Upload,
   MessageSquare, Settings, LogOut, ChevronLeft, ChevronRight,
-  DollarSign, ShoppingCart, Receipt, Zap, Camera, History, Trash2
+  DollarSign, ShoppingCart, Receipt, Zap, Camera, History, Trash2, Sparkles
 } from 'lucide-react';
 
 // `module` ties each link to a permission key from lib/permissions, so the nav
@@ -24,6 +24,7 @@ const NAV = [
   { type: 'divider', label: 'SALES & PURCHASES' },
   { label: 'Sales Invoices', to: '/sales', icon: Receipt, module: 'sales', countKey: COLLECTIONS.SALES_INVOICES },
   { label: 'Quick Invoice', to: '/sales/quick', icon: Zap, module: 'sales' },
+  { label: 'AI Invoice / Quote', to: '/sales/ai', icon: Sparkles, module: 'sales', highlight: true },
   { label: 'Purchase Invoices', to: '/purchases', icon: ShoppingCart, module: 'purchases', countKey: COLLECTIONS.PURCHASE_INVOICES },
   { label: 'Scan Invoice (OCR)', to: '/purchases/scan', icon: Camera, module: 'scan', highlight: true },
   { type: 'divider', label: 'ACCOUNTING' },

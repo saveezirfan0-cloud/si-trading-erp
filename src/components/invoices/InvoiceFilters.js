@@ -12,6 +12,7 @@ import {
   SOURCES, MONTHS, SORT_OPTIONS, EMPTY_FILTERS, activeFilterCount,
 } from '../../lib/invoices';
 import { INVOICE_STATUSES, statusLabel } from '../../lib/invoiceStatus';
+import { DOC_TYPES } from '../../lib/salesDocs';
 
 // In workflow order — draft, review, approved, then the payment states — so the
 // chips read as the path an invoice takes.
@@ -29,6 +30,7 @@ const describe = (key, value, partyLabel) => {
   switch (key) {
     case 'status': return `Status: ${statusLabel(value)}`;
     case 'source': return `Source: ${SOURCES[value]?.short || value}`;
+    case 'type': return `Type: ${DOC_TYPES.find(t => t.value === value)?.label || value}`;
     case 'year': return value === 'none' ? 'No date' : `Year: ${value}`;
     case 'month': return `Month: ${MONTHS.find(m => m.value === value)?.label || value}`;
     case 'party': return `${partyLabel}: ${value}`;
@@ -53,6 +55,7 @@ export default function InvoiceFilters({
   years = [],
   parties = [],
   partyLabel = 'Customer',
+  showType = false,          // sales lists mix invoices and quotations
   sort,
   onSortChange,
   showing = 0,
@@ -123,6 +126,17 @@ export default function InvoiceFilters({
           gap: 12,
           borderTop: '1px dashed var(--border)',
         }}>
+          {showType && (
+            <FilterSelect
+              label="Type"
+              value={filters.type}
+              onChange={v => set({ type: v })}
+              options={[
+                { value: 'all', label: 'Invoices & quotations' },
+                ...DOC_TYPES.map(t => ({ value: t.value, label: t.label })),
+              ]}
+            />
+          )}
           <FilterSelect
             label="Source"
             value={filters.source}

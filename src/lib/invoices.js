@@ -7,24 +7,36 @@
 
 import { isProvisional, needsApproval } from './invoiceStatus';
 import { attachmentEntries, attachmentCount, hasAttachment } from './attachments';
+import { docTypeOf, isQuotation, docMeta } from './salesDocs';
 
 // ── Provenance ────────────────────────────────────────────────────────────────
 //
 // Manager.io rows are seeded by tools/manager-import with `importedFrom` and
-// `managerKey`; the OCR capture screen stamps `source: 'ocr'` and a `scanPath`.
-// Anything else was typed into this app.
+// `managerKey`; the OCR capture screen stamps `source: 'ocr'` and a `scanPath`;
+// the AI document screen stamps `source: 'ai'` and keeps the request typed in
+// `aiPrompt`. Anything else was typed into this app.
 export const SOURCES = {
   manual:  { label: 'Created here',      short: 'Manual',  color: 'blue' },
   manager: { label: 'Imported (Manager.io)', short: 'Manager', color: 'purple' },
   ocr:     { label: 'Scanned (AI OCR)',  short: 'Scanned', color: 'yellow' },
+  ai:      { label: 'Written by AI (typed request)', short: 'AI', color: 'green' },
 };
 
 export const invoiceSource = (inv) => {
   if (!inv) return 'manual';
   if (inv.importedFrom || inv.managerKey) return 'manager';
   if (inv.source === 'ocr' || inv.createdVia === 'ocr' || inv.scanPath) return 'ocr';
+  if (inv.source === 'ai' || inv.createdVia === 'ai') return 'ai';
   return 'manual';
 };
+
+// ── Document type ─────────────────────────────────────────────────────────────
+//
+// A quotation sits in the sales table beside the invoices but is an offer, not
+// a sale: nothing is owed on it, it cannot be late, and it stays out of every
+// revenue figure. The rules live in src/lib/salesDocs.js; they are re-exported
+// here because the list, its filters and the totals all ask the same question.
+export { docTypeOf, isQuotation, docMeta };
 
 // The Manager books were imported per business file; the note carries the book
 // name, which is the only place the original ledger is recorded. Book names
@@ -52,7 +64,7 @@ export const paidAmount = (inv) => Number(inv?.paidAmount) || 0;
 // waiting for approval — nothing is due until an invoice is signed off.
 export const balanceDue = (inv) => {
   if (!inv || inv.status === 'paid' || inv.status === 'cancelled') return 0;
-  if (isProvisional(inv.status)) return 0;
+  if (isProvisional(inv.status) || isQuotation(inv)) return 0;
   return Math.max(0, invoiceTotal(inv) - paidAmount(inv));
 };
 
@@ -150,7 +162,7 @@ export const invoiceIssues = (inv, partyField = 'customerName') => {
 
 // ── Filtering ─────────────────────────────────────────────────────────────────
 export const EMPTY_FILTERS = {
-  search: '', status: 'all', source: 'all', year: 'all', month: 'all',
+  search: '', status: 'all', source: 'all', type: 'all', year: 'all', month: 'all',
   party: 'all', from: '', to: '', min: '', max: '',
   attachment: 'all', flag: 'all',
 };
@@ -170,13 +182,14 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
     if (q) {
       const hay = [
         inv.invoiceNo, inv[partyField], inv.supplierInvoiceNo, inv.status,
-        inv.notes, inv.paymentMethod,
+        inv.notes, inv.paymentMethod, inv.attention, inv.reference,
         ...(inv.items || []).map((i) => `${i.itemName} ${i.itemCode}`),
       ].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     if (f.status !== 'all' && inv.status !== f.status) return false;
     if (f.source !== 'all' && invoiceSource(inv) !== f.source) return false;
+    if (f.type !== 'all' && docTypeOf(inv) !== f.type) return false;
 
     if (f.year !== 'all') {
       if (f.year === 'none') { if (inv.date) return false; }
@@ -261,7 +274,9 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
     date: inv.date || '',
     dueDate: inv.dueDate || '',
     [partyField === 'supplierName' ? 'supplier' : 'customer']: inv[partyField] || '',
-    ...(partyField === 'supplierName' ? { supplierRef: inv.supplierInvoiceNo || '' } : {}),
+    ...(partyField === 'supplierName'
+      ? { supplierRef: inv.supplierInvoiceNo || '' }
+      : { type: docMeta(inv).short, attention: inv.attention || '' }),
     status: inv.status || '',
     lineItems: (inv.items || []).length,
     subtotal: Number(inv.subtotal) || 0,
@@ -282,13 +297,15 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
 // and dashboard figure that runs through this helper. Drafts and invoices still
 // in review are left out of the money too — they are not sales or purchases yet
 // — and reported separately so the list can say what is waiting on somebody.
+// Quotations are offers rather than sales, so they are only counted.
 export const summarise = (allRows = []) => {
   const rows = activeInvoices(allRows);
   const today = todayISO();
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
-  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
+  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0, quotations = 0, quotedAmount = 0;
   rows.forEach((inv) => {
     if (hasAttachment(inv)) withAttachment += 1;
+    if (isQuotation(inv)) { quotations += 1; quotedAmount += invoiceTotal(inv); return; }
     if (isProvisional(inv.status)) {
       provisionalCount += 1;
       if (needsApproval(inv.status)) { awaitingCount += 1; awaitingAmount += invoiceTotal(inv); }
@@ -302,7 +319,7 @@ export const summarise = (allRows = []) => {
   });
   return {
     count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
-    provisionalCount, awaitingCount, awaitingAmount,
+    provisionalCount, awaitingCount, awaitingAmount, quotations, quotedAmount,
     duplicates: allRows.length - rows.length,
   };
 };

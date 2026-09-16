@@ -1,20 +1,61 @@
 // src/pages/sales/SalesInvoiceView.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Badge, RecordMeta, ActivityFeed, Attachments } from '../../components/ui';
 import ApprovalBar from '../../components/invoices/ApprovalBar';
 import { useAuth } from '../../contexts/AuthContext';
-import { COLLECTIONS } from '../../lib/db';
+import { COLLECTIONS, getAll, create, update } from '../../lib/db';
 import {
   statusLabel, statusColor, statusPrintBg, statusPrintFg,
 } from '../../lib/invoiceStatus';
-import { ArrowLeft, Edit2, Printer } from 'lucide-react';
+import { DEFAULT_TERMS, docLabel, isQuotation, nextDocNo, calcTotals } from '../../lib/salesDocs';
+import toast from 'react-hot-toast';
+import { ArrowLeft, Edit2, Printer, FileCheck } from 'lucide-react';
 
-export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged }) {
+const esc = (v) => String(v ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, onConverted }) {
   const { formatCurrency } = useApp();
   const { can } = useAuth();
+  const [converting, setConverting] = useState(false);
   if (!invoice) return null;
+
+  const isQuote = isQuotation(invoice);
+  const label = docLabel(invoice);
+  const dateLabel = isQuote ? 'Quotation Date' : 'Invoice Date';
+  const dueLabel = isQuote ? 'Valid Until' : 'Due Date';
+
+  // A quotation the customer accepted becomes a new invoice in the SI-
+  // sequence, today's date, carrying the lines and a link back. The quotation
+  // itself is kept and marked, so the offer and the sale are both on record.
+  const convertToInvoice = async () => {
+    if (!isQuote || converting) return;
+    setConverting(true);
+    try {
+      const all = await getAll(COLLECTIONS.SALES_INVOICES, [], { includeDeleted: true });
+      const invoiceNo = nextDocNo(all, 'SI');
+      const {
+        id, createdAt, updatedAt, createdBy, createdByName, createdByEmail,
+        updatedBy, updatedByName, updatedByEmail, deletedAt, deletedBy, deletedByName,
+        approvedAt, approvedBy, approvedByName, submittedForReviewAt,
+        attachments, scanPath, convertedToId, convertedToNo, ...rest
+      } = invoice;
+      const items = rest.items || [];
+      const newId = await create(COLLECTIONS.SALES_INVOICES, {
+        ...rest, ...calcTotals(items),
+        docType: 'invoice', invoiceNo, status: 'unpaid', paidAmount: 0,
+        date: new Date().toISOString().split('T')[0], dueDate: '',
+        terms: !rest.terms || rest.terms === DEFAULT_TERMS.quotation ? DEFAULT_TERMS.invoice : rest.terms,
+        quotationId: invoice.id, quotationNo: invoice.invoiceNo,
+      });
+      await update(COLLECTIONS.SALES_INVOICES, invoice.id, { convertedToId: newId, convertedToNo: invoiceNo });
+      toast.success(`Invoice ${invoiceNo} created from ${invoice.invoiceNo}`);
+      if (onConverted) onConverted(newId); else if (onChanged) onChanged();
+    } catch (e) { toast.error('Could not convert: ' + e.message); }
+    setConverting(false);
+  };
 
 
   const handlePrint = () => {
@@ -22,7 +63,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
     win.document.write(`<!DOCTYPE html>
 <html>
 <head>
-  <title>Invoice ${invoice.invoiceNo}</title>
+  <title>${label} ${esc(invoice.invoiceNo)}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #111; background: #fff; }
@@ -72,8 +113,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
       <div class="company-sub">Power Tools & Hand Tools</div>
     </div>
     <div style="text-align:right">
-      <div class="invoice-label">Sales Invoice</div>
-      <div class="invoice-no">${invoice.invoiceNo}</div>
+      <div class="invoice-label">${label}</div>
+      <div class="invoice-no">${esc(invoice.invoiceNo)}</div>
       <div>
         <span class="status-badge" style="background:${statusPrintBg(invoice.status)};color:${statusPrintFg(invoice.status)}">
           ${statusLabel(invoice.status).toUpperCase()}
@@ -84,20 +125,23 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
 
   <div class="meta-grid">
     <div>
-      <div class="meta-label">Bill To</div>
+      <div class="meta-label">${isQuote ? 'Quotation For' : 'Bill To'}</div>
       <div class="meta-value">
-        <strong>${invoice.customerName || ''}</strong><br/>
-        ${invoice.customerPhone ? invoice.customerPhone + '<br/>' : ''}
-        ${invoice.customerAddress || ''}
+        <strong>${esc(invoice.customerName)}</strong><br/>
+        ${invoice.attention ? 'Kind Attention: ' + esc(invoice.attention) + '<br/>' : ''}
+        ${invoice.customerPhone ? esc(invoice.customerPhone) + '<br/>' : ''}
+        ${esc(invoice.customerAddress)}
       </div>
     </div>
     <div class="meta-right">
       <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
         ${[
-          ['Invoice Date', invoice.date],
-          ['Due Date', invoice.dueDate || '—'],
-          ['Payment Method', (invoice.paymentMethod || '').replace(/_/g,' ')],
-        ].map(([l,v]) => `
+          [dateLabel, invoice.date],
+          [dueLabel, invoice.dueDate || '—'],
+          ...(invoice.reference ? [['Reference', invoice.reference]] : []),
+          ...(invoice.quotationNo ? [['Quotation', invoice.quotationNo]] : []),
+          ...(isQuote ? [] : [['Payment Method', (invoice.paymentMethod || '').replace(/_/g,' ')]]),
+        ].map(([l,v]) => [esc(l), esc(v)]).map(([l,v]) => `
           <div>
             <div class="meta-label">${l}</div>
             <div class="meta-value">${v}</div>
@@ -126,12 +170,12 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
         <tr>
           <td style="color:#888">${i+1}</td>
           <td>
-            <div style="font-weight:700">${line.itemName || ''}</div>
-            ${line.itemCode ? `<div class="item-code">${line.itemCode}</div>` : ''}
+            <div style="font-weight:700">${esc(line.itemName)}</div>
+            ${line.itemCode ? `<div class="item-code">${esc(line.itemCode)}</div>` : ''}
           </td>
-          <td style="color:#555">${line.description || ''}</td>
-          <td class="right">${line.qty}</td>
-          <td class="right" style="color:#888">${line.unit}</td>
+          <td style="color:#555">${esc(line.description)}</td>
+          <td class="right">${esc(line.qty)}</td>
+          <td class="right" style="color:#888">${esc(line.unit)}</td>
           <td class="right">PKR ${Number(line.unitPrice).toLocaleString()}</td>
           <td class="right" style="color:#888">${line.discount || 0}%</td>
           <td class="right" style="color:#888">${line.taxRate || 0}%</td>
@@ -147,7 +191,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
       <tr><td style="color:#dc2626">Discount</td><td style="color:#dc2626">− PKR ${Number(invoice.discountAmount||0).toLocaleString()}</td></tr>
       <tr><td style="color:#2563eb">Tax</td><td style="color:#2563eb">+ PKR ${Number(invoice.taxAmount||0).toLocaleString()}</td></tr>
       <tr class="grand"><td>Total</td><td>PKR ${Number(invoice.total||0).toLocaleString()}</td></tr>
-      ${invoice.paidAmount > 0 ? `
+      ${!isQuote && invoice.paidAmount > 0 ? `
         <tr class="paid"><td>Paid</td><td>− PKR ${Number(invoice.paidAmount).toLocaleString()}</td></tr>
         <tr class="balance"><td>Balance Due</td><td>PKR ${Number((invoice.total||0)-(invoice.paidAmount||0)).toLocaleString()}</td></tr>
       ` : ''}
@@ -156,8 +200,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
 
   ${(invoice.notes || invoice.terms) ? `
   <div class="footer">
-    ${invoice.notes ? `<div><div class="footer-label">Notes</div><div class="footer-value">${invoice.notes}</div></div>` : '<div></div>'}
-    ${invoice.terms ? `<div><div class="footer-label">Terms & Conditions</div><div class="footer-value">${invoice.terms}</div></div>` : ''}
+    ${invoice.notes ? `<div><div class="footer-label">Notes</div><div class="footer-value">${esc(invoice.notes)}</div></div>` : '<div></div>'}
+    ${invoice.terms ? `<div><div class="footer-label">Terms & Conditions</div><div class="footer-value">${esc(invoice.terms)}</div></div>` : ''}
   </div>` : ''}
 
   <div class="watermark">Generated by S.I Trading & Co. ERP • ${new Date().toLocaleDateString()}</div>
@@ -171,16 +215,27 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
 
   return (
     <>
-      <Header title={`Invoice — ${invoice.invoiceNo}`} />
+      <Header title={`${label} — ${invoice.invoiceNo}`} />
       <div className="page-pad" style={{ padding: 24, maxWidth: 860 }}>
         <div className="toolbar" style={{ marginBottom: 20 }}>
           <Btn variant="ghost" icon={ArrowLeft} onClick={onBack}>Back</Btn>
           <div className="toolbar-spacer" />
           <div className="toolbar-actions">
             <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>
+            {isQuote && invoice.id && !invoice.convertedToId && can('sales', 'create') && (
+              <Btn variant="success" icon={FileCheck} onClick={convertToInvoice} disabled={converting}>
+                {converting ? 'Converting…' : 'Convert to Invoice'}
+              </Btn>
+            )}
             <Btn icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
           </div>
         </div>
+
+        {isQuote && invoice.convertedToNo && (
+          <div style={{ marginBottom: 16, padding: '10px 14px', background: 'rgba(34,197,94,0.10)', border: '1px solid var(--green)', borderRadius: 'var(--radius)', fontSize: '0.85rem' }}>
+            This quotation was converted to invoice <strong>{invoice.convertedToNo}</strong>.
+          </div>
+        )}
 
         {/* Where this invoice sits in the review flow, and what can be done next */}
         <div style={{ marginBottom: 16 }}>
@@ -202,7 +257,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
               <div style={{ color: 'var(--text3)', fontSize: '0.72rem', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Power Tools & Hand Tools</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Sales Invoice</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>{label}</div>
               <div style={{ fontFamily: 'var(--font-head)', fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em' }}>{invoice.invoiceNo}</div>
               <Badge color={statusColor(invoice.status)} style={{ marginTop: 8 }}>{statusLabel(invoice.status).toUpperCase()}</Badge>
             </div>
@@ -211,16 +266,19 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
           {/* Meta */}
           <div className="g-2" style={{ gap: 32, marginBottom: 32 }}>
             <div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Bill To</div>
+              <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{isQuote ? 'Quotation For' : 'Bill To'}</div>
               <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{invoice.customerName}</div>
+              {invoice.attention && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>Kind Attention: {invoice.attention}</div>}
               {invoice.customerPhone && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>{invoice.customerPhone}</div>}
               {invoice.customerAddress && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>{invoice.customerAddress}</div>}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-end' }}>
               {[
-                ['Invoice Date', invoice.date],
-                ['Due Date', invoice.dueDate || '—'],
-                ['Payment Method', (invoice.paymentMethod || '—').replace(/_/g, ' ')],
+                [dateLabel, invoice.date],
+                [dueLabel, invoice.dueDate || '—'],
+                ...(invoice.reference ? [['Reference', invoice.reference]] : []),
+                ...(invoice.quotationNo ? [['Quotation', invoice.quotationNo]] : []),
+                ...(isQuote ? [] : [['Payment Method', (invoice.paymentMethod || '—').replace(/_/g, ' ')]]),
               ].map(([l, v]) => (
                 <div key={l} style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{l}</div>
@@ -278,7 +336,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged })
                 <span>Total</span>
                 <span style={{ color: 'var(--accent)' }}>{formatCurrency(invoice.total || 0)}</span>
               </div>
-              {invoice.paidAmount > 0 && <>
+              {!isQuote && invoice.paidAmount > 0 && <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', fontSize: '0.88rem', color: 'var(--green)' }}>
                   <span>Paid</span><span>− {formatCurrency(invoice.paidAmount)}</span>
                 </div>

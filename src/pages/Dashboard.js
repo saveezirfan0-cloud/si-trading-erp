@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useAuth } from '../contexts/AuthContext';
 import { subscribe, COLLECTIONS } from '../lib/db';
 import { INVOICE_STATUSES, countsToTotals } from '../lib/invoiceStatus';
-import { activeInvoices } from '../lib/invoices';
+import { activeInvoices, isQuotation } from '../lib/invoices';
 import { Card, Loader } from '../components/ui';
 import Header from '../components/layout/Header';
 import { Users, Truck, Package, TrendingUp, TrendingDown, Warehouse, Receipt, ShoppingCart } from 'lucide-react';
@@ -84,7 +84,8 @@ export default function Dashboard() {
       // Duplicates never count, and drafts and invoices still awaiting
       // approval are not sales yet — they stay out of the headline totals and
       // the monthly chart, the same rule the Sales Invoices page uses.
-      const r = activeInvoices(filterByFiscalYear(rows)).filter(i => countsToTotals(i.status));
+      // Quotations are offers, not sales, whatever their status.
+      const r = activeInvoices(filterByFiscalYear(rows)).filter(i => countsToTotals(i.status) && !isQuotation(i));
       d = { ...d, salesTotal: r.reduce((s, i) => s + (i.total || 0), 0), salesCount: r.length };
       setStats({ ...d });
 
@@ -100,7 +101,7 @@ export default function Dashboard() {
 
       // Invoice status breakdown, including the review states. Built from the
       // full fiscal-year list so drafts and pending approvals still show here.
-      const all = filterByFiscalYear(rows);
+      const all = filterByFiscalYear(rows).filter(i => !isQuotation(i));
       const statuses = Object.fromEntries(INVOICE_STATUSES.map(st => [st.value, 0]));
       all.forEach(i => { if (statuses[i.status] !== undefined) statuses[i.status] += i.total || 0; });
       setInvoiceStatusData(

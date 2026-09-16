@@ -5,6 +5,9 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Input, Select, Textarea, Card, FormGrid, ItemPicker, RecordMeta } from '../../components/ui';
 import { STATUS_OPTIONS, approvalPatch } from '../../lib/invoiceStatus';
+import {
+  DOC_TYPE_OPTIONS, DEFAULT_TERMS, docLabel, docPrefix, isQuotation, nextDocNo, calcLine, calcTotals,
+} from '../../lib/salesDocs';
 import { getCurrentActor } from '../../lib/audit';
 import { QuickAddCustomer } from '../../components/ui/QuickAddModal';
 import toast from 'react-hot-toast';
@@ -12,38 +15,74 @@ import { Plus, ArrowLeft, Save, Eye, UserPlus } from 'lucide-react';
 
 const EMPTY_LINE = { itemId: '', itemCode: '', itemName: '', description: '', qty: 1, unit: 'pcs', unitPrice: 0, discount: 0, taxRate: 0, total: 0, isCustom: false };
 
-const nextInvoiceNo = (existing) => {
-  const nums = existing.map(i => parseInt((i.invoiceNo || 'SI-0').split('-')[1])).filter(Boolean);
-  return `SI-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`;
-};
-
-export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
+// One form for both sales documents. `invoice` is the record to edit; a
+// record without an id (the AI document screen hands one over) is a draft to
+// review and create. `onSaved` runs after a save (default: `onBack`), and
+// `notice` is rendered above the form — the AI screen uses it to say what it
+// read and what needs checking.
+export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, notice }) {
   const { formatCurrency } = useApp();
   const [customers, setCustomers] = useState([]);
   const [inventory, setInventory] = useState([]);
+  // Every sales document, trash included, for numbering.
+  const [existing, setExisting] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [addingCustomer, setAddingCustomer] = useState(false);
   const [showQuickCustomer, setShowQuickCustomer] = useState(false);
 
   const [form, setForm] = useState({
+    docType: 'invoice',
     invoiceNo: '', date: new Date().toISOString().split('T')[0],
     dueDate: '', customerId: '', customerName: '', customerAddress: '', customerPhone: '',
+    attention: '', reference: '',
     status: 'unpaid', paymentMethod: '',
-    notes: '', terms: 'Payment due within 30 days. Thank you for your business.',
+    notes: '', terms: DEFAULT_TERMS.invoice,
     items: [{ ...EMPTY_LINE }],
     subtotal: 0, discountAmount: 0, taxAmount: 0, total: 0, paidAmount: 0, currency: 'PKR',
   });
+  const isQuote = isQuotation(form);
 
   useEffect(() => {
     const load = async () => {
       // Invoice numbering counts trashed invoices too, so a restored invoice
       // cannot collide with a number handed out while it sat in the trash.
       const [c, inv, si] = await Promise.all([getAll(COLLECTIONS.CUSTOMERS), getAll(COLLECTIONS.INVENTORY), getAll(COLLECTIONS.SALES_INVOICES, [], { includeDeleted: true })]);
-      setCustomers(c); setInventory(inv);
-      if (invoice) setForm({ ...invoice });
-      else setForm(f => ({ ...f, invoiceNo: nextInvoiceNo(si) }));
+      setCustomers(c); setInventory(inv); setExisting(si);
+      if (invoice) setForm(f => ({ ...f, ...invoice }));
+      else setForm(f => ({ ...f, invoiceNo: nextDocNo(si, docPrefix(f.docType)) }));
     };
     load();
   }, [invoice]);
+
+  // Switching between invoice and quotation moves the document to the other
+  // numbering sequence and swaps the default footer wording; an existing
+  // record keeps its number, and hand-written terms are left alone.
+  const setDocType = (docType) => setForm(f => ({
+    ...f,
+    docType,
+    invoiceNo: invoice?.id ? f.invoiceNo : nextDocNo(existing, docPrefix(docType)),
+    terms: !f.terms || f.terms === DEFAULT_TERMS[f.docType] ? DEFAULT_TERMS[docType] : f.terms,
+    status: docType === 'quotation' && f.status === 'unpaid' ? 'draft' : f.status,
+  }));
+
+  // A name that came from the AI reader (or was typed) but matches nobody in
+  // the customer list: one click makes the customer, no retyping.
+  const addNamedCustomer = async () => {
+    const name = (form.customerName || '').trim();
+    if (!name) return;
+    setAddingCustomer(true);
+    try {
+      const data = {
+        name, phone: form.customerPhone || '', address: form.customerAddress || '',
+        contactPerson: form.attention || '', email: '', city: '', type: 'retail',
+        status: 'active', balance: 0, country: 'Pakistan',
+      };
+      const id = await create(COLLECTIONS.CUSTOMERS, data);
+      handleCustomerCreated({ id, ...data });
+      toast.success(`Customer "${name}" added`);
+    } catch (e) { toast.error('Could not add the customer: ' + e.message); }
+    setAddingCustomer(false);
+  };
 
   const setCustomer = (id) => {
     const c = customers.find(x => x.id === id);
@@ -69,23 +108,6 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
     updateLine(lineIdx, { itemId, itemCode: item.code || '', itemName: item.name || '', description: item.description || '', unit: item.unit || 'pcs', unitPrice: item.salePrice || 0, taxRate: item.taxRate || 0, qty: 1, isCustom: false });
   };
 
-  const calcLine = (line) => {
-    const qty = Number(line.qty) || 0, price = Number(line.unitPrice) || 0;
-    const disc = Number(line.discount) || 0, tax = Number(line.taxRate) || 0;
-    const sub = qty * price, discAmt = sub * (disc / 100);
-    return { ...line, total: sub - discAmt + (sub - discAmt) * (tax / 100) };
-  };
-
-  const calcTotals = (items) => {
-    const subtotal = items.reduce((s, i) => s + (Number(i.qty) * Number(i.unitPrice)), 0);
-    const discountAmount = items.reduce((s, i) => s + (Number(i.qty) * Number(i.unitPrice)) * ((Number(i.discount) || 0) / 100), 0);
-    const taxAmount = items.reduce((s, i) => {
-      const sub = Number(i.qty) * Number(i.unitPrice), disc = sub * ((Number(i.discount) || 0) / 100);
-      return s + (sub - disc) * ((Number(i.taxRate) || 0) / 100);
-    }, 0);
-    return { subtotal, discountAmount, taxAmount, total: subtotal - discountAmount + taxAmount };
-  };
-
   const updateLine = (idx, changes) => {
     setForm(f => {
       const items = [...f.items];
@@ -107,9 +129,10 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
     try {
       // Moving into (or back out of) review carries the approval stamps with it.
       const data = { ...form, status, ...approvalPatch(status, getCurrentActor()) };
-      if (invoice?.id) { await update(COLLECTIONS.SALES_INVOICES, invoice.id, data); toast.success('Invoice updated'); }
-      else { await create(COLLECTIONS.SALES_INVOICES, data); toast.success('Invoice created'); }
-      onBack();
+      const label = docLabel(form);
+      if (invoice?.id) { await update(COLLECTIONS.SALES_INVOICES, invoice.id, data); toast.success(`${label} updated`); }
+      else { await create(COLLECTIONS.SALES_INVOICES, data); toast.success(`${label} ${form.invoiceNo} created`); }
+      (onSaved || onBack)();
     } catch (e) { toast.error('Save failed: ' + e.message); }
     setSaving(false);
   };
@@ -122,7 +145,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
 
   return (
     <>
-      <Header title={invoice ? `Edit — ${form.invoiceNo}` : 'New Sales Invoice'} />
+      <Header title={invoice?.id ? `Edit — ${form.invoiceNo}` : `New ${docLabel(form)}`} />
       <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 1200 }}>
 
         <div className="toolbar">
@@ -135,6 +158,8 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
           </div>
         </div>
 
+        {notice}
+
         {/* Who raised this and who touched it last */}
         {invoice?.id && <RecordMeta record={invoice} />}
 
@@ -143,13 +168,16 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
 
             {/* Invoice meta */}
             <Card>
-              <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Invoice Details</div>
+              <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{isQuote ? 'Quotation' : 'Invoice'} Details</div>
               <FormGrid cols={2}>
-                <Input label="Invoice No." value={form.invoiceNo} onChange={e => setForm(f => ({ ...f, invoiceNo: e.target.value }))} />
+                <Select label="Document Type" value={form.docType || 'invoice'} onChange={e => setDocType(e.target.value)}
+                  options={DOC_TYPE_OPTIONS} />
+                <Input label={isQuote ? 'Quotation No.' : 'Invoice No.'} value={form.invoiceNo} onChange={e => setForm(f => ({ ...f, invoiceNo: e.target.value }))} />
+                <Input label="Date" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+                <Input label={isQuote ? 'Valid Until' : 'Due Date'} type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
                 <Select label="Status" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                   options={STATUS_OPTIONS} />
-                <Input label="Invoice Date" type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
-                <Input label="Due Date" type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} />
+                <Input label="Reference / PO No." value={form.reference || ''} onChange={e => setForm(f => ({ ...f, reference: e.target.value }))} placeholder="Customer's PO or reference" />
               </FormGrid>
             </Card>
 
@@ -165,8 +193,19 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview }) {
                   + New
                 </Btn>
               </div>
+              {form.customerName && !form.customerId && (
+                <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, fontSize: '13px' }}>
+                  <span style={{ flex: 1, minWidth: 200 }}>
+                    <strong>{form.customerName}</strong> is not in the customer list — pick an existing customer above, or
+                  </span>
+                  <Btn size="sm" variant="secondary" icon={UserPlus} onClick={addNamedCustomer} disabled={addingCustomer}>
+                    {addingCustomer ? 'Adding…' : 'Add as new customer'}
+                  </Btn>
+                </div>
+              )}
               {form.customerName && (
                 <FormGrid cols={2}>
+                  <Input label="Kind Attention" value={form.attention || ''} onChange={e => setForm(f => ({ ...f, attention: e.target.value }))} placeholder="Contact person, e.g. Mr Zaheer" />
                   <Input label="Phone" value={form.customerPhone} onChange={e => setForm(f => ({ ...f, customerPhone: e.target.value }))} />
                   <Input label="Address" value={form.customerAddress} onChange={e => setForm(f => ({ ...f, customerAddress: e.target.value }))} />
                 </FormGrid>
