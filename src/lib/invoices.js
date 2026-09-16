@@ -47,6 +47,30 @@ export const importBook = (inv) => {
   return m ? m[1] : '';
 };
 
+// ── Who the document is addressed to ─────────────────────────────
+//
+// A customer record carries both a name and a company: the business may be
+// filed under its own name ("Fatimi Traders") or under the person dealt with
+// ("Mr. Zaheer" of "ARY Laguna"). A document is addressed to the business, so
+// the company heads the address when there is one and the person goes on the
+// line below. "Kind attention" only earns a line of its own when it names
+// somebody who is not already shown.
+const loose = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+export const partyCompanyField = (partyField = 'customerName') =>
+  partyField === 'supplierName' ? 'supplierCompany' : 'customerCompany';
+
+export const partyLines = (inv, partyField = 'customerName') => {
+  const name = String(inv?.[partyField] || '').trim();
+  const company = String(inv?.[partyCompanyField(partyField)] || '').trim();
+  const attention = String(inv?.attention || '').trim();
+  const heading = company || name;
+  const person = company && name && loose(name) !== loose(company) ? name : '';
+  const showAttention = attention
+    && loose(attention) !== loose(heading) && loose(attention) !== loose(person);
+  return { heading, person, attention: showAttention ? attention : '' };
+};
+
 // ── Attachments ───────────────────────────────────────────────────────────────
 //
 // An invoice's documents — the OCR photo, the supplier's PDF, a delivery note —
@@ -181,7 +205,8 @@ export const filterInvoices = (rows = [], f = EMPTY_FILTERS, partyField = 'custo
   return rows.filter((inv) => {
     if (q) {
       const hay = [
-        inv.invoiceNo, inv[partyField], inv.supplierInvoiceNo, inv.status,
+        inv.invoiceNo, inv[partyField], inv[partyCompanyField(partyField)],
+        inv.supplierInvoiceNo, inv.status,
         inv.notes, inv.paymentMethod, inv.attention, inv.reference,
         ...(inv.items || []).map((i) => `${i.itemName} ${i.itemCode}`),
       ].join(' ').toLowerCase();
@@ -276,7 +301,7 @@ export const invoiceExportRows = (rows = [], partyField = 'customerName') =>
     [partyField === 'supplierName' ? 'supplier' : 'customer']: inv[partyField] || '',
     ...(partyField === 'supplierName'
       ? { supplierRef: inv.supplierInvoiceNo || '' }
-      : { type: docMeta(inv).short, attention: inv.attention || '' }),
+      : { type: docMeta(inv).short, company: inv.customerCompany || '', attention: inv.attention || '' }),
     status: inv.status || '',
     lineItems: (inv.items || []).length,
     subtotal: Number(inv.subtotal) || 0,

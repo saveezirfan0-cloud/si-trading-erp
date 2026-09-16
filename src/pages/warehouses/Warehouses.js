@@ -89,7 +89,7 @@ export default function Warehouses() {
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Warehouse' : 'New Warehouse'}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <FormGrid cols={2}>
-            <Input label="Warehouse Name *" value={form.name} onChange={e => h('name', e.target.value)} required />
+            <Input label="Warehouse Name" value={form.name} onChange={e => h('name', e.target.value)} required />
             <Input label="Code" value={form.code} onChange={e => h('code', e.target.value)} />
             <Input label="City" value={form.city} onChange={e => h('city', e.target.value)} />
             <Select label="Type" value={form.type} onChange={e => h('type', e.target.value)}

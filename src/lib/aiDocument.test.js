@@ -1,6 +1,6 @@
 // src/lib/aiDocument.test.js — the built-in reader stands in for the AI when
 // it is unreachable, so the everyday shapes must come out right.
-import { parseItemLine, parseDocumentText, toISODate, normalizeParsed, buildDraft } from './aiDocument';
+import { parseItemLine, parseDocumentText, toISODate, normalizeParsed, buildDraft, matchCustomer } from './aiDocument';
 
 const TODAY = '2026-09-16';
 
@@ -134,4 +134,50 @@ test('an empty request still yields an editable draft', () => {
   expect(draft.items).toHaveLength(1);
   expect(draft.total).toBe(0);
   expect(warnings.some((w) => w.includes('No line items'))).toBe(true);
+});
+
+// ── Company and contact ──────────────────────────────────
+const filedUnderPerson = [
+  { id: 'p1', name: 'Mr. Zaheer', company: 'ARY Laguna', phone: '021-9' },
+  { id: 'p2', name: 'Ali Hardware' },
+];
+
+test('a customer filed under a person is found by their company', () => {
+  expect(matchCustomer('ARY Laguna Karachi Pvt Ltd', filedUnderPerson)?.id).toBe('p1');
+  expect(matchCustomer('Mr. Zaheer', filedUnderPerson)?.id).toBe('p1');
+  expect(matchCustomer('Someone Unheard Of', filedUnderPerson)).toBeNull();
+});
+
+test('matching a company fills the document from that record', () => {
+  const parsed = parseDocumentText(`Make a quotation
+Name: ARY Laguna Karachi Pvt Ltd
+Kind Attention : Mr Zaheer
+4 pcs Angle Grinder 9 inch @ 9000`, TODAY);
+  const { draft } = buildDraft(parsed, { customers: filedUnderPerson, inventory, existing, today: TODAY });
+  expect(draft.customerId).toBe('p1');
+  expect(draft.customerCompany).toBe('ARY Laguna');
+  expect(draft.customerName).toBe('Mr. Zaheer');
+  expect(draft.attention).toBe('Mr Zaheer');
+  expect(draft.customerPhone).toBe('021-9');
+});
+
+test('an unknown company becomes the company, with the contact as the person', () => {
+  const parsed = parseDocumentText(`Make a quotation
+Name: ARY Laguna Karachi Pvt Ltd
+Kind Attention : Mr Zaheer
+4 pcs Demolition Hammer HP1300-DH @ 23000/=`, TODAY);
+  const { draft, warnings } = buildDraft(parsed, { customers: [{ id: 'x', name: 'Ali Hardware' }], inventory, existing, today: TODAY });
+  expect(draft.customerId).toBe('');
+  // This is the shape a customer created from here is given: business in the
+  // company field, the person dealt with as the name.
+  expect(draft.customerCompany).toBe('ARY Laguna Karachi Pvt Ltd');
+  expect(draft.customerName).toBe('Mr Zaheer');
+  expect(warnings.some((w) => w.includes('not in the customer list'))).toBe(true);
+});
+
+test('with nobody named, the company stands alone', () => {
+  const parsed = parseDocumentText('Invoice\nName: Brand New Traders\n2 pcs Angle Grinder 9 inch', TODAY);
+  const { draft } = buildDraft(parsed, { customers: [], inventory, existing, today: TODAY });
+  expect(draft.customerCompany).toBe('Brand New Traders');
+  expect(draft.customerName).toBe('Brand New Traders');
 });

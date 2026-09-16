@@ -1,7 +1,9 @@
 // src/components/ui/ItemPicker.js
 //
-// Searchable inventory picker used everywhere a line item is chosen — new/edit
-// sales & purchase invoices, quick invoice, and the AI invoice scanner.
+// Searchable record picker used everywhere one row of a long list is chosen —
+// line items on every invoice form and the AI scanner, and the customer on the
+// sales forms. `fields` says what to search, so the same picker serves an
+// inventory item (name, code, barcode) and a customer (name, company, phone).
 //
 // The plain <select> it replaces was unusable once the catalogue passed a few
 // hundred items: the native dropdown gives you one alphabetical list and no way
@@ -23,16 +25,18 @@ const norm = (s) => (s == null ? '' : String(s)).toLowerCase().trim();
 // from other systems carry it, so search it when it's there.
 const HAYSTACK = ['name', 'code', 'sku', 'barcode', 'brand', 'category', 'description'];
 
-// Ranked filter: an item that starts with the query beats one that merely
-// contains it, and a code/name hit beats a hit on brand or category. Every
-// query word must match somewhere, so "8 plier" finds '8" plier Xianyu'.
-//
-// The exact-field bonus is deliberately limited to the identity fields. Whole
-// categories share a name ("Wrench"), so without that limit every item filed
-// under a category outranked the item whose own name contains the word.
-const scoreItem = (item, words) => {
-  const fields = HAYSTACK.map(f => norm(item[f]));
-  const [name, code, sku, barcode] = fields;
+// How many of the leading `fields` identify the record rather than merely
+// describe it. A hit on one of those counts for much more: whole categories
+// share a name ("Wrench"), so without the distinction every item filed under a
+// category outranked the item whose own name contains the word.
+const IDENTITY = 4;   // name, code, sku, barcode
+
+// Ranked filter: a record that starts with the query beats one that merely
+// contains it, and a hit on an identity field beats a hit on a describing one.
+// Every query word must match somewhere, so "8 plier" finds '8" plier Xianyu'.
+const scoreItem = (item, words, keys = HAYSTACK, identityCount = IDENTITY) => {
+  const fields = keys.map(f => norm(item[f]));
+  const [name] = fields;
   let score = 0;
   for (const w of words) {
     let best = 0;
@@ -41,7 +45,7 @@ const scoreItem = (item, words) => {
       if (!v) continue;
       const at = v.indexOf(w);
       if (at < 0) continue;
-      const identity = i <= 3; // name, code, sku, barcode
+      const identity = i < identityCount;
       const hit = (at === 0 ? 3 : 1) + (identity ? 3 : 0) + (identity && v === w ? 3 : 0);
       if (hit > best) best = hit;
     }
@@ -52,8 +56,9 @@ const scoreItem = (item, words) => {
   // so "pipe wrench" ranks 'Solid Pipe Wrench' over 'Pipe Rainch' (category
   // Wrench), which matched both words but never as a phrase.
   const phrase = words.join(' ');
-  if (name.startsWith(phrase) || code === phrase || sku === phrase || barcode === phrase) score += 6;
-  else if (name.includes(phrase) || code.includes(phrase)) score += 4;
+  const ids = fields.slice(0, identityCount);
+  if (name.startsWith(phrase) || ids.slice(1).some(v => v && v === phrase)) score += 6;
+  else if (ids.some(v => v && v.includes(phrase))) score += 4;
   return score;
 };
 
@@ -62,11 +67,16 @@ export default function ItemPicker({
   value = '',
   onChange,                 // (id, item) => void
   extraOptions = [],        // [{ value, label, hint, alwaysShow }] pinned above results
-  placeholder = 'Search item…',
-  emptyLabel = 'Select item',
+  placeholder,
+  emptyLabel,
   disabled = false,
   style,
   formatSub,                // (item) => string — optional second line override
+  fields = HAYSTACK,        // which record fields the search box looks at
+  identityCount = IDENTITY, // how many of those identify rather than describe
+  noun = 'item',            // what one row is called, for the labels below
+  label,                    // renders a field label above, like <Input>
+  required = false,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -88,6 +98,8 @@ export default function ItemPicker({
   );
 
   const words = useMemo(() => norm(query).split(/\s+/).filter(Boolean), [query]);
+  const searchHint = placeholder || `Search ${noun}…`;
+  const nothingChosen = emptyLabel || `Select ${noun}`;
 
   // Pinned options are filtered by the query too. Callers pin real inventory
   // items here (the scanner pins its top OCR guesses), and leaving those in
@@ -97,8 +109,8 @@ export default function ItemPicker({
   const visibleExtras = useMemo(() => {
     if (!words.length) return extraOptions;
     return extraOptions.filter(o =>
-      o.alwaysShow || scoreItem({ name: o.label }, words) > 0);
-  }, [extraOptions, words]);
+      o.alwaysShow || scoreItem({ [fields[0]]: o.label }, words, fields, identityCount) > 0);
+  }, [extraOptions, words, fields, identityCount]);
 
   // A pinned option that names an inventory item would otherwise show again in
   // the results below it — same item, listed twice in one dropdown.
@@ -111,12 +123,12 @@ export default function ItemPicker({
     const pool = items.filter(i => !pinnedIds.has(i.id));
     if (!words.length) return pool.slice(0, MAX_RESULTS);
     return pool
-      .map(i => ({ i, s: scoreItem(i, words) }))
+      .map(i => ({ i, s: scoreItem(i, words, fields, identityCount) }))
       .filter(r => r.s > 0)
       .sort((a, b) => b.s - a.s || norm(a.i.name).localeCompare(norm(b.i.name)))
       .slice(0, MAX_RESULTS)
       .map(r => r.i);
-  }, [items, words, pinnedIds]);
+  }, [items, words, pinnedIds, fields, identityCount]);
 
   // One flat list of rows so the keyboard cursor can run through the pinned
   // options and the search results without special-casing either.
@@ -194,8 +206,8 @@ export default function ItemPicker({
     else if (e.key === 'Tab') setOpen(false);
   };
 
-  const label = selectedExtra?.label
-    || (selected ? `${selected.code ? `${selected.code} — ` : ''}${selected.name}` : '');
+  const chosen = selectedExtra?.label
+    || (selected ? `${selected.code ? `${selected.code} — ` : ''}${selected[fields[0]] || selected.name}` : '');
 
   const sub = (item) => {
     if (formatSub) return formatSub(item);
@@ -210,17 +222,22 @@ export default function ItemPicker({
 
   return (
     <>
+      {label && (
+        <label style={{ fontSize: '0.78rem', color: 'var(--text2)', fontWeight: 500, display: 'block', marginBottom: 5 }}>
+          {label}{required && ' *'}
+        </label>
+      )}
       <button
         type="button"
         ref={anchorRef}
         disabled={disabled}
         onClick={() => !disabled && setOpen(o => !o)}
-        title={label || emptyLabel}
+        title={chosen || nothingChosen}
         style={{
           width: '100%', display: 'flex', alignItems: 'center', gap: 6,
           padding: '5px 7px', background: 'var(--bg)',
           border: '1px solid var(--border)', borderRadius: 6,
-          color: label ? 'var(--text)' : 'var(--text3)',
+          color: chosen ? 'var(--text)' : 'var(--text3)',
           fontSize: '13px', fontFamily: 'var(--font-body)', textAlign: 'left',
           cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
           minHeight: 30,
@@ -228,7 +245,7 @@ export default function ItemPicker({
         }}
       >
         <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {label || emptyLabel}
+          {chosen || nothingChosen}
         </span>
         <ChevronDown size={14} style={{ flexShrink: 0, color: 'var(--text3)' }} />
       </button>
@@ -260,7 +277,7 @@ export default function ItemPicker({
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder={placeholder}
+              placeholder={searchHint}
               style={{
                 width: '100%', padding: '7px 28px 7px 30px',
                 background: 'var(--bg)', border: '1px solid var(--border)',
@@ -279,7 +296,7 @@ export default function ItemPicker({
           <div ref={listRef} style={{ overflowY: 'auto', flex: 1 }}>
             {rows.length === 0 && (
               <div style={{ padding: '18px 12px', textAlign: 'center', color: 'var(--text3)', fontSize: '12.5px' }}>
-                No item matches “{query}”
+                No {noun} matches “{query}”
               </div>
             )}
             {rows.map((row, idx) => {

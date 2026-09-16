@@ -162,10 +162,10 @@ export default function Inventory() {
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Item' : 'New Inventory Item'} width={680}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <FormGrid cols={2}>
-            <Input label="Item Code *" value={form.code} onChange={e => h('code', e.target.value)} required />
+            <Input label="Item Code" value={form.code} onChange={e => h('code', e.target.value)} required />
             <Select label="Brand" value={form.brand} onChange={e => h('brand', e.target.value)}
               options={brands.map(b => ({ value: b.name, label: b.name }))} />
-            <Input label="Item Name *" value={form.name} onChange={e => h('name', e.target.value)} required />
+            <Input label="Item Name" value={form.name} onChange={e => h('name', e.target.value)} required />
             <Input label="Category" value={form.category} onChange={e => h('category', e.target.value)} />
             <Select label="Unit" value={form.unit} onChange={e => h('unit', e.target.value)}
               options={['pcs', 'kg', 'g', 'L', 'mL', 'box', 'carton', 'roll', 'm', 'ft', 'set', 'pair']} />

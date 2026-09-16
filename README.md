@@ -128,15 +128,30 @@ If the function is not deployed, has no keys, or cannot be reached, a built-in
 reader in the browser handles the common shapes above instead, and the notice
 says so — the feature keeps working, you just check the result more carefully.
 
-### The customer is the company, the contact is a person
+### The customer is a company, the contact is a person
 
-A document carries both: `customerName` is the business ("ARY Laguna Karachi
-(Pvt) Ltd") and `attention` is the person to address it to ("Mr Zaheer"). The
-quotation and invoice pages print both, and the quick view on the list shows
-the company with a "Kind attention" line under it. When the AI screen reads a
-company that is not in your customer list, the "+ New" box opens pre-filled
-with that company name and the contact person, so the company is never saved
-under the contact's name by mistake.
+A customer record has always had both a **Full Name** and a **Company**, so a
+business can be filed under its own name ("Fatimi Traders") or under the person
+you deal with ("Mr. Zaheer" of "ARY Laguna"). Documents now carry both, and
+every screen addresses them the same way: the company heads the address, the
+person goes on the line below, and "Kind attention" is only added when it names
+somebody not already shown. That rule lives in `partyLines` in
+`src/lib/invoices.js`, and the printed document, the quick view and the invoice
+list all read it.
+
+The AI screen fills both fields. `Name:` becomes the company and
+`Kind Attention:` becomes the contact, and a customer is found by **either** —
+so "ARY Laguna Karachi Pvt Ltd" matches the record filed under "Mr. Zaheer"
+with that company. When nothing matches, "Add as new customer" files it in the
+same shape: business in Company, person in Full Name. Nothing is saved under
+the wrong one by mistake.
+
+### Finding a customer
+
+The customer box on the sales forms is a search box, not a dropdown: with
+hundreds of customers the native list was unusable. Type any part of the name,
+company, phone, city or email. It is the same picker the line items use
+(`src/components/ui/ItemPicker.js`), pointed at different fields.
 
 ### Quotations
 

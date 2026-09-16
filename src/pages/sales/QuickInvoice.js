@@ -13,6 +13,9 @@ import { useNavigate } from 'react-router-dom';
 
 const EMPTY_LINE = { itemId: '', itemCode: '', itemName: '', qty: 1, unit: 'pcs', unitPrice: 0, isCustom: false };
 
+// The first two fields identify a customer; the rest only help find them.
+const CUSTOMER_FIELDS = ['name', 'company', 'phone', 'city', 'email'];
+
 export default function QuickInvoice() {
   const { formatCurrency } = useApp();
   const navigate = useNavigate();
@@ -24,6 +27,7 @@ export default function QuickInvoice() {
 
   const [customerId, setCustomerId] = useState('');
   const [customerName, setCustomerName] = useState('');
+  const [customerCompany, setCustomerCompany] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [lines, setLines] = useState([{ ...EMPTY_LINE }]);
@@ -51,6 +55,7 @@ export default function QuickInvoice() {
     const c = customers.find(x => x.id === id);
     setCustomerId(id);
     setCustomerName(c?.name || '');
+    setCustomerCompany(c?.company || '');
     setCustomerPhone(c?.phone || '');
   };
 
@@ -96,7 +101,7 @@ export default function QuickInvoice() {
       const subtotal = grandTotal;
       await create(COLLECTIONS.SALES_INVOICES, {
         docType: 'invoice',
-        invoiceNo, date, customerId, customerName, customerPhone,
+        invoiceNo, date, customerId, customerName, customerCompany, customerPhone,
         status: saveStatus, items, subtotal, discountAmount: 0,
         taxAmount: 0, total: grandTotal, paidAmount: 0, notes,
         terms: 'Payment due within 30 days.',
@@ -148,9 +153,19 @@ export default function QuickInvoice() {
         {/* Customer */}
         <Card>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
-            <div style={{ flex: 1 }}>
-              <Select label="Customer *" value={customerId} onChange={e => selectCustomer(e.target.value)}
-                options={customers.map(c => ({ value: c.id, label: c.name }))} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <ItemPicker
+                label="Customer" required
+                items={customers}
+                value={customerId}
+                onChange={(id) => selectCustomer(id)}
+                fields={CUSTOMER_FIELDS}
+                identityCount={2}
+                noun="customer"
+                placeholder="Search by name, company, phone…"
+                formatSub={(c) => [c.company, c.phone, c.city].filter(Boolean).join(' · ')}
+                style={{ padding: '8px 12px', minHeight: 38 }}
+              />
             </div>
             <Btn variant="secondary" icon={UserPlus} onClick={() => setShowQuickCustomer(true)} style={{ marginBottom: 0, height: 38 }}>
               New
@@ -158,7 +173,8 @@ export default function QuickInvoice() {
           </div>
           {customerName && (
             <div style={{ marginTop: 10, padding: '8px 12px', background: 'var(--bg3)', borderRadius: 8, fontSize: '13px', color: 'var(--text2)' }}>
-              <strong style={{ color: 'var(--text)' }}>{customerName}</strong>
+              <strong style={{ color: 'var(--text)' }}>{customerCompany || customerName}</strong>
+              {customerCompany && customerName !== customerCompany && <span style={{ marginLeft: 12 }}>{customerName}</span>}
               {customerPhone && <span style={{ marginLeft: 12 }}>{customerPhone}</span>}
             </div>
           )}
