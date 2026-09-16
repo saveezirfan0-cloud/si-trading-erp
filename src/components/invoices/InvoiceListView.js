@@ -17,7 +17,7 @@ import { exportCSV, exportTablePDF } from '../../lib/export';
 import InvoiceFilters from './InvoiceFilters';
 import InvoiceQuickView from './InvoiceQuickView';
 import {
-  EMPTY_FILTERS, SOURCES, invoiceSource, filterInvoices, sortInvoices,
+  EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, filterInvoices, sortInvoices,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
   isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
@@ -283,6 +283,9 @@ export default function InvoiceListView({
             {issues.length > 0 && (
               <AlertTriangle size={12} color="var(--accent)" title={`Needs attention: ${issues.join(', ')}`} />
             )}
+            {kind === 'sales' && isQuotation(row) && (
+              <Badge color="purple">Quote</Badge>
+            )}
             {isDuplicate(row) && (
               <span title={row.duplicateOfNo ? `Duplicate of ${row.duplicateOfNo}` : 'Duplicate — excluded from totals'}>
                 <Badge color="warn">dup</Badge>
@@ -467,6 +470,7 @@ export default function InvoiceListView({
           years={years}
           parties={parties}
           partyLabel={partyLabel}
+          showType={kind === 'sales'}
           sort={sort}
           onSortChange={setSort}
           showing={visible.length}

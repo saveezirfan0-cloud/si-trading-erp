@@ -223,3 +223,36 @@ test('paperwork is read from all three shapes at once', () => {
   expect(attachmentCount(everything)).toBe(3);
   expect(hasAttachment(everything)).toBe(true);
 });
+
+// ── Quotations and AI-written documents ──────────────────────────────────────
+const quotation = {
+  id: 'q', invoiceNo: 'QT-0001', docType: 'quotation', date: '2024-01-01', dueDate: '2024-01-10',
+  status: 'approved', total: 92000, paidAmount: 0, customerName: 'ARY Laguna',
+  items: [{ itemName: 'Demolition Hammer' }], source: 'ai', aiPrompt: 'Make a quotation…',
+};
+
+test('an AI-written document is its own source', () => {
+  expect(invoiceSource(quotation)).toBe('ai');
+  expect(invoiceExportRows([quotation])[0].source).toBe('AI');
+});
+
+test('a quotation owes nothing, is never late and stays out of the money', () => {
+  expect(balanceDue(quotation)).toBe(0);
+  expect(daysOverdue(quotation, '2024-03-01')).toBe(0);
+  expect(isDueSoon(quotation, 7, '2024-01-05')).toBe(false);
+  const s = summarise([imported, quotation]);
+  expect(s.total).toBe(1000);
+  expect(s.due).toBe(800);
+  expect(s.quotations).toBe(1);
+  expect(s.quotedAmount).toBe(92000);
+  expect(s.count).toBe(2);
+});
+
+test('the list can be narrowed to quotations or invoices', () => {
+  const all = [...rows, quotation];
+  expect(filterInvoices(all, f({ type: 'quotation' })).map(r => r.id)).toEqual(['q']);
+  expect(filterInvoices(all, f({ type: 'invoice' })).map(r => r.id)).toEqual(['a', 'b', 'c']);
+  expect(activeFilterCount(f({ type: 'quotation' }))).toBe(1);
+  expect(invoiceExportRows([quotation])[0].type).toBe('Quote');
+  expect(invoiceExportRows([imported])[0].type).toBe('Invoice');
+});

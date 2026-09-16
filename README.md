@@ -79,13 +79,64 @@ Then set the keys in Supabase → Project Settings → Edge Functions → Secret
 |--------|-------|
 | `ANTHROPIC_API_KEYS` | one or more Anthropic API keys, comma-separated |
 | `OPENAI_API_KEYS` | one or more OpenAI API keys, comma-separated |
-| `ANTHROPIC_MODEL` | optional, default `claude-haiku-4-5` |
+| `ANTHROPIC_MODEL` | optional, default `claude-opus-5` |
 | `OPENAI_MODEL` | optional, default `gpt-4o-mini` |
 
 **Key rotation** is automatic: the starting key advances every minute across the
 list, and on any failure (rate limit, quota, auth) the function tries the next
 key and then the other provider. Paste as many keys as you like. With no keys
 configured the scanner reports that clearly instead of failing silently.
+
+## AI invoice / quotation from text
+
+**Sales → AI Invoice / Quote** (`/sales/ai`). Type what you want in plain words:
+
+```
+Make a quotation
+Name: ARY Laguna Karachi Pvt Ltd
+Kind Attention : Mr Zaheer
+4 pcs Demolition Hammer HP1300-DH @ 23000/=
+```
+
+Press **Create document** and the request is read by AI, the customer and each
+line are matched against your customer and inventory lists, and the result
+opens in the normal sales form — numbered, priced and totalled — for you to
+check and save. Nothing is stored until you press Save. The notice at the top
+says what was read and lists anything to look at: a customer that is not in
+the list (one click adds them), a line that did not match inventory (kept as a
+custom item), a line with no price.
+
+What it understands:
+
+- **Quotation or invoice** — "quotation", "quote" or "estimate" makes a `QT-`
+  quotation; anything else an `SI-` invoice.
+- **Customer** — `Name: …`, `M/s …` or "quotation for …", plus `Kind Attention:`,
+  `Phone:`, `Address:`, `Ref:`, `Date:` (DD/MM/YYYY) and `Valid till:`.
+- **Items**, one per line — `4 pcs Demolition Hammer @ 23000/=`,
+  `Angle Grinder x 2 @ Rs 8,500`, `Pipe Wrench 24" 6 pcs 1450`. A line with no
+  price takes the inventory sale price.
+- **Discount** — `Discount 10%` for the document or `… @ 15000 less 5%` per line.
+- **Notes / Terms** lines.
+
+It uses the same Edge Function secrets as the OCR scanner. Deploy it with:
+
+```bash
+supabase functions deploy ai-document
+```
+
+If the function is not deployed, has no keys, or cannot be reached, a built-in
+reader in the browser handles the common shapes above instead, and the notice
+says so — the feature keeps working, you just check the result more carefully.
+
+### Quotations
+
+Quotations are sales documents of their own: they get `QT-` numbers, print with
+a "Quotation" heading, a "Kind Attention" line and a "Valid Until" date, and
+never count as money — they stay out of revenue, balances due and overdue
+figures whatever their status. The Sales Invoices list has a **Type** filter to
+show quotations or invoices alone, and a quotation's page has
+**Convert to Invoice**, which raises a new `SI-` invoice with the same lines and
+links the two.
 
 ## Audit trail, approvals and trash
 
@@ -184,6 +235,7 @@ object.
 - **Storage:** Supabase Storage (`erp-scans` for OCR photos, `erp-attachments`
   for files staff attach to records)
 - **AI OCR:** Supabase Edge Function calling Anthropic / OpenAI vision with key rotation
+- **AI documents:** Supabase Edge Function turning a typed request into an invoice or quotation
 - **Charts:** Recharts
 - **PDF Export:** jsPDF + AutoTable
 - **CSV:** PapaParse
@@ -405,6 +457,9 @@ si-trading-erp/
 │   │   ├── invoices.js        ← Filtering, sorting and totals for the lists
 │   │   ├── attachments.js     ← One list of an invoice's documents
 │   │   ├── invoiceStatus.js   ← Invoice statuses and the approval flow
+│   │   ├── salesDocs.js       ← Invoice vs quotation: numbering, titles, totals
+│   │   ├── aiDocument.js      ← Typed request → draft document (with local reader)
+│   │   ├── match.js           ← Fuzzy matching against customers and inventory
 │   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/
@@ -433,7 +488,8 @@ si-trading-erp/
 ├── .env.example               ← Copy to .env.local
 ├── supabase/
 │   ├── migrations/            ← database schema
-│   └── functions/ocr-invoice/ ← AI OCR edge function
+│   ├── functions/ocr-invoice/ ← AI OCR edge function
+│   └── functions/ai-document/ ← AI invoice / quotation from text
 ├── tools/manager-import/      ← Manager.io extraction + seed SQL
 ├── vercel.json                ← SPA routing
 └── package.json

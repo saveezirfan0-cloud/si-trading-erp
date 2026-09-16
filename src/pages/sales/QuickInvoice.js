@@ -6,16 +6,12 @@ import { useApp } from '../../contexts/AppContext';
 import Header from '../../components/layout/Header';
 import { Btn, Input, Select, Card, FormGrid, ItemPicker } from '../../components/ui';
 import { QuickAddCustomer } from '../../components/ui/QuickAddModal';
+import { nextDocNo } from '../../lib/salesDocs';
 import toast from 'react-hot-toast';
 import { Plus, Save, UserPlus, ArrowLeft, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const EMPTY_LINE = { itemId: '', itemCode: '', itemName: '', qty: 1, unit: 'pcs', unitPrice: 0, isCustom: false };
-
-const nextInvoiceNo = (existing) => {
-  const nums = existing.map(i => parseInt((i.invoiceNo || 'SI-0').split('-')[1])).filter(Boolean);
-  return `SI-${String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')}`;
-};
 
 export default function QuickInvoice() {
   const { formatCurrency } = useApp();
@@ -45,7 +41,8 @@ export default function QuickInvoice() {
       ]);
       setCustomers(c);
       setInventory(inv);
-      setInvoiceNo(nextInvoiceNo(si));
+      // Quotations share the table but number themselves QT-; only SI- counts.
+      setInvoiceNo(nextDocNo(si, 'SI'));
     };
     load();
   }, []);
@@ -98,6 +95,7 @@ export default function QuickInvoice() {
       const items = lines.map(l => ({ ...l, total: calcTotal(l) }));
       const subtotal = grandTotal;
       await create(COLLECTIONS.SALES_INVOICES, {
+        docType: 'invoice',
         invoiceNo, date, customerId, customerName, customerPhone,
         status: saveStatus, items, subtotal, discountAmount: 0,
         taxAmount: 0, total: grandTotal, paidAmount: 0, notes,
