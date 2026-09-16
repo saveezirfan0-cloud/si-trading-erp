@@ -34,6 +34,7 @@ import Trash from './pages/trash/Trash';
 import Import from './pages/import/Import';
 import WhatsApp from './pages/WhatsApp';
 import Settings from './pages/Settings';
+import PublicDocument from './pages/PublicDocument';
 import SetupRequired from './pages/SetupRequired';
 import NoAccess from './pages/NoAccess';
 import { Loader } from './components/ui';
@@ -127,6 +128,9 @@ function AppRoutes() {
       <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
       {/* Public: the emailed recovery link lands here, signed in or not. */}
       <Route path="/reset-password" element={<ResetPassword />} />
+      {/* Public: a shared quotation or invoice, opened by a customer with no
+          account. Outside PrivateRoute and outside the app's chrome. */}
+      <Route path="/d/:token" element={<PublicDocument />} />
       <Route path="/*" element={
         <PrivateRoute>
           <Layout>
