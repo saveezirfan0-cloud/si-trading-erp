@@ -37,7 +37,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
   const [form, setForm] = useState({
     docType: defaultDocType,
     invoiceNo: '', date: new Date().toISOString().split('T')[0],
-    dueDate: '', customerId: '', customerName: '', customerCompany: '', customerAddress: '', customerPhone: '',
+    dueDate: '', customerId: '', customerName: '', customerCompany: '', customerAddress: '', customerPhone: '', customerEmail: '',
     attention: '', reference: '',
     status: 'unpaid', paymentMethod: '',
     notes: '', terms: DEFAULT_TERMS[defaultDocType] || DEFAULT_TERMS.invoice,
@@ -57,7 +57,11 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
         // the customer's name, so fill it back in from the linked record: the
         // next save brings the document up to date.
         const linked = invoice.customerId ? c.find(x => x.id === invoice.customerId) : null;
-        setForm(f => ({ ...f, ...invoice, customerCompany: invoice.customerCompany || linked?.company || '' }));
+        setForm(f => ({
+          ...f, ...invoice,
+          customerCompany: invoice.customerCompany || linked?.company || '',
+          customerEmail: invoice.customerEmail || linked?.email || '',
+        }));
       }
       else setForm(f => ({ ...f, invoiceNo: nextDocNo(si, docPrefix(f.docType)) }));
     };
@@ -86,7 +90,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
       name: person || company,
       company: company && company !== person ? company : '',
       phone: form.customerPhone || '', address: form.customerAddress || '',
-      email: '', city: '', type: 'retail',
+      email: form.customerEmail || '', city: '', type: 'retail',
       status: 'active', balance: 0, country: 'Pakistan',
     };
   };
@@ -109,7 +113,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
     const c = customers.find(x => x.id === id);
     if (c) setForm(f => ({
       ...f, customerId: id, customerName: c.name, customerCompany: c.company || '',
-      customerAddress: c.address || '', customerPhone: c.phone || '',
+      customerAddress: c.address || '', customerPhone: c.phone || '', customerEmail: c.email || '',
     }));
   };
 

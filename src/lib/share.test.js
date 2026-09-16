@@ -1,6 +1,6 @@
 // src/lib/share.test.js — a share link is a capability handed to a customer,
 // so the parts that decide what it is and who can still open it are pinned.
-import { newShareToken, shareUrl, isShared, whatsappMessage, whatsappLink } from './share';
+import { newShareToken, shareUrl, isShared, whatsappMessage, whatsappLink, emailDraft } from './share';
 import { documentFileName } from './documentPdf';
 
 jest.mock('./db', () => ({ update: jest.fn(async () => {}), COLLECTIONS: { SALES_INVOICES: 'erp_sales_invoices' } }));
@@ -64,4 +64,27 @@ test('the PDF is named after the document', () => {
   expect(documentFileName(quotation)).toBe('QT-0001');
   // Nothing that could escape a file name survives.
   expect(documentFileName({ invoiceNo: 'SI/2026 0042' })).toBe('SI_2026_0042');
+});
+
+test('the email draft reads like a letter and carries the link', () => {
+  const url = shareUrl('d'.repeat(32));
+  const href = emailDraft({ ...quotation, attention: 'Mr Zaheer', dueDate: '2026-10-01' }, url, { to: 'zaheer@example.com' });
+  expect(href.startsWith('mailto:zaheer%40example.com?')).toBe(true);
+  const body = decodeURIComponent(new URL(href).search.split('body=')[1]);
+  expect(body).toContain('Dear Mr Zaheer,');
+  expect(body).toContain('quotation QT-0001');
+  expect(body).toContain('92,000');
+  expect(body).toContain(url);
+  expect(body).toContain('valid until 2026-10-01');
+  const subject = decodeURIComponent(href.split('subject=')[1].split('&')[0]);
+  expect(subject).toBe('S.I Trading & Co. — Quotation QT-0001');
+});
+
+test('with no contact and no link the draft still makes sense', () => {
+  const href = emailDraft({ docType: 'invoice', invoiceNo: 'SI-0042', total: 5000 }, '');
+  const body = decodeURIComponent(new URL(href).search.split('body=')[1]);
+  expect(body).toContain('Dear Sir/Madam,');
+  expect(body).toContain('invoice SI-0042');
+  expect(body).not.toContain('view it here');
+  expect(body).not.toContain('valid until');
 });

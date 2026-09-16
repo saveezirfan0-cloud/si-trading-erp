@@ -141,6 +141,42 @@ An offer that was won or cancelled cannot expire, and one written with no date
 never expires. The dashboard shows **Open Quotations** with their value, so the
 money that is out with customers and still undecided is visible beside revenue.
 
+### Chasing an open quotation
+
+A quotation sent and then forgotten is the most expensive kind, so the app
+tracks when the customer was last contacted about one: the day it was marked
+followed up, else the day its link was sent, else the day it was written. After
+five quiet days it is flagged `Chase` in the list and appears under the
+**Needs follow-up** filter. Sending the document on WhatsApp or by email counts
+as a follow-up and is recorded automatically; a phone call is recorded with
+**Mark followed up** on the document. A quotation that was won, cancelled or
+has expired is never asked to be chased.
+
+### Send by email
+
+Beside **Send on WhatsApp** there is **Send by email**, which opens a draft in
+whatever mail client the person already uses, addressed to the customer's email
+with the document number, its total and the share link in the body. It is a
+draft, so it can be read and edited before sending.
+
+The PDF is not attached automatically. Doing that would mean this app sending
+mail on the business's behalf, which needs a mail provider and a verified
+sending domain — a decision with a bill attached, not just code. The draft
+carries the link instead, and **Save as PDF** is there when the file itself
+should go with it.
+
+### What became of the quotations
+
+**Reports → Quotations.** How much was quoted in the period, how much was won,
+the win rate by count and by value, and what is still open. Under it: how each
+offer ended (won, expired, cancelled, still open), quoted against won by month,
+and customers ranked by the value they were quoted with each one's win rate.
+
+A quotation still under discussion is not counted against the win rate — the
+rate is wins as a share of what has actually been decided — and a period with
+nothing decided reads as `—` rather than 0%. Every figure is derived from the
+documents by `src/lib/quotationReport.js`, never stored, so it cannot drift.
+
 ### The customer is a company, the contact is a person
 
 A customer record has always had both a **Full Name** and a **Company**, so a
@@ -538,7 +574,8 @@ si-trading-erp/
 │   │   ├── aiDocument.js      ← Typed request → draft document (with local reader)
 │   │   ├── match.js           ← Fuzzy matching against customers and inventory
 │   │   ├── documentPdf.js     ← One invoice / quotation as an A4 PDF
-│   │   ├── share.js           ← Public share links (token, WhatsApp message)
+│   │   ├── share.js           ← Public share links, WhatsApp and email drafts
+│   │   ├── quotationReport.js ← What became of the quotations (win rate, ageing)
 │   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/

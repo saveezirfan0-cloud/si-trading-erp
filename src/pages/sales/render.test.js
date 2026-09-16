@@ -314,3 +314,51 @@ test('the quotation list flags an expired offer and a won one', async () => {
   db.subscribe = realSubscribe;
   unmount();
 });
+
+test('an open offer gone quiet is flagged to chase, and can be recorded', async () => {
+  const db = require('../../lib/db');
+  const realSubscribe = db.subscribe;
+  const realUpdate = db.update;
+  const written = [];
+  db.update = async (col, id, patch) => { written.push({ id, patch }); };
+  const iso = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
+  const quiet = {
+    id: 'q5', invoiceNo: 'QT-0200', docType: 'quotation', date: iso(-20),
+    dueDate: iso(30), status: 'approved', customerName: 'Quiet Co',
+    items: [{ itemName: 'Drill', qty: 1, unitPrice: 100, total: 100 }],
+    subtotal: 100, total: 100, paidAmount: 0,
+  };
+  db.subscribe = (col, cb) => { cb(col === 'erp_sales_invoices' ? [quiet] : []); return () => {}; };
+
+  const list = mount(<Quotations />);
+  await flush();
+  // The list says which offers have gone quiet.
+  expect(list.host.innerHTML).toContain('Chase');
+  list.unmount();
+
+  // The document itself says how long, and records a call that is not a send.
+  const view = mount(<SalesInvoiceView invoice={quiet} onBack={() => {}} onEdit={() => {}} />);
+  await flush();
+  expect(view.host.innerHTML).toContain('Not followed up since');
+  const mark = [...view.host.querySelectorAll('button')].find((b) => b.textContent.includes('Mark followed up'));
+  expect(mark).toBeTruthy();
+  await act(async () => { mark.click(); });
+  await flush();
+  expect(written).toHaveLength(1);
+  expect(written[0].patch.followedUpAt).toBe(iso(0));
+  view.unmount();
+
+  db.subscribe = realSubscribe;
+  db.update = realUpdate;
+});
+
+test('an invoice is never asked to be chased', async () => {
+  const bill = mount(<SalesInvoiceView
+    invoice={{ id: 'i5', invoiceNo: 'SI-0200', docType: 'invoice', date: '2026-01-01', status: 'unpaid', items: [], total: 0 }}
+    onBack={() => {}} onEdit={() => {}} />);
+  await flush();
+  expect(bill.host.innerHTML).not.toContain('Mark followed up');
+  // Emailing the document is offered either way.
+  expect(bill.host.innerHTML).toContain('Send by email');
+  bill.unmount();
+});
