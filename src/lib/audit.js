@@ -67,6 +67,7 @@ export const ACTIONS = {
   import:  { label: 'Imported',           color: 'purple' },
   attach:  { label: 'Attachment added',   color: 'purple' },
   detach:  { label: 'Attachment removed', color: 'red'    },
+  share:   { label: 'Sharing changed',    color: 'blue'   },
 };
 
 export const actionLabel = (action) => ACTIONS[action]?.label || action;

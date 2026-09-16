@@ -146,6 +146,43 @@ with that company. When nothing matches, "Add as new customer" files it in the
 same shape: business in Company, person in Full Name. Nothing is saved under
 the wrong one by mistake.
 
+### Save as PDF, and share a link
+
+A document's page has **Save as PDF** beside **Print**. Print hands the page to
+the browser's print dialog, which is no use on a phone and never leaves a file
+to attach to a message; Save as PDF builds an A4 file named after the document
+(`QT-0001.pdf`) with jsPDF, so it can be sent as-is. `src/lib/documentPdf.js`
+builds it, loading jsPDF on demand because nothing else needs it.
+
+**Share** creates a link a customer can open with no sign-in:
+
+```
+https://<your-site>/d/<token>
+```
+
+The token is 16 random bytes from the browser's Web Crypto, stored on the
+document. The public page (`/d/:token`) fetches it through the
+`share-document` Edge Function, which looks the row up by that exact token
+with the service-role key and returns only the fields the printed document
+shows — never the audit stamps, attachment paths, the AI prompt or the
+customer id. There is no way to list documents, a trashed document stops
+opening, and **Stop sharing** refuses every link already sent. The panel also
+composes a WhatsApp message with the total and the link, since that is how
+these documents actually go out.
+
+Deploy it once:
+
+```bash
+supabase functions deploy share-document --no-verify-jwt
+```
+
+`--no-verify-jwt` is required and deliberate: the visitor is a customer with no
+account, and the token is the credential. The function needs no secrets — it
+reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, which Supabase injects.
+
+**A share link is public to whoever holds it.** It is not tied to the person
+you sent it to. Use Stop sharing when a quotation should no longer be readable.
+
 ### Finding a customer
 
 The customer box on the sales forms is a search box, not a dropdown: with
@@ -485,6 +522,8 @@ si-trading-erp/
 │   │   ├── salesDocs.js       ← Invoice vs quotation: numbering, titles, totals
 │   │   ├── aiDocument.js      ← Typed request → draft document (with local reader)
 │   │   ├── match.js           ← Fuzzy matching against customers and inventory
+│   │   ├── documentPdf.js     ← One invoice / quotation as an A4 PDF
+│   │   ├── share.js           ← Public share links (token, WhatsApp message)
 │   │   ├── datetime.js        ← Shared date/time formatting
 │   │   └── export.js          ← CSV + PDF export utilities
 │   ├── components/
@@ -514,7 +553,8 @@ si-trading-erp/
 ├── supabase/
 │   ├── migrations/            ← database schema
 │   ├── functions/ocr-invoice/ ← AI OCR edge function
-│   └── functions/ai-document/ ← AI invoice / quotation from text
+│   ├── functions/ai-document/ ← AI invoice / quotation from text
+│   └── functions/share-document/ ← public read of one shared document
 ├── tools/manager-import/      ← Manager.io extraction + seed SQL
 ├── vercel.json                ← SPA routing
 └── package.json

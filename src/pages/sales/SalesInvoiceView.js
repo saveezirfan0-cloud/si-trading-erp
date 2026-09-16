@@ -11,8 +11,10 @@ import {
 } from '../../lib/invoiceStatus';
 import { DEFAULT_TERMS, docLabel, isQuotation, nextDocNo, calcTotals } from '../../lib/salesDocs';
 import { partyLines } from '../../lib/invoices';
+import { downloadDocumentPdf } from '../../lib/documentPdf';
+import ShareDocument from '../../components/invoices/ShareDocument';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Edit2, Printer, FileCheck } from 'lucide-react';
+import { ArrowLeft, Edit2, Printer, FileCheck, FileDown } from 'lucide-react';
 
 const esc = (v) => String(v ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -21,6 +23,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
   const { formatCurrency } = useApp();
   const { can } = useAuth();
   const [converting, setConverting] = useState(false);
+  const [savingPdf, setSavingPdf] = useState(false);
   if (!invoice) return null;
 
   const isQuote = isQuotation(invoice);
@@ -29,6 +32,18 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
   const party = partyLines(invoice, 'customerName');
   const dateLabel = isQuote ? 'Quotation Date' : 'Invoice Date';
   const dueLabel = isQuote ? 'Valid Until' : 'Due Date';
+
+  // The print dialog is no use on a phone and never leaves a file to attach
+  // to a message, so the document is also built as a PDF and saved.
+  const savePdf = async () => {
+    setSavingPdf(true);
+    try {
+      await downloadDocumentPdf(invoice);
+    } catch (e) {
+      toast.error('Could not build the PDF: ' + e.message);
+    }
+    setSavingPdf(false);
+  };
 
   // A quotation the customer accepted becomes a new invoice in the SI-
   // sequence, today's date, carrying the lines and a link back. The quotation
@@ -232,7 +247,10 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
                 {converting ? 'Converting…' : 'Convert to Invoice'}
               </Btn>
             )}
-            <Btn icon={Printer} onClick={handlePrint}>Print / PDF</Btn>
+            <Btn variant="secondary" icon={FileDown} onClick={savePdf} disabled={savingPdf}>
+              {savingPdf ? 'Preparing…' : 'Save as PDF'}
+            </Btn>
+            <Btn icon={Printer} onClick={handlePrint}>Print</Btn>
           </div>
         </div>
 
@@ -374,6 +392,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 16 }}>
           <RecordMeta record={invoice} />
+          <ShareDocument invoice={invoice} canEdit={can('sales', 'edit')} onChanged={onChanged} />
           <Attachments
             collection={COLLECTIONS.SALES_INVOICES}
             invoice={invoice}
