@@ -58,7 +58,11 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
         id, createdAt, updatedAt, createdBy, createdByName, createdByEmail,
         updatedBy, updatedByName, updatedByEmail, deletedAt, deletedBy, deletedByName,
         approvedAt, approvedBy, approvedByName, submittedForReviewAt,
-        attachments, scanPath, convertedToId, convertedToNo, ...rest
+        attachments, scanPath, convertedToId, convertedToNo,
+        // The quotation's share link belongs to the quotation. Carrying it
+        // over would leave one public URL pointing at two documents, and the
+        // customer's quotation link would start opening the invoice.
+        shareToken, shareRevoked, sharedAt, ...rest
       } = invoice;
       const items = rest.items || [];
       const newId = await create(COLLECTIONS.SALES_INVOICES, {

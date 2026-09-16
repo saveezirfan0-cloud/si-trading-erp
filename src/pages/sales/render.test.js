@@ -238,3 +238,79 @@ test('the two sections keep invoices and quotations apart', async () => {
   expect(iHtml).toContain('1 of 1 invoice');
   bills.unmount();
 });
+
+test('converting a quotation does not hand its public link to the invoice', async () => {
+  const created = [];
+  const db = require('../../lib/db');
+  const realCreate = db.create;
+  db.create = async (col, data) => { created.push({ col, data }); return 'new-si'; };
+
+  const quotation = {
+    id: 'q9', docType: 'quotation', invoiceNo: 'QT-0009', date: '2026-09-16',
+    status: 'approved', customerName: 'Mr. Zaheer', customerCompany: 'ARY Laguna',
+    attention: 'Mr Zaheer',
+    items: [{ itemName: 'Demolition Hammer', qty: 4, unitPrice: 23000, total: 92000 }],
+    subtotal: 92000, total: 92000, paidAmount: 0,
+    // The quotation is already out with the customer.
+    shareToken: 'c'.repeat(32), shareRevoked: false, sharedAt: '2026-09-16T10:00:00.000Z',
+  };
+
+  const { host, unmount } = mount(<SalesInvoiceView invoice={quotation} onBack={() => {}} onEdit={() => {}} />);
+  await flush();
+  const convert = [...host.querySelectorAll('button')].find((b) => b.textContent.includes('Convert to Invoice'));
+  await act(async () => { convert.click(); });
+  await flush();
+
+  expect(created).toHaveLength(1);
+  const written = created[0].data;
+  expect(written.docType).toBe('invoice');
+  expect(written.quotationNo).toBe('QT-0009');
+  // One public URL must never point at two documents.
+  expect(written.shareToken).toBeUndefined();
+  expect(written.shareRevoked).toBeUndefined();
+  expect(written.sharedAt).toBeUndefined();
+  // What the customer agreed to does carry over.
+  expect(written.customerCompany).toBe('ARY Laguna');
+  expect(written.total).toBe(92000);
+
+  db.create = realCreate;
+  unmount();
+});
+
+test('the quotation list flags an expired offer and a won one', async () => {
+  const db = require('../../lib/db');
+  const realSubscribe = db.subscribe;
+  // Dates are relative: the page filters by the running fiscal year, so a
+  // fixed year would drop out of view as time passes.
+  const iso = (offsetDays) =>
+    new Date(Date.now() + offsetDays * 86400000).toISOString().slice(0, 10);
+  db.subscribe = (col, cb) => {
+    cb(col === 'erp_sales_invoices' ? [
+      {
+        id: 'x1', invoiceNo: 'QT-0100', docType: 'quotation', date: iso(-10),
+        dueDate: iso(-2), status: 'approved', customerName: 'Lapsed Co',
+        items: [{ itemName: 'Drill' }], subtotal: 1000, total: 1000, paidAmount: 0,
+      },
+      {
+        id: 'x2', invoiceNo: 'QT-0101', docType: 'quotation', date: iso(-10),
+        dueDate: iso(-2), status: 'approved', customerName: 'Won Co',
+        convertedToId: 'si9', convertedToNo: 'SI-0500',
+        items: [{ itemName: 'Grinder' }], subtotal: 2000, total: 2000, paidAmount: 0,
+      },
+    ] : []);
+    return () => {};
+  };
+
+  const { host, unmount } = mount(<Quotations />);
+  await flush();
+  const html = host.innerHTML;
+  expect(html).toContain('QT-0100');
+  expect(html).toContain('QT-0101');
+  // The lapsed offer is marked, the accepted one is marked won, and neither
+  // is counted as still open.
+  expect(html).toContain('Expired');
+  expect(html).toContain('Won');
+  expect(html).toContain('Still open');
+  db.subscribe = realSubscribe;
+  unmount();
+});

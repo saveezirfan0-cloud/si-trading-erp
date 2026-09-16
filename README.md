@@ -128,6 +128,19 @@ If the function is not deployed, has no keys, or cannot be reached, a built-in
 reader in the browser handles the common shapes above instead, and the notice
 says so — the feature keeps working, you just check the result more carefully.
 
+### A quotation's own clock
+
+A quotation carries a **Valid until** date instead of a due date: after it, the
+prices it offered no longer stand. The Quotations page reports what became of
+each offer — **Converted to invoice**, **Still open**, **Expired** — and the
+list marks a lapsed offer `Expired` and an accepted one `Won`. Its filters are
+its own too: Still open, Expired, Expires in 7 days, instead of the
+outstanding/overdue flags that only mean something for an invoice.
+
+An offer that was won or cancelled cannot expire, and one written with no date
+never expires. The dashboard shows **Open Quotations** with their value, so the
+money that is out with customers and still undecided is visible beside revenue.
+
 ### The customer is a company, the contact is a person
 
 A customer record has always had both a **Full Name** and a **Company**, so a
@@ -185,10 +198,12 @@ you sent it to. Use Stop sharing when a quotation should no longer be readable.
 
 ### Finding a customer
 
-The customer box on the sales forms is a search box, not a dropdown: with
-hundreds of customers the native list was unusable. Type any part of the name,
-company, phone, city or email. It is the same picker the line items use
-(`src/components/ui/ItemPicker.js`), pointed at different fields.
+The customer box on the sales forms, and the supplier box on the purchase
+form, are search boxes rather than dropdowns: with hundreds of each the native
+list was unusable. Type any part of the name, company, phone, city or email.
+It is the same picker the line items use (`src/components/ui/ItemPicker.js`),
+pointed at different fields — it takes the fields to search, how many of them
+identify the record, and what one row is called.
 
 ### Quotations
 

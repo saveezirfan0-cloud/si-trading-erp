@@ -25,6 +25,17 @@ const FLAGS = [
   { value: 'issues', label: 'Needs attention' },
 ];
 
+// A quotation owes nothing and cannot be late, so the money flags say nothing
+// about one. What matters is whether the offer still stands.
+const QUOTATION_FLAGS = [
+  { value: 'open', label: 'Still open' },
+  { value: 'expired', label: 'Expired' },
+  { value: 'expiringsoon', label: 'Expires in 7 days' },
+  { value: 'issues', label: 'Needs attention' },
+];
+
+const flagsFor = (docType) => (docType === 'quotation' ? QUOTATION_FLAGS : FLAGS);
+
 // Human-readable summary of one active filter, for the removable chips.
 const describe = (key, value, partyLabel) => {
   switch (key) {
@@ -39,7 +50,7 @@ const describe = (key, value, partyLabel) => {
     case 'min': return `Min ${value}`;
     case 'max': return `Max ${value}`;
     case 'attachment': return value === 'with' ? 'Has attachment' : 'No attachment';
-    case 'flag': return FLAGS.find(f => f.value === value)?.label || value;
+    case 'flag': return [...FLAGS, ...QUOTATION_FLAGS].find(f => f.value === value)?.label || value;
     default: return `${key}: ${value}`;
   }
 };
@@ -56,6 +67,7 @@ export default function InvoiceFilters({
   parties = [],
   partyLabel = 'Customer',
   showType = false,          // sales lists mix invoices and quotations
+  docType,                   // scopes which flags are worth offering
   sort,
   onSortChange,
   showing = 0,
@@ -187,7 +199,7 @@ export default function InvoiceFilters({
             onChange={v => set({ flag: v })}
             options={[
               { value: 'all', label: 'Everything' },
-              ...FLAGS.map(f => ({
+              ...flagsFor(docType).map(f => ({
                 value: f.value,
                 label: flagCounts[f.value] != null ? `${f.label} (${flagCounts[f.value]})` : f.label,
               })),

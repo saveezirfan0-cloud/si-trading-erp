@@ -18,6 +18,7 @@ import InvoiceFilters from './InvoiceFilters';
 import InvoiceQuickView from './InvoiceQuickView';
 import {
   EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, docTypeOf, partyLines, filterInvoices, sortInvoices,
+  isExpired, expiresSoon, isQuotationOpen,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
   isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
@@ -152,6 +153,9 @@ export default function InvoiceListView({
       overdue: base.filter((i) => isOverdue(i)).length,
       duesoon: base.filter((i) => isDueSoon(i)).length,
       issues: base.filter((i) => invoiceIssues(i, partyField).length > 0).length,
+      open: base.filter(isQuotationOpen).length,
+      expired: base.filter((i) => isExpired(i)).length,
+      expiringsoon: base.filter((i) => expiresSoon(i)).length,
     };
   }, [scoped, filters, partyField]);
 
@@ -291,6 +295,12 @@ export default function InvoiceListView({
             )}
             {kind === 'sales' && !docType && isQuotation(row) && (
               <Badge color="purple">Quote</Badge>
+            )}
+            {isExpired(row) && <Badge color="red">Expired</Badge>}
+            {row.convertedToNo && (
+              <span title={`Converted to ${row.convertedToNo}`}>
+                <Badge color="green">Won</Badge>
+              </span>
             )}
             {isDuplicate(row) && (
               <span title={row.duplicateOfNo ? `Duplicate of ${row.duplicateOfNo}` : 'Duplicate — excluded from totals'}>
@@ -470,8 +480,10 @@ export default function InvoiceListView({
               sub={stats.awaitingCount ? formatCurrency(stats.awaitingAmount) : 'Nothing pending review'} />
             <StatCard compact={isMobile} label="Converted to invoice" value={`${stats.converted}`} icon={CheckCircle2} color="var(--green)"
               sub={stats.converted ? formatCurrency(stats.convertedAmount) : 'None accepted yet'} />
-            <StatCard compact={isMobile} label="Still open" value={`${stats.quotations - stats.converted}`} icon={Clock} color="var(--accent)"
-              sub={formatCurrency(stats.quotedAmount - stats.convertedAmount)} />
+            <StatCard compact={isMobile} label="Still open" value={`${stats.quotations - stats.converted - stats.expired}`} icon={Clock} color="var(--accent)"
+              sub={formatCurrency(stats.quotedAmount - stats.convertedAmount - stats.expiredAmount)} />
+            <StatCard compact={isMobile} label="Expired" value={`${stats.expired}`} icon={XCircle} color="var(--red)"
+              sub={stats.expired ? formatCurrency(stats.expiredAmount) : 'None past its date'} />
             <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
               sub={`${stats.count - stats.withAttachment} without`} />
           </>) : (<>
@@ -505,6 +517,7 @@ export default function InvoiceListView({
           parties={parties}
           partyLabel={partyLabel}
           showType={kind === 'sales' && !docType}
+          docType={docType}
           sort={sort}
           onSortChange={setSort}
           showing={visible.length}
@@ -543,7 +556,7 @@ export default function InvoiceListView({
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
             onRowClick={row => setQuickView(row)}
-            emptyMsg={filtersActive ? 'No invoices match these filters.' : 'No invoices yet.'}
+            emptyMsg={filtersActive ? `No ${noun}s match these filters.` : `No ${noun}s yet.`}
           />
         )}
       </Card>
