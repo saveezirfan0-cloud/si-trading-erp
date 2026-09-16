@@ -15,6 +15,7 @@ import {
   daysOverdue, invoiceIssues, invoiceTotal, paidAmount,
 } from '../../lib/invoices';
 import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
+import { isQuotation } from '../../lib/salesDocs';
 import { getCurrentActor } from '../../lib/audit';
 
 function Row({ label, value, color }) {
@@ -48,6 +49,10 @@ export default function InvoiceQuickView({
   const issues = invoiceIssues(invoice, partyField);
   const late = daysOverdue(invoice);
   const balance = balanceDue(invoice);
+  // A quotation is an offer: it owes nothing, so the payment rows and the
+  // payment buttons would only invite a wrong answer.
+  const isQuote = isQuotation(invoice);
+  const label = isQuote ? 'Quotation' : 'Invoice';
 
   // Sign-off, with the approval stamped onto the invoice and into its history.
   const approve = async () => {
@@ -82,7 +87,7 @@ export default function InvoiceQuickView({
   };
 
   return (
-    <Modal open onClose={onClose} title={`Invoice ${invoice.invoiceNo || ''}`} width={820}>
+    <Modal open onClose={onClose} title={`${label} ${invoice.invoiceNo || ''}`} width={820}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Labels */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -99,10 +104,14 @@ export default function InvoiceQuickView({
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
           <div>
             <Row label={partyLabel} value={invoice[partyField] || '—'} />
+            {invoice.attention && <Row label="Kind attention" value={invoice.attention} />}
+            {invoice.reference && <Row label="Reference" value={invoice.reference} />}
             {invoice.supplierInvoiceNo && <Row label="Supplier ref" value={invoice.supplierInvoiceNo} />}
+            {invoice.quotationNo && <Row label="From quotation" value={invoice.quotationNo} />}
+            {invoice.convertedToNo && <Row label="Converted to" value={invoice.convertedToNo} />}
             <Row label="Date" value={invoice.date ? formatDate(invoice.date) : '—'} />
-            <Row label="Due date" value={invoice.dueDate ? formatDate(invoice.dueDate) : '—'} color={late > 0 ? 'var(--red)' : undefined} />
-            <Row label="Payment method" value={invoice.paymentMethod?.replace(/_/g, ' ') || '—'} />
+            <Row label={isQuote ? 'Valid until' : 'Due date'} value={invoice.dueDate ? formatDate(invoice.dueDate) : '—'} color={late > 0 ? 'var(--red)' : undefined} />
+            {!isQuote && <Row label="Payment method" value={invoice.paymentMethod?.replace(/_/g, ' ') || '—'} />}
             <Row label="Line items" value={(invoice.items || []).length} />
             {invoice.createdAt && <Row label="Added" value={formatDate(invoice.createdAt)} />}
           </div>
@@ -111,8 +120,10 @@ export default function InvoiceQuickView({
             <Row label="Discount" value={`− ${formatCurrency(invoice.discountAmount || 0)}`} color="var(--red)" />
             <Row label="Tax" value={`+ ${formatCurrency(invoice.taxAmount || 0)}`} color="var(--blue)" />
             <Row label="Total" value={formatCurrency(invoiceTotal(invoice))} color={accent} />
-            <Row label="Paid" value={formatCurrency(paidAmount(invoice))} color="var(--green)" />
-            <Row label="Balance due" value={formatCurrency(balance)} color={balance > 0 ? 'var(--red)' : 'var(--green)'} />
+            {!isQuote && <>
+              <Row label="Paid" value={formatCurrency(paidAmount(invoice))} color="var(--green)" />
+              <Row label="Balance due" value={formatCurrency(balance)} color={balance > 0 ? 'var(--red)' : 'var(--green)'} />
+            </>}
           </div>
         </div>
 
@@ -134,7 +145,7 @@ export default function InvoiceQuickView({
               </thead>
               <tbody>
                 {(invoice.items || []).length === 0 ? (
-                  <tr><td colSpan={4} style={{ padding: 20, textAlign: 'center', color: 'var(--text3)', fontSize: '0.82rem' }}>No line items on this invoice.</td></tr>
+                  <tr><td colSpan={4} style={{ padding: 20, textAlign: 'center', color: 'var(--text3)', fontSize: '0.82rem' }}>No line items on this {label.toLowerCase()}.</td></tr>
                 ) : (invoice.items || []).map((line, i) => (
                   <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
                     <td style={{ padding: '7px 12px', fontSize: '0.82rem' }}>
@@ -172,16 +183,16 @@ export default function InvoiceQuickView({
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', borderTop: '1px solid var(--border)', paddingTop: 14 }}>
-          <Btn variant="secondary" icon={Eye} onClick={onOpenFull}>Open full invoice</Btn>
+          <Btn variant="secondary" icon={Eye} onClick={onOpenFull}>Open full {label.toLowerCase()}</Btn>
           {canEdit && <Btn variant="secondary" icon={Edit2} onClick={onEdit}>Edit</Btn>}
           <div style={{ flex: 1 }} />
           {canApprove && needsApproval(invoice.status) && (
             <Btn variant="success" icon={ShieldCheck} disabled={busy} onClick={approve}>Approve</Btn>
           )}
-          {canEdit && invoice.status !== 'paid' && (
+          {canEdit && !isQuote && invoice.status !== 'paid' && (
             <Btn variant="success" icon={CheckCircle2} disabled={busy} onClick={() => setStatus('paid')}>Mark paid</Btn>
           )}
-          {canEdit && invoice.status === 'paid' && (
+          {canEdit && !isQuote && invoice.status === 'paid' && (
             <Btn variant="secondary" disabled={busy} onClick={() => setStatus('unpaid')}>Mark unpaid</Btn>
           )}
         </div>

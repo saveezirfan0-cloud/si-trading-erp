@@ -1,14 +1,28 @@
 // src/components/ui/QuickAddModal.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { create, COLLECTIONS } from '../../lib/db';
 import { Modal, Input, Select, Btn, FormGrid } from './index';
 import toast from 'react-hot-toast';
 
-// Quick Add Customer
-export function QuickAddCustomer({ open, onClose, onCreated }) {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', city: '', type: 'retail', status: 'active', balance: 0, country: 'Pakistan' });
+const BLANK_CUSTOMER = { name: '', contactPerson: '', phone: '', email: '', city: '', address: '', type: 'retail', status: 'active', balance: 0, country: 'Pakistan' };
+
+// Quick Add Customer.
+//
+// `initial` pre-fills the box from the document being written, so a name the
+// AI screen read ("ARY Laguna Karachi Pvt Ltd") and its contact ("Mr Zaheer")
+// are not retyped — and, more to the point, the company is not accidentally
+// saved under the contact's name.
+export function QuickAddCustomer({ open, onClose, onCreated, initial }) {
+  const [form, setForm] = useState({ ...BLANK_CUSTOMER });
   const [saving, setSaving] = useState(false);
   const h = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  // Re-seed each time the box is opened; a stale draft from last time would be
+  // worse than an empty one.
+  const seed = JSON.stringify(initial || {});
+  useEffect(() => {
+    if (open) setForm({ ...BLANK_CUSTOMER, ...(JSON.parse(seed)) });
+  }, [open, seed]);
 
   const handleSave = async () => {
     if (!form.name) return toast.error('Name is required');
@@ -18,7 +32,7 @@ export function QuickAddCustomer({ open, onClose, onCreated }) {
       toast.success(`Customer "${form.name}" created`);
       onCreated({ id, ...form });
       onClose();
-      setForm({ name: '', phone: '', email: '', city: '', type: 'retail', status: 'active', balance: 0, country: 'Pakistan' });
+      setForm({ ...BLANK_CUSTOMER });
     } catch (e) { toast.error(e.message); }
     setSaving(false);
   };
@@ -27,7 +41,10 @@ export function QuickAddCustomer({ open, onClose, onCreated }) {
     <Modal open={open} onClose={onClose} title="Quick Add Customer" width={480}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <FormGrid cols={2}>
-          <Input label="Full Name *" value={form.name} onChange={e => h('name', e.target.value)} required />
+          <Input label="Customer / Company Name *" value={form.name} onChange={e => h('name', e.target.value)} required
+            placeholder="e.g. ARY Laguna Karachi (Pvt) Ltd" />
+          <Input label="Contact Person" value={form.contactPerson} onChange={e => h('contactPerson', e.target.value)}
+            placeholder="e.g. Mr Zaheer" />
           <Input label="Phone" value={form.phone} onChange={e => h('phone', e.target.value)} />
           <Input label="Email" value={form.email} onChange={e => h('email', e.target.value)} />
           <Input label="City" value={form.city} onChange={e => h('city', e.target.value)} />

@@ -98,6 +98,59 @@ test('the quick view shows the invoice, its origin and its line items', () => {
   expect(html).toContain('Pipe');
 });
 
+test('the quick view names the company, its contact, and stays off payment for a quotation', () => {
+  const quotation = {
+    id: 'q1', docType: 'quotation', invoiceNo: 'QT-0001', date: '2026-09-16', dueDate: '2026-10-01',
+    status: 'draft', customerName: 'ARY Laguna Karachi (Pvt) Ltd', attention: 'Mr Zaheer',
+    reference: 'PO-91', items: [{ itemName: 'Demolition Hammer', itemCode: 'HP1300-DH', qty: 4, unit: 'pcs', unitPrice: 23000, total: 92000 }],
+    subtotal: 92000, total: 92000, paidAmount: 0, source: 'ai',
+  };
+  const html = render(
+    <InvoiceQuickView
+      invoice={quotation}
+      collection="erp_sales_invoices"
+      partyField="customerName"
+      partyLabel="Customer"
+      canEdit
+      onClose={() => {}}
+      onOpenFull={() => {}}
+      onEdit={() => {}}
+    />
+  );
+  // The company is the customer; the person is shown as the contact, not instead of it.
+  expect(html).toContain('ARY Laguna Karachi (Pvt) Ltd');
+  expect(html).toContain('Kind attention');
+  expect(html).toContain('Mr Zaheer');
+  expect(html).toContain('Reference');
+  expect(html).toContain('PO-91');
+  // It is a quotation, so it is titled one and owes nothing.
+  expect(html).toContain('Quotation QT-0001');
+  expect(html).toContain('Valid until');
+  expect(html).toContain('Open full quotation');
+  expect(html).not.toContain('Balance due');
+  expect(html).not.toContain('Mark paid');
+  expect(html).not.toContain('Payment method');
+});
+
+test('an invoice still shows the payment rows and buttons', () => {
+  const html = render(
+    <InvoiceQuickView
+      invoice={{ ...invoice, docType: 'invoice' }}
+      collection="erp_sales_invoices"
+      partyField="supplierName"
+      partyLabel="Supplier"
+      canEdit
+      onClose={() => {}}
+      onOpenFull={() => {}}
+      onEdit={() => {}}
+    />
+  );
+  expect(html).toContain('Invoice PI-0001');
+  expect(html).toContain('Balance due');
+  expect(html).toContain('Mark paid');
+  expect(html).toContain('Due date');
+});
+
 test('chips and filter controls render', () => {
   const html = render(
     <>
