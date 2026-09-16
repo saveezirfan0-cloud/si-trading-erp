@@ -17,7 +17,7 @@ import { exportCSV, exportTablePDF } from '../../lib/export';
 import InvoiceFilters from './InvoiceFilters';
 import InvoiceQuickView from './InvoiceQuickView';
 import {
-  EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, partyLines, filterInvoices, sortInvoices,
+  EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, docTypeOf, partyLines, filterInvoices, sortInvoices,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
   isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
@@ -42,6 +42,8 @@ const loadPrefs = (key) => {
 
 export default function InvoiceListView({
   kind,                      // 'sales' | 'purchase'
+  docType,                   // 'invoice' | 'quotation' — scopes the whole page
+  noun = 'invoice',          // what one row is called, in the counts and labels
   collection,
   title,
   partyField,                // 'customerName' | 'supplierName'
@@ -69,7 +71,7 @@ export default function InvoiceListView({
   const canApprove = can(moduleKey, 'approve');
   const canSelect = canEdit || canDelete || canExport;
 
-  const prefsKey = `si-invoice-view-${kind}`;
+  const prefsKey = `si-invoice-view-${kind}${docType ? `-${docType}` : ''}`;
   const initial = useRef(loadPrefs(prefsKey)).current;
 
   const [allInvoices, setAllInvoices] = useState([]);
@@ -115,11 +117,15 @@ export default function InvoiceListView({
   // — the scan is evidence — but they carry no money and no stock, so mixing
   // them into the normal view would misrepresent every figure on the page.
   const dupes = useMemo(() => duplicateInvoices(inYear), [inYear]);
+  const ofType = useMemo(
+    () => (docType ? inYear.filter((r) => docTypeOf(r) === docType) : inYear),
+    [inYear, docType]
+  );
   const scoped = useMemo(() => {
-    if (bucket === 'duplicates') return dupes;
-    if (bucket === 'all') return inYear;
-    return activeInvoices(inYear);
-  }, [bucket, inYear, dupes]);
+    if (bucket === 'duplicates') return duplicateInvoices(ofType);
+    if (bucket === 'all') return ofType;
+    return activeInvoices(ofType);
+  }, [bucket, ofType]);
 
   const visible = useMemo(
     () => sortInvoices(filterInvoices(scoped, filters, partyField), sort, partyField),
@@ -283,7 +289,7 @@ export default function InvoiceListView({
             {issues.length > 0 && (
               <AlertTriangle size={12} color="var(--accent)" title={`Needs attention: ${issues.join(', ')}`} />
             )}
-            {kind === 'sales' && isQuotation(row) && (
+            {kind === 'sales' && !docType && isQuotation(row) && (
               <Badge color="purple">Quote</Badge>
             )}
             {isDuplicate(row) && (
@@ -402,7 +408,7 @@ export default function InvoiceListView({
       <PageHeader
         title={title}
         subtitle={
-          `${visible.length} of ${scoped.length} ${scoped.length === 1 ? 'invoice' : 'invoices'}` +
+          `${visible.length} of ${scoped.length} ${scoped.length === 1 ? noun : `${noun}s`}` +
           (fiscalYear !== 'all' ? ` · ${fiscalYearLabel(fiscalYear)}` : '')
         }
         actions={[
@@ -456,19 +462,33 @@ export default function InvoiceListView({
         </div>
       ) : (
         <div className="g-stats">
-          <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
-            sub={stats.provisionalCount
-              ? `${stats.count} shown · ${stats.provisionalCount} draft/in review not counted`
-              : `${stats.count} invoice${stats.count === 1 ? '' : 's'} shown`} />
-          <StatCard compact={isMobile} label="Awaiting Approval" value={`${stats.awaitingCount}`}
-            icon={ClipboardCheck} color="var(--blue)"
-            sub={stats.awaitingCount ? formatCurrency(stats.awaitingAmount) : 'Nothing pending review'} />
-          <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
-          <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
-          <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
-            sub={`${stats.overdueCount} past due date`} />
-          <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
-            sub={`${stats.count - stats.withAttachment} without`} />
+          {docType === 'quotation' ? (<>
+            <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.quotedAmount)} icon={FileText} color={accent}
+              sub={`${stats.quotations} quotation${stats.quotations === 1 ? '' : 's'} shown`} />
+            <StatCard compact={isMobile} label="Awaiting Approval" value={`${stats.awaitingCount}`}
+              icon={ClipboardCheck} color="var(--blue)"
+              sub={stats.awaitingCount ? formatCurrency(stats.awaitingAmount) : 'Nothing pending review'} />
+            <StatCard compact={isMobile} label="Converted to invoice" value={`${stats.converted}`} icon={CheckCircle2} color="var(--green)"
+              sub={stats.converted ? formatCurrency(stats.convertedAmount) : 'None accepted yet'} />
+            <StatCard compact={isMobile} label="Still open" value={`${stats.quotations - stats.converted}`} icon={Clock} color="var(--accent)"
+              sub={formatCurrency(stats.quotedAmount - stats.convertedAmount)} />
+            <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
+              sub={`${stats.count - stats.withAttachment} without`} />
+          </>) : (<>
+            <StatCard compact={isMobile} label={totalLabel} value={formatCurrency(stats.total)} icon={FileText} color={accent}
+              sub={stats.provisionalCount
+                ? `${stats.count} shown · ${stats.provisionalCount} draft/in review not counted`
+                : `${stats.count} ${noun}${stats.count === 1 ? '' : 's'} shown`} />
+            <StatCard compact={isMobile} label="Awaiting Approval" value={`${stats.awaitingCount}`}
+              icon={ClipboardCheck} color="var(--blue)"
+              sub={stats.awaitingCount ? formatCurrency(stats.awaitingAmount) : 'Nothing pending review'} />
+            <StatCard compact={isMobile} label="Paid" value={formatCurrency(stats.paid)} icon={CheckCircle2} color="var(--green)" />
+            <StatCard compact={isMobile} label="Outstanding" value={formatCurrency(stats.due)} icon={Wallet} color="var(--red)" />
+            <StatCard compact={isMobile} label="Overdue" value={formatCurrency(stats.overdueAmount)} icon={Clock} color="var(--accent)"
+              sub={`${stats.overdueCount} past due date`} />
+            <StatCard compact={isMobile} label="With attachment" value={`${stats.withAttachment}`} icon={Paperclip} color="var(--purple)"
+              sub={`${stats.count - stats.withAttachment} without`} />
+          </>)}
         </div>
       )}
 
@@ -484,7 +504,7 @@ export default function InvoiceListView({
           years={years}
           parties={parties}
           partyLabel={partyLabel}
-          showType={kind === 'sales'}
+          showType={kind === 'sales' && !docType}
           sort={sort}
           onSortChange={setSort}
           showing={visible.length}
