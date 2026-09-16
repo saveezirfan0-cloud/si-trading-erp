@@ -7,6 +7,7 @@ import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { AppProvider } from '../../contexts/AppContext';
 import AiDocument from './AiDocument';
+import SalesInvoiceForm from './SalesInvoiceForm';
 import SalesInvoiceView from './SalesInvoiceView';
 
 // jest.mock is hoisted above the imports, so the pages get the mocks.
@@ -40,7 +41,10 @@ jest.mock('../../lib/db', () => {
     PURCHASE_INVOICES: 'erp_purchase_invoices', ACTIVITY: 'erp_activity',
   };
   const rows = {
-    erp_customers: [{ id: 'c1', name: 'Ali Hardware', phone: '021-1' }],
+    erp_customers: [
+      { id: 'c1', name: 'Ali Hardware', phone: '021-1' },
+      { id: 'c2', name: 'Mr. Zaheer', company: 'ARY Laguna', phone: '021-9' },
+    ],
     erp_inventory: [{ id: 'i1', code: 'HP1300', name: 'Makita Demolition Hammer HP1300-DH', unit: 'pcs', salePrice: 22500 }],
     erp_sales_invoices: [{ id: 's1', invoiceNo: 'SI-0007' }, { id: 'q1', invoiceNo: 'QT-0002', docType: 'quotation' }],
   };
@@ -99,10 +103,13 @@ Kind Attention : Mr Zaheer
   // The notice says who read it and what to check.
   expect(html).toContain('built-in reader');
   expect(html).toContain('ARY Laguna Karachi Pvt Ltd');
-  expect(html).toContain('is not in the customer list');
-  expect(html).toContain('Add as new customer');
+  // "ARY Laguna Karachi Pvt Ltd" is filed under its contact's name, and is
+  // found by its company, so the document links to that record.
+  expect(html).toContain('was matched to the customer');
+  expect(host.querySelector('input[value="ARY Laguna"]')).not.toBeNull();
   // Attention and the line came through; the inventory item was linked.
   expect(html).toContain('Mr Zaheer');
+  expect(html).toContain('Mr. Zaheer');
   expect(html).toContain('HP1300');
   expect(html).toContain('23000');
   unmount();
@@ -126,4 +133,67 @@ test('a quotation prints as one, with the contact and no balance due', async () 
   expect(html).not.toContain('Balance Due');
   expect(html).not.toContain('Payment Method');
   unmount();
+});
+
+test('the customer box is searchable instead of a long dropdown', async () => {
+  const { host, unmount } = mount(<SalesInvoiceForm invoice={null} onBack={() => {}} />);
+  await flush();
+
+  // No native <select> of every customer any more.
+  const selects = [...host.querySelectorAll('select')];
+  expect(selects.some((el) => el.innerHTML.includes('Ali Hardware'))).toBe(false);
+
+  // The picker opens a search box listing the customers by name and company.
+  const button = [...host.querySelectorAll('button')].find((b) => b.textContent.includes('Select customer'));
+  expect(button).toBeTruthy();
+  await act(async () => { button.click(); });
+
+  const search = [...document.querySelectorAll('input')].find((i) => (i.placeholder || '').startsWith('Search by name'));
+  expect(search).toBeTruthy();
+  expect(document.body.textContent).toContain('Ali Hardware');
+
+  // Searching by the company finds a customer filed under a person's name.
+  act(() => { setValue(search, 'laguna'); });
+  expect(document.body.textContent).toContain('Mr. Zaheer');
+  expect(document.body.textContent).not.toContain('Ali Hardware');
+  unmount();
+});
+
+test('a company nobody has on file is offered as a new customer', async () => {
+  const { host, unmount } = mount(<AiDocument />);
+  act(() => {
+    setValue(host.querySelector('textarea'), `Quotation
+Name: Brand New Traders
+Kind Attention: Mr Kamran
+2 pcs Angle Grinder 9 inch @ 8000`);
+  });
+  const button = [...host.querySelectorAll('button')].find((b) => b.textContent.includes('Create document'));
+  await act(async () => { button.click(); });
+  await flush();
+  await flush();
+
+  const html = host.innerHTML;
+  expect(html).toContain('is not in the customer list');
+  expect(html).toContain('Add as new customer');
+  // The business is the company and the contact is the person, which is the
+  // shape the customer is then filed under.
+  expect(host.querySelector('input[value="Brand New Traders"]')).not.toBeNull();
+  expect(host.querySelector('input[value="Mr Kamran"]')).not.toBeNull();
+  unmount();
+});
+
+test('a quotation form offers no payment, an invoice does', async () => {
+  const quote = mount(<SalesInvoiceForm invoice={{ docType: 'quotation', invoiceNo: 'QT-9', items: [] }} onBack={() => {}} />);
+  await flush();
+  expect(quote.host.innerHTML).toContain('Save Quotation');
+  expect(quote.host.innerHTML).not.toContain('Mark as Paid');
+  expect(quote.host.innerHTML).not.toContain('Amount Paid');
+  quote.unmount();
+
+  const bill = mount(<SalesInvoiceForm invoice={{ docType: 'invoice', invoiceNo: 'SI-9', items: [] }} onBack={() => {}} />);
+  await flush();
+  expect(bill.host.innerHTML).toContain('Save Invoice');
+  expect(bill.host.innerHTML).toContain('Mark as Paid');
+  expect(bill.host.innerHTML).toContain('Amount Paid');
+  bill.unmount();
 });

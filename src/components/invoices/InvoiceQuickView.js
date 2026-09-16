@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 import { update } from '../../lib/db';
 import {
   SOURCES, invoiceSource, importBook, hasAttachment, balanceDue,
-  daysOverdue, invoiceIssues, invoiceTotal, paidAmount,
+  daysOverdue, invoiceIssues, invoiceTotal, paidAmount, partyLines,
 } from '../../lib/invoices';
 import { statusColor, statusLabel, needsApproval, approvalPatch } from '../../lib/invoiceStatus';
 import { isQuotation } from '../../lib/salesDocs';
@@ -53,6 +53,7 @@ export default function InvoiceQuickView({
   // payment buttons would only invite a wrong answer.
   const isQuote = isQuotation(invoice);
   const label = isQuote ? 'Quotation' : 'Invoice';
+  const party = partyLines(invoice, partyField);
 
   // Sign-off, with the approval stamped onto the invoice and into its history.
   const approve = async () => {
@@ -103,8 +104,9 @@ export default function InvoiceQuickView({
         {/* Facts + money */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
           <div>
-            <Row label={partyLabel} value={invoice[partyField] || '—'} />
-            {invoice.attention && <Row label="Kind attention" value={invoice.attention} />}
+            <Row label={partyLabel} value={party.heading || '—'} />
+            {party.person && <Row label="Contact" value={party.person} />}
+            {party.attention && <Row label="Kind attention" value={party.attention} />}
             {invoice.reference && <Row label="Reference" value={invoice.reference} />}
             {invoice.supplierInvoiceNo && <Row label="Supplier ref" value={invoice.supplierInvoiceNo} />}
             {invoice.quotationNo && <Row label="From quotation" value={invoice.quotationNo} />}

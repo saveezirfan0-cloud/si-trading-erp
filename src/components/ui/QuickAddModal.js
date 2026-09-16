@@ -4,14 +4,14 @@ import { create, COLLECTIONS } from '../../lib/db';
 import { Modal, Input, Select, Btn, FormGrid } from './index';
 import toast from 'react-hot-toast';
 
-const BLANK_CUSTOMER = { name: '', contactPerson: '', phone: '', email: '', city: '', address: '', type: 'retail', status: 'active', balance: 0, country: 'Pakistan' };
+const BLANK_CUSTOMER = { name: '', company: '', phone: '', email: '', city: '', address: '', type: 'retail', status: 'active', balance: 0, country: 'Pakistan' };
 
 // Quick Add Customer.
 //
-// `initial` pre-fills the box from the document being written, so a name the
-// AI screen read ("ARY Laguna Karachi Pvt Ltd") and its contact ("Mr Zaheer")
-// are not retyped — and, more to the point, the company is not accidentally
-// saved under the contact's name.
+// `initial` pre-fills the box from the document being written, so a company
+// the AI screen read ("ARY Laguna Karachi Pvt Ltd") and its contact
+// ("Mr Zaheer") land in their own fields instead of being retyped — and, more
+// to the point, the company is not saved as the customer's name by mistake.
 export function QuickAddCustomer({ open, onClose, onCreated, initial }) {
   const [form, setForm] = useState({ ...BLANK_CUSTOMER });
   const [saving, setSaving] = useState(false);
@@ -41,10 +41,10 @@ export function QuickAddCustomer({ open, onClose, onCreated, initial }) {
     <Modal open={open} onClose={onClose} title="Quick Add Customer" width={480}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <FormGrid cols={2}>
-          <Input label="Customer / Company Name *" value={form.name} onChange={e => h('name', e.target.value)} required
+          <Input label="Full Name" value={form.name} onChange={e => h('name', e.target.value)} required
+            placeholder="Contact person, or the business itself" />
+          <Input label="Company" value={form.company} onChange={e => h('company', e.target.value)}
             placeholder="e.g. ARY Laguna Karachi (Pvt) Ltd" />
-          <Input label="Contact Person" value={form.contactPerson} onChange={e => h('contactPerson', e.target.value)}
-            placeholder="e.g. Mr Zaheer" />
           <Input label="Phone" value={form.phone} onChange={e => h('phone', e.target.value)} />
           <Input label="Email" value={form.email} onChange={e => h('email', e.target.value)} />
           <Input label="City" value={form.city} onChange={e => h('city', e.target.value)} />
@@ -83,7 +83,7 @@ export function QuickAddSupplier({ open, onClose, onCreated }) {
     <Modal open={open} onClose={onClose} title="Quick Add Supplier" width={480}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <FormGrid cols={2}>
-          <Input label="Name *" value={form.name} onChange={e => h('name', e.target.value)} required />
+          <Input label="Name" value={form.name} onChange={e => h('name', e.target.value)} required />
           <Input label="Phone" value={form.phone} onChange={e => h('phone', e.target.value)} />
           <Input label="Email" value={form.email} onChange={e => h('email', e.target.value)} />
           <Input label="City" value={form.city} onChange={e => h('city', e.target.value)} />

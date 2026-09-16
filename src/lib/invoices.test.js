@@ -4,7 +4,7 @@ import {
   invoiceSource, importBook, balanceDue, daysOverdue, isDueSoon, yearsOf,
   invoiceIssues, filterInvoices, sortInvoices, summarise, invoiceExportRows,
   activeFilterCount, hasAttachment, attachmentCount, attachmentEntries, EMPTY_FILTERS,
-  duplicateKey, findDuplicate, activeInvoices, duplicateInvoices,
+  duplicateKey, findDuplicate, activeInvoices, duplicateInvoices, partyLines,
 } from './invoices';
 
 const imported = {
@@ -255,4 +255,37 @@ test('the list can be narrowed to quotations or invoices', () => {
   expect(activeFilterCount(f({ type: 'quotation' }))).toBe(1);
   expect(invoiceExportRows([quotation])[0].type).toBe('Quote');
   expect(invoiceExportRows([imported])[0].type).toBe('Invoice');
+});
+
+// ── Who the document is addressed to ───────────────────────────
+test('the business heads the address and the person goes under it', () => {
+  expect(partyLines({
+    customerName: 'Mr. Zaheer', customerCompany: 'ARY Laguna', attention: 'Mr Zaheer',
+  })).toEqual({ heading: 'ARY Laguna', person: 'Mr. Zaheer', attention: '' });
+});
+
+test('a customer filed under its own name is shown once', () => {
+  expect(partyLines({ customerName: 'Fatimi Traders' }))
+    .toEqual({ heading: 'Fatimi Traders', person: '', attention: '' });
+  // The same name in both fields is one business, not a business and a person.
+  expect(partyLines({ customerName: 'Fatimi Traders', customerCompany: 'Fatimi Traders' }))
+    .toEqual({ heading: 'Fatimi Traders', person: '', attention: '' });
+});
+
+test('kind attention only earns a line when it names somebody else', () => {
+  expect(partyLines({ customerName: 'Ali Hardware', attention: 'Mr Ahmed' }))
+    .toEqual({ heading: 'Ali Hardware', person: '', attention: 'Mr Ahmed' });
+  // Punctuation and case are not a different person.
+  expect(partyLines({ customerName: 'Mr. Zaheer', attention: 'mr zaheer' }).attention).toBe('');
+});
+
+test('a supplier is addressed by the same rules', () => {
+  expect(partyLines({ supplierName: 'Bilal', supplierCompany: 'Bilal & Sons' }, 'supplierName'))
+    .toEqual({ heading: 'Bilal & Sons', person: 'Bilal', attention: '' });
+});
+
+test('the export carries the company and the search finds it', () => {
+  const row = { ...imported, customerCompany: 'ARY Laguna' };
+  expect(invoiceExportRows([row])[0].company).toBe('ARY Laguna');
+  expect(filterInvoices([row], f({ search: 'ary laguna' })).map(r => r.id)).toEqual(['a']);
 });

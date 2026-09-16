@@ -17,7 +17,7 @@ import { exportCSV, exportTablePDF } from '../../lib/export';
 import InvoiceFilters from './InvoiceFilters';
 import InvoiceQuickView from './InvoiceQuickView';
 import {
-  EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, filterInvoices, sortInvoices,
+  EMPTY_FILTERS, SOURCES, invoiceSource, isQuotation, partyLines, filterInvoices, sortInvoices,
   yearsOf, summarise, balanceDue, daysOverdue, hasAttachment, invoiceIssues,
   isDuplicate, activeInvoices, duplicateInvoices,
   invoiceExportRows, invoiceTotal, isDueSoon, isOverdue, activeFilterCount, attachmentCount,
@@ -295,7 +295,21 @@ export default function InvoiceListView({
         );
       },
     },
-    { key: partyField, label: partyLabel, sortable: true, sortKey: 'party', render: v => v || <span style={{ color: 'var(--text3)' }}>— none —</span> },
+    {
+      key: partyField, label: partyLabel, sortable: true, sortKey: 'party',
+      // A business filed under a person's name shows the company under it, the
+      // same way the Customers page lists it.
+      render: (v, row) => {
+        const { heading, person } = partyLines(row, partyField);
+        if (!heading) return <span style={{ color: 'var(--text3)' }}>— none —</span>;
+        return (
+          <div style={{ lineHeight: 1.3 }}>
+            <div>{heading}</div>
+            {person && <div style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>{person}</div>}
+          </div>
+        );
+      },
+    },
     ...(kind === 'purchase'
       ? [{ key: 'supplierInvoiceNo', label: 'Supplier Ref', render: v => v || '—' }]
       : []),

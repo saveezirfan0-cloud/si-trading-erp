@@ -10,6 +10,7 @@ import {
   statusLabel, statusColor, statusPrintBg, statusPrintFg,
 } from '../../lib/invoiceStatus';
 import { DEFAULT_TERMS, docLabel, isQuotation, nextDocNo, calcTotals } from '../../lib/salesDocs';
+import { partyLines } from '../../lib/invoices';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Edit2, Printer, FileCheck } from 'lucide-react';
 
@@ -24,6 +25,8 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
 
   const isQuote = isQuotation(invoice);
   const label = docLabel(invoice);
+  // The business heads the address, the person dealt with sits under it.
+  const party = partyLines(invoice, 'customerName');
   const dateLabel = isQuote ? 'Quotation Date' : 'Invoice Date';
   const dueLabel = isQuote ? 'Valid Until' : 'Due Date';
 
@@ -48,6 +51,7 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
         docType: 'invoice', invoiceNo, status: 'unpaid', paidAmount: 0,
         date: new Date().toISOString().split('T')[0], dueDate: '',
         terms: !rest.terms || rest.terms === DEFAULT_TERMS.quotation ? DEFAULT_TERMS.invoice : rest.terms,
+        customerCompany: invoice.customerCompany || '',
         quotationId: invoice.id, quotationNo: invoice.invoiceNo,
       });
       await update(COLLECTIONS.SALES_INVOICES, invoice.id, { convertedToId: newId, convertedToNo: invoiceNo });
@@ -127,8 +131,9 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
     <div>
       <div class="meta-label">${isQuote ? 'Quotation For' : 'Bill To'}</div>
       <div class="meta-value">
-        <strong>${esc(invoice.customerName)}</strong><br/>
-        ${invoice.attention ? 'Kind Attention: ' + esc(invoice.attention) + '<br/>' : ''}
+        <strong>${esc(party.heading)}</strong><br/>
+        ${party.person ? esc(party.person) + '<br/>' : ''}
+        ${party.attention ? 'Kind Attention: ' + esc(party.attention) + '<br/>' : ''}
         ${invoice.customerPhone ? esc(invoice.customerPhone) + '<br/>' : ''}
         ${esc(invoice.customerAddress)}
       </div>
@@ -267,8 +272,9 @@ export default function SalesInvoiceView({ invoice, onBack, onEdit, onChanged, o
           <div className="g-2" style={{ gap: 32, marginBottom: 32 }}>
             <div>
               <div style={{ fontSize: '0.68rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{isQuote ? 'Quotation For' : 'Bill To'}</div>
-              <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{invoice.customerName}</div>
-              {invoice.attention && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>Kind Attention: {invoice.attention}</div>}
+              <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{party.heading}</div>
+              {party.person && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>{party.person}</div>}
+              {party.attention && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>Kind Attention: {party.attention}</div>}
               {invoice.customerPhone && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>{invoice.customerPhone}</div>}
               {invoice.customerAddress && <div style={{ color: 'var(--text2)', fontSize: '0.85rem' }}>{invoice.customerAddress}</div>}
             </div>

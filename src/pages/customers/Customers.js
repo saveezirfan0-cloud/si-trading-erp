@@ -130,7 +130,7 @@ export default function Customers() {
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Customer' : 'New Customer'} width={600}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <FormGrid cols={2}>
-            <Input label="Full Name *" value={form.name} onChange={e => handleChange('name', e.target.value)} required />
+            <Input label="Full Name" value={form.name} onChange={e => handleChange('name', e.target.value)} required />
             <Input label="Company" value={form.company} onChange={e => handleChange('company', e.target.value)} />
             <Input label="Email" type="email" value={form.email} onChange={e => handleChange('email', e.target.value)} />
             <Input label="Phone" value={form.phone} onChange={e => handleChange('phone', e.target.value)} />

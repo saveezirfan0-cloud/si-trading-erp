@@ -15,6 +15,10 @@ import { Plus, ArrowLeft, Save, Eye, UserPlus } from 'lucide-react';
 
 const EMPTY_LINE = { itemId: '', itemCode: '', itemName: '', description: '', qty: 1, unit: 'pcs', unitPrice: 0, discount: 0, taxRate: 0, total: 0, isCustom: false };
 
+// What the customer search box looks at. The first two identify the customer;
+// the rest merely help find them.
+const CUSTOMER_FIELDS = ['name', 'company', 'phone', 'city', 'email'];
+
 // One form for both sales documents. `invoice` is the record to edit; a
 // record without an id (the AI document screen hands one over) is a draft to
 // review and create. `onSaved` runs after a save (default: `onBack`), and
@@ -33,7 +37,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
   const [form, setForm] = useState({
     docType: 'invoice',
     invoiceNo: '', date: new Date().toISOString().split('T')[0],
-    dueDate: '', customerId: '', customerName: '', customerAddress: '', customerPhone: '',
+    dueDate: '', customerId: '', customerName: '', customerCompany: '', customerAddress: '', customerPhone: '',
     attention: '', reference: '',
     status: 'unpaid', paymentMethod: '',
     notes: '', terms: DEFAULT_TERMS.invoice,
@@ -48,7 +52,13 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
       // cannot collide with a number handed out while it sat in the trash.
       const [c, inv, si] = await Promise.all([getAll(COLLECTIONS.CUSTOMERS), getAll(COLLECTIONS.INVENTORY), getAll(COLLECTIONS.SALES_INVOICES, [], { includeDeleted: true })]);
       setCustomers(c); setInventory(inv); setExisting(si);
-      if (invoice) setForm(f => ({ ...f, ...invoice }));
+      if (invoice) {
+        // Documents written before the company was carried on them hold only
+        // the customer's name, so fill it back in from the linked record: the
+        // next save brings the document up to date.
+        const linked = invoice.customerId ? c.find(x => x.id === invoice.customerId) : null;
+        setForm(f => ({ ...f, ...invoice, customerCompany: invoice.customerCompany || linked?.company || '' }));
+      }
       else setForm(f => ({ ...f, invoiceNo: nextDocNo(si, docPrefix(f.docType)) }));
     };
     load();
@@ -65,28 +75,42 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
     status: docType === 'quotation' && f.status === 'unpaid' ? 'draft' : f.status,
   }));
 
-  // A name that came from the AI reader (or was typed) but matches nobody in
-  // the customer list: one click makes the customer, no retyping.
+  // The customer record this document describes, in the shape the Customers
+  // page keeps: the business in `company`, the person dealt with in `name`.
+  // `name` is that page's heading and is required, so with nobody named it
+  // falls back to the business itself.
+  const newCustomerFields = () => {
+    const company = (form.customerCompany || '').trim();
+    const person = (form.customerName || '').trim() || (form.attention || '').trim();
+    return {
+      name: person || company,
+      company: company && company !== person ? company : '',
+      phone: form.customerPhone || '', address: form.customerAddress || '',
+      email: '', city: '', type: 'retail',
+      status: 'active', balance: 0, country: 'Pakistan',
+    };
+  };
+
+  // A company the AI read (or somebody typed) that matches nobody in the list:
+  // one click files it, with no retyping.
   const addNamedCustomer = async () => {
-    const name = (form.customerName || '').trim();
-    if (!name) return;
+    const data = newCustomerFields();
+    if (!data.name) return;
     setAddingCustomer(true);
     try {
-      const data = {
-        name, phone: form.customerPhone || '', address: form.customerAddress || '',
-        contactPerson: form.attention || '', email: '', city: '', type: 'retail',
-        status: 'active', balance: 0, country: 'Pakistan',
-      };
       const id = await create(COLLECTIONS.CUSTOMERS, data);
       handleCustomerCreated({ id, ...data });
-      toast.success(`Customer "${name}" added`);
+      toast.success(`Customer "${[data.company, data.name].filter(Boolean).join(' · ')}" added`);
     } catch (e) { toast.error('Could not add the customer: ' + e.message); }
     setAddingCustomer(false);
   };
 
   const setCustomer = (id) => {
     const c = customers.find(x => x.id === id);
-    if (c) setForm(f => ({ ...f, customerId: id, customerName: c.name, customerAddress: c.address || '', customerPhone: c.phone || '' }));
+    if (c) setForm(f => ({
+      ...f, customerId: id, customerName: c.name, customerCompany: c.company || '',
+      customerAddress: c.address || '', customerPhone: c.phone || '',
+    }));
   };
 
   const handleCustomerCreated = (c) => {
@@ -185,26 +209,37 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
             <Card>
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Bill To</div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', marginBottom: 12 }}>
-                <div style={{ flex: 1 }}>
-                  <Select label="Customer *" value={form.customerId} onChange={e => setCustomer(e.target.value)}
-                    options={customers.map(c => ({ value: c.id, label: c.name }))} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <ItemPicker
+                    label="Customer" required
+                    items={customers}
+                    value={form.customerId}
+                    onChange={(id) => setCustomer(id)}
+                    fields={CUSTOMER_FIELDS}
+                    identityCount={2}
+                    noun="customer"
+                    placeholder="Search by name, company, phone…"
+                    formatSub={(c) => [c.company, c.phone, c.city].filter(Boolean).join(' · ')}
+                    style={{ padding: '8px 12px', minHeight: 38 }}
+                  />
                 </div>
                 <Btn variant="secondary" icon={UserPlus} onClick={() => setShowQuickCustomer(true)} style={{ height: 38, whiteSpace: 'nowrap' }}>
                   + New
                 </Btn>
               </div>
-              {form.customerName && !form.customerId && (
+              {(form.customerName || form.customerCompany) && !form.customerId && (
                 <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--bg3)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, fontSize: '13px' }}>
                   <span style={{ flex: 1, minWidth: 200 }}>
-                    <strong>{form.customerName}</strong> is not in the customer list — pick an existing customer above, or
+                    <strong>{form.customerCompany || form.customerName}</strong> is not in the customer list — pick an existing customer above, or
                   </span>
                   <Btn size="sm" variant="secondary" icon={UserPlus} onClick={addNamedCustomer} disabled={addingCustomer}>
                     {addingCustomer ? 'Adding…' : 'Add as new customer'}
                   </Btn>
                 </div>
               )}
-              {form.customerName && (
+              {(form.customerName || form.customerCompany) && (
                 <FormGrid cols={2}>
+                  <Input label="Company" value={form.customerCompany || ''} onChange={e => setForm(f => ({ ...f, customerCompany: e.target.value }))} placeholder="e.g. ARY Laguna Karachi (Pvt) Ltd" />
                   <Input label="Kind Attention" value={form.attention || ''} onChange={e => setForm(f => ({ ...f, attention: e.target.value }))} placeholder="Contact person, e.g. Mr Zaheer" />
                   <Input label="Phone" value={form.customerPhone} onChange={e => setForm(f => ({ ...f, customerPhone: e.target.value }))} />
                   <Input label="Address" value={form.customerAddress} onChange={e => setForm(f => ({ ...f, customerAddress: e.target.value }))} />
@@ -305,7 +340,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
               </div>
             </Card>
 
-            <Card>
+            {!isQuote && <Card>
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <Select label="Payment Method" value={form.paymentMethod} onChange={e => setForm(f => ({ ...f, paymentMethod: e.target.value }))}
@@ -322,13 +357,13 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
                   </div>
                 )}
               </div>
-            </Card>
+            </Card>}
 
             <Card>
               <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: '0.82rem', marginBottom: 14, color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quick Actions</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <Btn icon={Save} onClick={() => handleSave()} disabled={saving} style={{ justifyContent: 'center', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: 8, padding: '10px' }}>Save Invoice</Btn>
-                <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving} style={{ justifyContent: 'center' }}>Mark as Paid</Btn>
+                <Btn icon={Save} onClick={() => handleSave()} disabled={saving} style={{ justifyContent: 'center', background: 'var(--accent)', color: 'var(--on-accent)', borderRadius: 8, padding: '10px' }}>Save {isQuote ? 'Quotation' : 'Invoice'}</Btn>
+                {!isQuote && <Btn variant="success" onClick={() => handleSave('paid')} disabled={saving} style={{ justifyContent: 'center' }}>Mark as Paid</Btn>}
                 <Btn variant="secondary" onClick={() => handleSave('pending_review')} disabled={saving} style={{ justifyContent: 'center' }}>Submit for Review</Btn>
                 <Btn variant="secondary" onClick={() => handleSave('draft')} disabled={saving} style={{ justifyContent: 'center' }}>Save as Draft</Btn>
                 {onPreview && <Btn variant="secondary" icon={Eye} onClick={() => onPreview(form)} style={{ justifyContent: 'center' }}>Preview & Print</Btn>}
@@ -342,10 +377,7 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
         open={showQuickCustomer}
         onClose={() => setShowQuickCustomer(false)}
         onCreated={handleCustomerCreated}
-        initial={{
-          name: form.customerName || '', contactPerson: form.attention || '',
-          phone: form.customerPhone || '', address: form.customerAddress || '',
-        }}
+        initial={newCustomerFields()}
       />
     </>
   );

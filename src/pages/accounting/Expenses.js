@@ -150,7 +150,7 @@ export default function Expenses() {
             <Input label="Date" type="date" value={form.date} onChange={e => h('date', e.target.value)} />
             <Select label="Category *" value={form.category} onChange={e => h('category', e.target.value)}
               options={CATEGORIES} required />
-            <Input label="Amount (PKR) *" type="number" value={form.amount} onChange={e => h('amount', Number(e.target.value))} required />
+            <Input label="Amount (PKR)" type="number" value={form.amount} onChange={e => h('amount', Number(e.target.value))} required />
             <Select label="Paid By" value={form.paidBy} onChange={e => h('paidBy', e.target.value)}
               options={['cash', 'bank_transfer', 'cheque', 'card']} />
             <Input label="Vendor / Payee" value={form.vendorName} onChange={e => h('vendorName', e.target.value)} />

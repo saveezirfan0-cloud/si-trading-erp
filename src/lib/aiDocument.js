@@ -213,9 +213,13 @@ export const EMPTY_LINE = {
 // Ltd"), which token overlap scores low. So a clear winner is accepted on a
 // weaker score than a close race, and either way anything short of an exact
 // match is pointed out for checking.
+//
+// The typed name is matched against the customer's own name *and* its company,
+// because a business is as likely to be filed under the contact's name with the
+// company beside it ("Mr. Zaheer" of "ARY Laguna") as under its own.
 export const matchCustomer = (name, customers = []) => {
   const ranked = customers
-    .map((c) => ({ c, score: similarity(name, c.name) }))
+    .map((c) => ({ c, score: Math.max(similarity(name, c.name), similarity(name, c.company)) }))
     .sort((a, b) => b.score - a.score);
   const [best, next] = ranked;
   if (!best || best.score < 0.3) return null;
@@ -237,8 +241,11 @@ export const buildDraft = (parsedIn, {
 
   const customer = parsed.customerName ? matchCustomer(parsed.customerName, customers) : null;
   if (!parsed.customerName) warnings.push('No customer name was found — choose one before saving.');
-  else if (!customer) warnings.push(`"${parsed.customerName}" is not in the customer list — add them as a new customer or pick an existing one.`);
-  else if (customer._score < 0.99) warnings.push(`"${parsed.customerName}" was matched to the customer "${customer.name}" — check that this is right.`);
+  else if (!customer) warnings.push(`"${parsed.customerName}" is not in the customer list — add it as a new customer or pick an existing one.`);
+  else if (customer._score < 0.99) {
+    const as = [customer.name, customer.company].filter(Boolean).join(' / ');
+    warnings.push(`"${parsed.customerName}" was matched to the customer "${as}" — check that this is right.`);
+  }
 
   const rank = makeRanker(inventory);
   const unmatched = [];
@@ -274,7 +281,11 @@ export const buildDraft = (parsedIn, {
     date: parsed.date || today,
     dueDate: parsed.dueDate || '',
     customerId: customer?.id || '',
-    customerName: customer?.name || parsed.customerName || '',
+    // Matched: the record's own fields. Unmatched: the typed company is the
+    // company, and the contact named for its attention is the person — the
+    // shape a customer created from here is given, so the two agree.
+    customerName: customer ? customer.name : (parsed.attention || parsed.customerName || ''),
+    customerCompany: customer ? (customer.company || '') : (parsed.customerName || ''),
     customerAddress: customer?.address || parsed.customerAddress || '',
     customerPhone: customer?.phone || parsed.customerPhone || '',
     attention: parsed.attention || '',

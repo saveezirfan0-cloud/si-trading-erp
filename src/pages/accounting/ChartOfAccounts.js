@@ -118,10 +118,10 @@ export default function ChartOfAccounts() {
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Account' : 'New Account'}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <FormGrid cols={2}>
-            <Input label="Account Code *" value={form.code} onChange={e => h('code', e.target.value)} placeholder="e.g. 1001" required />
+            <Input label="Account Code" value={form.code} onChange={e => h('code', e.target.value)} placeholder="e.g. 1001" required />
             <Select label="Account Type *" value={form.type} onChange={e => h('type', e.target.value)}
               options={ACCOUNT_TYPES.map(t => ({ value: t.value, label: t.label }))} required />
-            <Input label="Account Name *" value={form.name} onChange={e => h('name', e.target.value)} required />
+            <Input label="Account Name" value={form.name} onChange={e => h('name', e.target.value)} required />
             <Input label="Sub-Type" value={form.subType} onChange={e => h('subType', e.target.value)} placeholder="e.g. Current Asset" />
             <Input label="Opening Balance" type="number" value={form.balance} onChange={e => h('balance', Number(e.target.value))} />
             <Select label="Status" value={form.active ? 'true' : 'false'} onChange={e => h('active', e.target.value === 'true')}
