@@ -128,6 +128,16 @@ If the function is not deployed, has no keys, or cannot be reached, a built-in
 reader in the browser handles the common shapes above instead, and the notice
 says so — the feature keeps working, you just check the result more carefully.
 
+### The customer is the company, the contact is a person
+
+A document carries both: `customerName` is the business ("ARY Laguna Karachi
+(Pvt) Ltd") and `attention` is the person to address it to ("Mr Zaheer"). The
+quotation and invoice pages print both, and the quick view on the list shows
+the company with a "Kind attention" line under it. When the AI screen reads a
+company that is not in your customer list, the "+ New" box opens pre-filled
+with that company name and the contact person, so the company is never saved
+under the contact's name by mistake.
+
 ### Quotations
 
 Quotations are sales documents of their own: they get `QT-` numbers, print with

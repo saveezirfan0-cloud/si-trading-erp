@@ -338,7 +338,15 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
         </div>
       </div>
 
-      <QuickAddCustomer open={showQuickCustomer} onClose={() => setShowQuickCustomer(false)} onCreated={handleCustomerCreated} />
+      <QuickAddCustomer
+        open={showQuickCustomer}
+        onClose={() => setShowQuickCustomer(false)}
+        onCreated={handleCustomerCreated}
+        initial={{
+          name: form.customerName || '', contactPerson: form.attention || '',
+          phone: form.customerPhone || '', address: form.customerAddress || '',
+        }}
+      />
     </>
   );
 }
