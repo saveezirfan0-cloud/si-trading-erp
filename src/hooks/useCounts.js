@@ -9,6 +9,11 @@ const TABLES = [
   COLLECTIONS.PAYMENTS, COLLECTIONS.EXPENSES,
 ];
 
+// Quotations live in the sales table but have their own page, so they are
+// counted separately and taken back off the invoice badge. Anything without a
+// docType is an invoice: the field arrived after these records did.
+export const QUOTATIONS_COUNT = 'quotations';
+
 export default function useCounts() {
   const [counts, setCounts] = useState({});
 
@@ -25,7 +30,21 @@ export default function useCounts() {
           .filter('doc->>deletedAt', 'is', null);
         return [t, count ?? 0];
       }));
-      if (!cancelled) setCounts(Object.fromEntries(entries));
+      const byTable = Object.fromEntries(entries);
+
+      const { count: quotes } = await supabase
+        .from(COLLECTIONS.SALES_INVOICES).select('id', { count: 'exact', head: true })
+        .filter('doc->>deletedAt', 'is', null)
+        .filter('doc->>docType', 'eq', 'quotation');
+      const quotations = quotes ?? 0;
+
+      if (!cancelled) setCounts({
+        ...byTable,
+        [QUOTATIONS_COUNT]: quotations,
+        // Counting the quotations off rather than filtering them out avoids
+        // relying on how a null docType compares in Postgres.
+        [COLLECTIONS.SALES_INVOICES]: Math.max(0, (byTable[COLLECTIONS.SALES_INVOICES] || 0) - quotations),
+      });
     };
     fetchCounts();
 

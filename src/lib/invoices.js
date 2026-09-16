@@ -327,10 +327,17 @@ export const summarise = (allRows = []) => {
   const rows = activeInvoices(allRows);
   const today = todayISO();
   let total = 0, paid = 0, due = 0, overdueAmount = 0, overdueCount = 0, withAttachment = 0;
-  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0, quotations = 0, quotedAmount = 0;
+  let provisionalCount = 0, awaitingCount = 0, awaitingAmount = 0;
+  let quotations = 0, quotedAmount = 0, converted = 0, convertedAmount = 0;
   rows.forEach((inv) => {
     if (hasAttachment(inv)) withAttachment += 1;
-    if (isQuotation(inv)) { quotations += 1; quotedAmount += invoiceTotal(inv); return; }
+    if (isQuotation(inv)) {
+      quotations += 1;
+      quotedAmount += invoiceTotal(inv);
+      // An offer the customer accepted, now raised as an invoice of its own.
+      if (inv.convertedToId) { converted += 1; convertedAmount += invoiceTotal(inv); }
+      return;
+    }
     if (isProvisional(inv.status)) {
       provisionalCount += 1;
       if (needsApproval(inv.status)) { awaitingCount += 1; awaitingAmount += invoiceTotal(inv); }
@@ -344,7 +351,8 @@ export const summarise = (allRows = []) => {
   });
   return {
     count: rows.length, total, paid, due, overdueAmount, overdueCount, withAttachment,
-    provisionalCount, awaitingCount, awaitingAmount, quotations, quotedAmount,
+    provisionalCount, awaitingCount, awaitingAmount,
+    quotations, quotedAmount, converted, convertedAmount,
     duplicates: allRows.length - rows.length,
   };
 };

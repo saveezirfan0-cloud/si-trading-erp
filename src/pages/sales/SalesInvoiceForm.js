@@ -24,7 +24,7 @@ const CUSTOMER_FIELDS = ['name', 'company', 'phone', 'city', 'email'];
 // review and create. `onSaved` runs after a save (default: `onBack`), and
 // `notice` is rendered above the form — the AI screen uses it to say what it
 // read and what needs checking.
-export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, notice }) {
+export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, notice, defaultDocType = 'invoice' }) {
   const { formatCurrency } = useApp();
   const [customers, setCustomers] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -35,12 +35,12 @@ export default function SalesInvoiceForm({ invoice, onBack, onPreview, onSaved, 
   const [showQuickCustomer, setShowQuickCustomer] = useState(false);
 
   const [form, setForm] = useState({
-    docType: 'invoice',
+    docType: defaultDocType,
     invoiceNo: '', date: new Date().toISOString().split('T')[0],
     dueDate: '', customerId: '', customerName: '', customerCompany: '', customerAddress: '', customerPhone: '',
     attention: '', reference: '',
     status: 'unpaid', paymentMethod: '',
-    notes: '', terms: DEFAULT_TERMS.invoice,
+    notes: '', terms: DEFAULT_TERMS[defaultDocType] || DEFAULT_TERMS.invoice,
     items: [{ ...EMPTY_LINE }],
     subtotal: 0, discountAmount: 0, taxAmount: 0, total: 0, paidAmount: 0, currency: 'PKR',
   });

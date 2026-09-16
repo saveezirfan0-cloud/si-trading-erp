@@ -1,4 +1,9 @@
-// src/pages/sales/SalesInvoices.js
+// src/pages/sales/Quotations.js
+//
+// Quotations have their own section: they share the sales table with the
+// invoices but they are offers, not sales, so mixing them into the invoice
+// list put documents that owe nothing beside documents that do. This page is
+// the same list, form and print view scoped to `docType: 'quotation'`.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
@@ -10,26 +15,24 @@ import InvoiceListView from '../../components/invoices/InvoiceListView';
 import SalesInvoiceForm from './SalesInvoiceForm';
 import SalesInvoiceView from './SalesInvoiceView';
 
-export default function SalesInvoices() {
+export default function Quotations() {
   const navigate = useNavigate();
   const { can } = useAuth();
   const [view, setView] = useState('list');
   const [selected, setSelected] = useState(null);
 
-  // An approval or an attachment saved from the detail view changes the record
-  // underneath it, so pull the row back rather than leaving the snapshot the
-  // list handed over.
   const refreshSelected = async () => {
     if (!selected?.id) return;
     try {
       const fresh = await getOne(COLLECTIONS.SALES_INVOICES, selected.id);
       if (fresh) setSelected(fresh);
-    } catch (e) { console.warn('could not refresh the invoice', e); }
+    } catch (e) { console.warn('could not refresh the quotation', e); }
   };
 
   if (view === 'form') return (
     <SalesInvoiceForm
       invoice={selected}
+      defaultDocType="quotation"
       onBack={() => { setView('list'); setSelected(null); }}
       onPreview={(data) => { setSelected(data); setView('preview'); }}
     />
@@ -40,32 +43,28 @@ export default function SalesInvoices() {
       onBack={() => { setView('list'); setSelected(null); }}
       onEdit={() => setView('form')}
       onChanged={refreshSelected}
-      // A quotation just turned into an invoice: show the invoice.
-      onConverted={async (id) => {
-        try {
-          const fresh = await getOne(COLLECTIONS.SALES_INVOICES, id);
-          if (fresh) setSelected(fresh);
-        } catch (e) { console.warn('could not open the new invoice', e); }
-      }}
+      // Accepted: the invoice it became belongs on the invoice list.
+      onConverted={() => navigate('/sales')}
     />
   );
 
   return (
     <>
-      <Header title="Sales Invoices" />
+      <Header title="Quotations" />
       <div className="page-pad" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <InvoiceListView
           kind="sales"
-          docType="invoice"
+          docType="quotation"
+          noun="quotation"
           collection={COLLECTIONS.SALES_INVOICES}
-          title="Sales Invoices"
+          title="Quotations"
           partyField="customerName"
           partyLabel="Customer"
-          accent="var(--accent)"
-          badgeColor="blue"
-          totalLabel="Total Revenue"
-          newLabel="New Invoice"
-          exportName="sales_invoices"
+          accent="var(--purple)"
+          badgeColor="purple"
+          totalLabel="Total Quoted"
+          newLabel="New Quotation"
+          exportName="quotations"
           extraActions={can('sales', 'create') ? [
             <Btn key="ai" variant="secondary" icon={Sparkles} onClick={() => navigate('/sales/ai')}>AI Invoice / Quote</Btn>,
           ] : []}

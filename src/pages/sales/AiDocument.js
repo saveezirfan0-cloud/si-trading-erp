@@ -125,7 +125,7 @@ export default function AiDocument() {
       <SalesInvoiceForm
         invoice={result.draft}
         onBack={() => setResult(null)}
-        onSaved={() => navigate('/sales')}
+        onSaved={() => navigate(result.draft.docType === 'quotation' ? '/sales/quotations' : '/sales')}
         notice={<Notice draft={result.draft} warnings={result.warnings} provider={result.provider} onRestart={() => setResult(null)} />}
       />
     );

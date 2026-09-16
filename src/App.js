@@ -19,6 +19,7 @@ import Warehouses from './pages/warehouses/Warehouses';
 import SalesInvoices from './pages/sales/SalesInvoices';
 import QuickInvoice from './pages/sales/QuickInvoice';
 import AiDocument from './pages/sales/AiDocument';
+import Quotations from './pages/sales/Quotations';
 import PurchaseInvoices from './pages/purchases/PurchaseInvoices';
 import ScanInvoice from './pages/purchases/ScanInvoice';
 import ChartOfAccounts from './pages/accounting/ChartOfAccounts';
@@ -137,6 +138,7 @@ function AppRoutes() {
               <Route path="/warehouses" element={<Require module="warehouses"><Warehouses /></Require>} />
               <Route path="/sales" element={<Require module="sales"><SalesInvoices /></Require>} />
               <Route path="/sales/quick" element={<Require module="sales"><QuickInvoice /></Require>} />
+              <Route path="/sales/quotations" element={<Require module="sales"><Quotations /></Require>} />
               <Route path="/sales/ai" element={<Require module="sales"><AiDocument /></Require>} />
               <Route path="/purchases" element={<Require module="purchases"><PurchaseInvoices /></Require>} />
               <Route path="/purchases/scan" element={<Require module="scan"><ScanInvoice /></Require>} />

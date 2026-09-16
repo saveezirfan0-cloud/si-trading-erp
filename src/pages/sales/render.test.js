@@ -9,6 +9,8 @@ import { AppProvider } from '../../contexts/AppContext';
 import AiDocument from './AiDocument';
 import SalesInvoiceForm from './SalesInvoiceForm';
 import SalesInvoiceView from './SalesInvoiceView';
+import SalesInvoices from './SalesInvoices';
+import Quotations from './Quotations';
 
 // jest.mock is hoisted above the imports, so the pages get the mocks.
 jest.mock('../../lib/supabase', () => {
@@ -46,7 +48,19 @@ jest.mock('../../lib/db', () => {
       { id: 'c2', name: 'Mr. Zaheer', company: 'ARY Laguna', phone: '021-9' },
     ],
     erp_inventory: [{ id: 'i1', code: 'HP1300', name: 'Makita Demolition Hammer HP1300-DH', unit: 'pcs', salePrice: 22500 }],
-    erp_sales_invoices: [{ id: 's1', invoiceNo: 'SI-0007' }, { id: 'q1', invoiceNo: 'QT-0002', docType: 'quotation' }],
+    erp_sales_invoices: [
+      {
+        id: 's1', invoiceNo: 'SI-0007', date: '2026-09-10', status: 'unpaid',
+        customerName: 'Ali Hardware', items: [{ itemName: 'Drill', qty: 1, unitPrice: 5000, total: 5000 }],
+        subtotal: 5000, total: 5000, paidAmount: 0,
+      },
+      {
+        id: 'q1', invoiceNo: 'QT-0002', docType: 'quotation', date: '2026-09-12', status: 'draft',
+        customerName: 'Mr. Zaheer', customerCompany: 'ARY Laguna', attention: 'Mr Zaheer',
+        items: [{ itemName: 'Demolition Hammer', qty: 4, unitPrice: 23000, total: 92000 }],
+        subtotal: 92000, total: 92000, paidAmount: 0,
+      },
+    ],
   };
   return {
     COLLECTIONS,
@@ -54,6 +68,8 @@ jest.mock('../../lib/db', () => {
     getOne: async () => null,
     create: async () => 'new-id',
     update: async () => {},
+    remove: async () => {},
+    subscribe: (col, cb) => { cb(rows[col] || []); return () => {}; },
   };
 });
 
@@ -196,4 +212,29 @@ test('a quotation form offers no payment, an invoice does', async () => {
   expect(bill.host.innerHTML).toContain('Mark as Paid');
   expect(bill.host.innerHTML).toContain('Amount Paid');
   bill.unmount();
+});
+
+test('the two sections keep invoices and quotations apart', async () => {
+  const quotes = mount(<Quotations />);
+  await flush();
+  const qHtml = quotes.host.innerHTML;
+  expect(qHtml).toContain('QT-0002');
+  expect(qHtml).not.toContain('SI-0007');
+  // A quotation is measured by what was offered, not by revenue owed.
+  expect(qHtml).toContain('Total Quoted');
+  expect(qHtml).toContain('Converted to invoice');
+  expect(qHtml).not.toContain('Outstanding');
+  expect(qHtml).toContain('1 of 1 quotation');
+  // The company heads the row, with the person under it.
+  expect(qHtml).toContain('ARY Laguna');
+  quotes.unmount();
+
+  const bills = mount(<SalesInvoices />);
+  await flush();
+  const iHtml = bills.host.innerHTML;
+  expect(iHtml).toContain('SI-0007');
+  expect(iHtml).not.toContain('QT-0002');
+  expect(iHtml).toContain('Total Revenue');
+  expect(iHtml).toContain('1 of 1 invoice');
+  bills.unmount();
 });
